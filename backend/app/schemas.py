@@ -19,3 +19,21 @@ class BowlResponse(BaseModel):
     color: str | None
     notes: str | None
     created_at: datetime
+
+
+class FoodCreate(BaseModel):
+    name: str
+    brand: str | None = None
+    calories_per_gram: float
+    notes: str | None = None
+
+
+class FoodResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    brand: str | None
+    calories_per_gram: float
+    notes: str | None
+    created_at: datetime
