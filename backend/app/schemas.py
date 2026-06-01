@@ -37,3 +37,28 @@ class FoodResponse(BaseModel):
     calories_per_gram: float
     notes: str | None
     created_at: datetime
+
+
+class FoodEntryCreate(BaseModel):
+    bowl_id: int
+    food_id: int
+    starting_total_weight_grams: float
+    ending_total_weight_grams: float
+    notes: str | None = None
+
+
+class FoodEntryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    entry_time: datetime
+    bowl_id: int
+    food_id: int
+    starting_total_weight_grams: float
+    ending_total_weight_grams: float
+    starting_food_weight_grams: float
+    leftover_food_weight_grams: float
+    food_eaten_grams: float
+    calories_eaten: float
+    notes: str | None
+    created_at: datetime
