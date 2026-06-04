@@ -78,5 +78,11 @@ class FoodEntryResponse(BaseModel):
     leftover_food_weight_grams: float
     food_eaten_grams: float
     calories_eaten: float
+    protein_consumed_grams: float
+    fat_consumed_grams: float
+    phosphorus_consumed_mg: float
+    sodium_consumed_mg: float
+    moisture_consumed_grams: float
+    dry_matter_consumed_grams: float
     notes: str | None
     created_at: datetime

@@ -57,6 +57,12 @@ class FoodEntry(Base):
     leftover_food_weight_grams = Column(Float, nullable=False)
     food_eaten_grams = Column(Float, nullable=False)
     calories_eaten = Column(Float, nullable=False)
+    protein_consumed_grams = Column(Float, nullable=False)
+    fat_consumed_grams = Column(Float, nullable=False)
+    phosphorus_consumed_mg = Column(Float, nullable=False)
+    sodium_consumed_mg = Column(Float, nullable=False)
+    moisture_consumed_grams = Column(Float, nullable=False)
+    dry_matter_consumed_grams = Column(Float, nullable=False)
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 

@@ -54,6 +54,22 @@ def create_food_entry(
     )
     food_eaten_grams = starting_food_weight_grams - leftover_food_weight_grams
     calories_eaten = food_eaten_grams * db_food.calories_per_gram
+    protein_consumed_grams = food_eaten_grams * (
+        db_food.protein_as_fed_percent / 100
+    )
+    fat_consumed_grams = food_eaten_grams * (db_food.fat_as_fed_percent / 100)
+    phosphorus_consumed_mg = (
+        food_eaten_grams * (db_food.phosphorus_as_fed_percent / 100) * 1000
+    )
+    sodium_consumed_mg = (
+        food_eaten_grams * (db_food.sodium_as_fed_percent / 100) * 1000
+    )
+    moisture_consumed_grams = food_eaten_grams * (
+        db_food.moisture_percent / 100
+    )
+    dry_matter_consumed_grams = food_eaten_grams * (
+        db_food.dry_matter_percent / 100
+    )
 
     db_food_entry = models.FoodEntry(
         entry_time=datetime.utcnow(),
@@ -65,6 +81,12 @@ def create_food_entry(
         leftover_food_weight_grams=leftover_food_weight_grams,
         food_eaten_grams=food_eaten_grams,
         calories_eaten=calories_eaten,
+        protein_consumed_grams=protein_consumed_grams,
+        fat_consumed_grams=fat_consumed_grams,
+        phosphorus_consumed_mg=phosphorus_consumed_mg,
+        sodium_consumed_mg=sodium_consumed_mg,
+        moisture_consumed_grams=moisture_consumed_grams,
+        dry_matter_consumed_grams=dry_matter_consumed_grams,
         notes=food_entry.notes,
     )
 
