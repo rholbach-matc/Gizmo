@@ -25,7 +25,13 @@ class Food(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     brand = Column(String, nullable=True)
+    serving_size_grams = Column(Float, nullable=False)
+    calories_per_serving = Column(Float, nullable=False)
     calories_per_gram = Column(Float, nullable=False)
+    phosphorus_mg_per_serving = Column(Float, nullable=True)
+    phosphorus_mg_per_gram = Column(Float, nullable=True)
+    protein_grams_per_serving = Column(Float, nullable=True)
+    protein_grams_per_gram = Column(Float, nullable=True)
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
