@@ -6,7 +6,13 @@ function FoodsPage() {
   const [foods, setFoods] = useState<Food[]>([]);
   const [name, setName] = useState("");
   const [brand, setBrand] = useState("");
-  const [caloriesPerGram, setCaloriesPerGram] = useState("");
+  const [canSize, setCanSize] = useState("");
+  const [caloriesPerCan, setCaloriesPerCan] = useState("");
+  const [moisture, setMoisture] = useState("");
+  const [protein, setProtein] = useState("");
+  const [fat, setFat] = useState("");
+  const [phosphorus, setPhosphorus] = useState("");
+  const [sodium, setSodium] = useState("");
   const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -41,14 +47,26 @@ function FoodsPage() {
       const newFood = await createFood({
         name,
         brand: brand.trim() || null,
-        calories_per_gram: Number(caloriesPerGram),
+        can_size_grams: Number(canSize),
+        calories_per_can: Number(caloriesPerCan),
+        moisture_percent: Number(moisture),
+        protein_as_fed_percent: Number(protein),
+        fat_as_fed_percent: Number(fat),
+        phosphorus_as_fed_percent: Number(phosphorus),
+        sodium_as_fed_percent: Number(sodium),
         notes: notes.trim() || null,
       });
 
       setFoods((currentFoods) => [...currentFoods, newFood]);
       setName("");
       setBrand("");
-      setCaloriesPerGram("");
+      setCanSize("");
+      setCaloriesPerCan("");
+      setMoisture("");
+      setProtein("");
+      setFat("");
+      setPhosphorus("");
+      setSodium("");
       setNotes("");
     } catch (caughtError) {
       setError(
@@ -106,18 +124,103 @@ function FoodsPage() {
             />
           </label>
 
+          <div className="form-row">
+            <label>
+              Can size grams
+              <input
+                required
+                min="0"
+                step="0.1"
+                type="number"
+                value={canSize}
+                onChange={(event) => setCanSize(event.target.value)}
+                placeholder="156"
+              />
+            </label>
+
+            <label>
+              Calories per can
+              <input
+                required
+                min="0"
+                step="0.1"
+                type="number"
+                value={caloriesPerCan}
+                onChange={(event) => setCaloriesPerCan(event.target.value)}
+                placeholder="180"
+              />
+            </label>
+          </div>
+
           <label>
-            Calories per gram
+            Moisture percent
             <input
               required
               min="0"
-              step="0.01"
+              max="99.9"
+              step="0.1"
               type="number"
-              value={caloriesPerGram}
-              onChange={(event) => setCaloriesPerGram(event.target.value)}
-              placeholder="1.25"
+              value={moisture}
+              onChange={(event) => setMoisture(event.target.value)}
+              placeholder="78"
             />
           </label>
+
+          <div className="form-row">
+            <label>
+              Protein as-fed percent
+              <input
+                required
+                min="0"
+                step="0.01"
+                type="number"
+                value={protein}
+                onChange={(event) => setProtein(event.target.value)}
+                placeholder="10"
+              />
+            </label>
+
+            <label>
+              Fat as-fed percent
+              <input
+                required
+                min="0"
+                step="0.01"
+                type="number"
+                value={fat}
+                onChange={(event) => setFat(event.target.value)}
+                placeholder="5"
+              />
+            </label>
+          </div>
+
+          <div className="form-row">
+            <label>
+              Phosphorus as-fed percent
+              <input
+                required
+                min="0"
+                step="0.01"
+                type="number"
+                value={phosphorus}
+                onChange={(event) => setPhosphorus(event.target.value)}
+                placeholder="0.2"
+              />
+            </label>
+
+            <label>
+              Sodium as-fed percent
+              <input
+                required
+                min="0"
+                step="0.01"
+                type="number"
+                value={sodium}
+                onChange={(event) => setSodium(event.target.value)}
+                placeholder="0.08"
+              />
+            </label>
+          </div>
 
           <label>
             Notes
@@ -154,6 +257,8 @@ function FoodsPage() {
                 </div>
 
                 {food.brand ? <p>Brand: {food.brand}</p> : null}
+                <p>{food.protein_dry_matter_percent}% protein dry matter</p>
+                <p>{food.phosphorus_dry_matter_percent}% phosphorus dry matter</p>
                 {food.notes ? <p>{food.notes}</p> : null}
 
                 <button type="button" onClick={() => handleDelete(food.id)}>
