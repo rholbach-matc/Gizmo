@@ -24,10 +24,13 @@ class BowlResponse(BaseModel):
 class FoodCreate(BaseModel):
     name: str
     brand: str | None = None
-    serving_size_grams: float
-    calories_per_serving: float
-    phosphorus_mg_per_serving: float | None = None
-    protein_grams_per_serving: float | None = None
+    can_size_grams: float
+    calories_per_can: float
+    moisture_percent: float
+    protein_as_fed_percent: float
+    fat_as_fed_percent: float
+    phosphorus_as_fed_percent: float
+    sodium_as_fed_percent: float
     notes: str | None = None
 
 
@@ -37,13 +40,19 @@ class FoodResponse(BaseModel):
     id: int
     name: str
     brand: str | None
-    serving_size_grams: float
-    calories_per_serving: float
+    can_size_grams: float
+    calories_per_can: float
     calories_per_gram: float
-    phosphorus_mg_per_serving: float | None
-    phosphorus_mg_per_gram: float | None
-    protein_grams_per_serving: float | None
-    protein_grams_per_gram: float | None
+    moisture_percent: float
+    dry_matter_percent: float
+    protein_as_fed_percent: float
+    protein_dry_matter_percent: float
+    fat_as_fed_percent: float
+    fat_dry_matter_percent: float
+    phosphorus_as_fed_percent: float
+    phosphorus_dry_matter_percent: float
+    sodium_as_fed_percent: float
+    sodium_dry_matter_percent: float
     notes: str | None
     created_at: datetime
 

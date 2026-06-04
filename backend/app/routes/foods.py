@@ -17,60 +17,77 @@ def get_db():
 
 @router.post("", response_model=schemas.FoodResponse, status_code=status.HTTP_201_CREATED)
 def create_food(food: schemas.FoodCreate, db: Session = Depends(get_db)):
-    if food.serving_size_grams <= 0:
+    if food.can_size_grams <= 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Serving size must be greater than 0",
+            detail="Can size must be greater than 0",
         )
 
-    if food.calories_per_serving <= 0:
+    if food.calories_per_can <= 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Calories per serving must be greater than 0",
+            detail="Calories per can must be greater than 0",
         )
 
-    if (
-        food.phosphorus_mg_per_serving is not None
-        and food.phosphorus_mg_per_serving < 0
-    ):
+    if food.moisture_percent < 0 or food.moisture_percent >= 100:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Phosphorus per serving cannot be negative",
+            detail="Moisture percent must be at least 0 and less than 100",
         )
 
-    if (
-        food.protein_grams_per_serving is not None
-        and food.protein_grams_per_serving < 0
-    ):
+    if food.protein_as_fed_percent < 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Protein per serving cannot be negative",
+            detail="Protein as-fed percent cannot be negative",
         )
 
-    calories_per_gram = food.calories_per_serving / food.serving_size_grams
-    phosphorus_mg_per_gram = None
-    protein_grams_per_gram = None
-
-    if food.phosphorus_mg_per_serving is not None:
-        phosphorus_mg_per_gram = (
-            food.phosphorus_mg_per_serving / food.serving_size_grams
+    if food.fat_as_fed_percent < 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Fat as-fed percent cannot be negative",
         )
 
-    if food.protein_grams_per_serving is not None:
-        protein_grams_per_gram = (
-            food.protein_grams_per_serving / food.serving_size_grams
+    if food.phosphorus_as_fed_percent < 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Phosphorus as-fed percent cannot be negative",
         )
+
+    if food.sodium_as_fed_percent < 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Sodium as-fed percent cannot be negative",
+        )
+
+    calories_per_gram = food.calories_per_can / food.can_size_grams
+    dry_matter_percent = 100 - food.moisture_percent
+    protein_dry_matter_percent = (
+        food.protein_as_fed_percent / dry_matter_percent * 100
+    )
+    fat_dry_matter_percent = food.fat_as_fed_percent / dry_matter_percent * 100
+    phosphorus_dry_matter_percent = (
+        food.phosphorus_as_fed_percent / dry_matter_percent * 100
+    )
+    sodium_dry_matter_percent = (
+        food.sodium_as_fed_percent / dry_matter_percent * 100
+    )
 
     db_food = models.Food(
         name=food.name,
         brand=food.brand,
-        serving_size_grams=food.serving_size_grams,
-        calories_per_serving=food.calories_per_serving,
+        can_size_grams=food.can_size_grams,
+        calories_per_can=food.calories_per_can,
         calories_per_gram=calories_per_gram,
-        phosphorus_mg_per_serving=food.phosphorus_mg_per_serving,
-        phosphorus_mg_per_gram=phosphorus_mg_per_gram,
-        protein_grams_per_serving=food.protein_grams_per_serving,
-        protein_grams_per_gram=protein_grams_per_gram,
+        moisture_percent=food.moisture_percent,
+        dry_matter_percent=dry_matter_percent,
+        protein_as_fed_percent=food.protein_as_fed_percent,
+        protein_dry_matter_percent=protein_dry_matter_percent,
+        fat_as_fed_percent=food.fat_as_fed_percent,
+        fat_dry_matter_percent=fat_dry_matter_percent,
+        phosphorus_as_fed_percent=food.phosphorus_as_fed_percent,
+        phosphorus_dry_matter_percent=phosphorus_dry_matter_percent,
+        sodium_as_fed_percent=food.sodium_as_fed_percent,
+        sodium_dry_matter_percent=sodium_dry_matter_percent,
         notes=food.notes,
     )
 
