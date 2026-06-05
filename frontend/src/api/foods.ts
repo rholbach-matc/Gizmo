@@ -4,7 +4,19 @@ export type Food = {
   id: number;
   name: string;
   brand: string | null;
+  can_size_grams: number;
+  calories_per_can: number;
   calories_per_gram: number;
+  moisture_percent: number;
+  dry_matter_percent: number;
+  protein_as_fed_percent: number;
+  protein_dry_matter_percent: number;
+  fat_as_fed_percent: number;
+  fat_dry_matter_percent: number;
+  phosphorus_as_fed_percent: number;
+  phosphorus_dry_matter_percent: number;
+  sodium_as_fed_percent: number;
+  sodium_dry_matter_percent: number;
   notes: string | null;
   created_at: string;
 };
@@ -12,7 +24,13 @@ export type Food = {
 export type FoodCreate = {
   name: string;
   brand?: string | null;
-  calories_per_gram: number;
+  can_size_grams: number;
+  calories_per_can: number;
+  moisture_percent: number;
+  protein_as_fed_percent: number;
+  fat_as_fed_percent: number;
+  phosphorus_as_fed_percent: number;
+  sodium_as_fed_percent: number;
   notes?: string | null;
 };
 
