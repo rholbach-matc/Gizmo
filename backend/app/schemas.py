@@ -151,6 +151,60 @@ class DrinkingWaterEntryResponse(BaseModel):
     created_at: datetime
 
 
+class EpisodeEntryCreate(BaseModel):
+    entry_time: datetime | None = None
+    severity: str | None = None
+    notes: str | None = None
+
+
+class EpisodeEntryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    entry_time: datetime
+    severity: str | None
+    notes: str | None
+    created_at: datetime
+
+
+class MedicationEntryCreate(BaseModel):
+    entry_time: datetime | None = None
+    medication_name: str
+    dose: str | None = None
+    notes: str | None = None
+
+
+class MedicationEntryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    entry_time: datetime
+    medication_name: str
+    dose: str | None
+    notes: str | None
+    created_at: datetime
+
+
+class VetVisitEntryCreate(BaseModel):
+    entry_time: datetime | None = None
+    reason: str | None = None
+    summary: str | None = None
+    follow_up_needed: bool | None = None
+    notes: str | None = None
+
+
+class VetVisitEntryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    entry_time: datetime
+    reason: str | None
+    summary: str | None
+    follow_up_needed: bool | None
+    notes: str | None
+    created_at: datetime
+
+
 class DashboardActivityItem(BaseModel):
     type: str
     entry_time: datetime

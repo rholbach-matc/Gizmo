@@ -107,3 +107,36 @@ class DrinkingWaterEntry(Base):
     entry_time = Column(DateTime, nullable=False)
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class EpisodeEntry(Base):
+    __tablename__ = "episode_entries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    entry_time = Column(DateTime, nullable=False)
+    severity = Column(String, nullable=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class MedicationEntry(Base):
+    __tablename__ = "medication_entries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    entry_time = Column(DateTime, nullable=False)
+    medication_name = Column(String, nullable=False)
+    dose = Column(String, nullable=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class VetVisitEntry(Base):
+    __tablename__ = "vet_visit_entries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    entry_time = Column(DateTime, nullable=False)
+    reason = Column(String, nullable=True)
+    summary = Column(Text, nullable=True)
+    follow_up_needed = Column(Boolean, nullable=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

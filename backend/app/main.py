@@ -8,9 +8,12 @@ from app.routes import (
     bm_entries,
     bowls,
     dashboard,
+    episode_entries,
     fluid_entries,
     food_entries,
     foods,
+    medication_entries,
+    vet_visit_entries,
     water_entries,
     weight_entries,
 )
@@ -43,8 +46,11 @@ def health_check():
 app.include_router(bowls.router)
 app.include_router(bm_entries.router)
 app.include_router(dashboard.router)
+app.include_router(episode_entries.router)
 app.include_router(fluid_entries.router)
 app.include_router(food_entries.router)
 app.include_router(foods.router)
+app.include_router(medication_entries.router)
+app.include_router(vet_visit_entries.router)
 app.include_router(water_entries.router)
 app.include_router(weight_entries.router)

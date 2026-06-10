@@ -3,15 +3,21 @@ import { useState } from "react";
 import BMTrackerPage from "./pages/BMTrackerPage";
 import BowlsPage from "./pages/BowlsPage";
 import DashboardPage from "./pages/DashboardPage";
+import EpisodesPage from "./pages/EpisodesPage";
 import FoodEntriesPage from "./pages/FoodEntriesPage";
 import FoodsPage from "./pages/FoodsPage";
 import FluidsTrackerPage from "./pages/FluidsTrackerPage";
 import HydrationPage from "./pages/HydrationPage";
+import MedicationsPage from "./pages/MedicationsPage";
+import VetVisitsPage from "./pages/VetVisitsPage";
 import WeightTrackerPage from "./pages/WeightTrackerPage";
 
 type Page =
   | "dashboard"
   | "foodEntries"
+  | "episodes"
+  | "medications"
+  | "vetVisits"
   | "bmTracker"
   | "fluidsTracker"
   | "hydration"
@@ -38,6 +44,27 @@ function App() {
           onClick={() => setCurrentPage("foodEntries")}
         >
           Food Entries
+        </button>
+        <button
+          type="button"
+          className={currentPage === "episodes" ? "active" : ""}
+          onClick={() => setCurrentPage("episodes")}
+        >
+          Episodes
+        </button>
+        <button
+          type="button"
+          className={currentPage === "medications" ? "active" : ""}
+          onClick={() => setCurrentPage("medications")}
+        >
+          Medications
+        </button>
+        <button
+          type="button"
+          className={currentPage === "vetVisits" ? "active" : ""}
+          onClick={() => setCurrentPage("vetVisits")}
+        >
+          Vet Visits
         </button>
         <button
           type="button"
@@ -85,6 +112,9 @@ function App() {
 
       {currentPage === "dashboard" ? <DashboardPage /> : null}
       {currentPage === "foodEntries" ? <FoodEntriesPage /> : null}
+      {currentPage === "episodes" ? <EpisodesPage /> : null}
+      {currentPage === "medications" ? <MedicationsPage /> : null}
+      {currentPage === "vetVisits" ? <VetVisitsPage /> : null}
       {currentPage === "bmTracker" ? <BMTrackerPage /> : null}
       {currentPage === "fluidsTracker" ? <FluidsTrackerPage /> : null}
       {currentPage === "hydration" ? <HydrationPage /> : null}
