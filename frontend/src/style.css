@@ -149,6 +149,7 @@ p {
 .bowl-form,
 .food-form,
 .fluid-form,
+.weight-form,
 .bm-form,
 .entry-form {
   display: grid;
@@ -158,6 +159,7 @@ p {
 .bowl-form label,
 .food-form label,
 .fluid-form label,
+.weight-form label,
 .bm-form label,
 .entry-form label {
   display: grid;
@@ -173,6 +175,8 @@ p {
 .food-form textarea,
 .fluid-form input,
 .fluid-form textarea,
+.weight-form input,
+.weight-form textarea,
 .bm-form select,
 .bm-form textarea,
 .entry-form input,
@@ -189,6 +193,7 @@ p {
 .bowl-form textarea,
 .food-form textarea,
 .fluid-form textarea,
+.weight-form textarea,
 .bm-form textarea,
 .entry-form textarea {
   min-height: 96px;
@@ -236,6 +241,7 @@ p {
 .bowl-list,
 .food-list,
 .fluid-list,
+.weight-list,
 .bm-list,
 .entry-list {
   display: grid;
@@ -245,6 +251,7 @@ p {
 .bowl-card,
 .food-card,
 .fluid-card,
+.weight-card,
 .bm-card,
 .entry-card,
 .entry-result {
@@ -258,6 +265,7 @@ p {
 .bowl-card div,
 .food-card div,
 .fluid-card div,
+.weight-card div,
 .bm-card div,
 .entry-card div {
   display: flex;
@@ -269,6 +277,7 @@ p {
 .bowl-card h3,
 .food-card h3,
 .fluid-card h3,
+.weight-card h3,
 .bm-card h3,
 .entry-card h3,
 .entry-result h3 {
@@ -278,6 +287,7 @@ p {
 .bowl-card p,
 .food-card p,
 .fluid-card p,
+.weight-card p,
 .bm-card p,
 .entry-card p {
   color: #6c5c52;
@@ -287,6 +297,7 @@ p {
 .bowl-card button,
 .food-card button,
 .fluid-card button,
+.weight-card button,
 .bm-card button,
 .entry-card button {
   justify-self: start;

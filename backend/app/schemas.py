@@ -118,6 +118,21 @@ class FluidEntryResponse(BaseModel):
     created_at: datetime
 
 
+class WeightEntryCreate(BaseModel):
+    weight_lbs: float
+    notes: str | None = None
+
+
+class WeightEntryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    entry_time: datetime
+    weight_lbs: float
+    notes: str | None
+    created_at: datetime
+
+
 class TodayDashboardResponse(BaseModel):
     date: date
     feedings_count: int

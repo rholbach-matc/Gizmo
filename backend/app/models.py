@@ -88,3 +88,13 @@ class FluidEntry(Base):
     amount_ml = Column(Float, nullable=False)
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class WeightEntry(Base):
+    __tablename__ = "weight_entries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    entry_time = Column(DateTime, nullable=False)
+    weight_lbs = Column(Float, nullable=False)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
