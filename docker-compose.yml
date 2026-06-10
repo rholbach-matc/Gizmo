@@ -9,7 +9,7 @@ services:
       - gizmo-data:/data
     ports:
       # Expose the API directly on the LAN for health checks and smoke testing.
-      - "8000:8000"
+      - "8010:8000"
     restart: unless-stopped
 
   frontend:
@@ -19,7 +19,7 @@ services:
         VITE_API_BASE_URL: ""
     ports:
       # Expose the web app on the LAN at http://<gamehendge-ip>:3000.
-      - "3000:80"
+      - "3010:80"
     depends_on:
       - backend
     restart: unless-stopped
