@@ -6,10 +6,7 @@ import {
   deleteFluidEntry,
   getFluidEntries,
 } from "../api/fluidEntries";
-
-function formatTimestamp(value: string) {
-  return new Date(value).toLocaleString();
-}
+import { formatLocalTimestamp } from "../utils/dateTime";
 
 function FluidsTrackerPage() {
   const [fluidEntries, setFluidEntries] = useState<FluidEntry[]>([]);
@@ -143,7 +140,7 @@ function FluidsTrackerPage() {
             {fluidEntries.map((entry) => (
               <article className="fluid-card" key={entry.id}>
                 <div>
-                  <h3>{formatTimestamp(entry.entry_time)}</h3>
+                  <h3>{formatLocalTimestamp(entry.entry_time)}</h3>
                   <p>{entry.amount_ml} ml</p>
                 </div>
 

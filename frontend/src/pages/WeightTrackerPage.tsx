@@ -6,10 +6,7 @@ import {
   deleteWeightEntry,
   getWeightEntries,
 } from "../api/weightEntries";
-
-function formatTimestamp(value: string) {
-  return new Date(value).toLocaleString();
-}
+import { formatLocalTimestamp } from "../utils/dateTime";
 
 function WeightTrackerPage() {
   const [weightEntries, setWeightEntries] = useState<WeightEntry[]>([]);
@@ -143,7 +140,7 @@ function WeightTrackerPage() {
             {weightEntries.map((entry) => (
               <article className="weight-card" key={entry.id}>
                 <div>
-                  <h3>{formatTimestamp(entry.entry_time)}</h3>
+                  <h3>{formatLocalTimestamp(entry.entry_time)}</h3>
                   <p>{entry.weight_lbs} lbs</p>
                 </div>
 

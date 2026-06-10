@@ -6,10 +6,7 @@ import {
   deleteBMEntry,
   getBMEntries,
 } from "../api/bmEntries";
-
-function formatTimestamp(value: string) {
-  return new Date(value).toLocaleString();
-}
+import { formatLocalTimestamp } from "../utils/dateTime";
 
 function BMTrackerPage() {
   const [bmEntries, setBMEntries] = useState<BMEntry[]>([]);
@@ -142,7 +139,7 @@ function BMTrackerPage() {
             {bmEntries.map((entry) => (
               <article className="bm-card" key={entry.id}>
                 <div>
-                  <h3>{formatTimestamp(entry.entry_time)}</h3>
+                  <h3>{formatLocalTimestamp(entry.entry_time)}</h3>
                   <p>{entry.occurred ? "BM occurred" : "No BM"}</p>
                 </div>
 

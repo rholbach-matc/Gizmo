@@ -8,13 +8,10 @@ import {
   getFoodEntries,
 } from "../api/foodEntries";
 import { Food, getFoods } from "../api/foods";
+import { formatLocalTimestamp } from "../utils/dateTime";
 
 function formatNumber(value: number) {
   return Number(value.toFixed(2));
-}
-
-function formatTimestamp(value: string) {
-  return new Date(value).toLocaleString();
 }
 
 function FoodEntriesPage() {
@@ -263,7 +260,7 @@ function FoodEntriesPage() {
             {foodEntries.map((entry) => (
               <article className="entry-card" key={entry.id}>
                 <div>
-                  <h3>{formatTimestamp(entry.entry_time)}</h3>
+                  <h3>{formatLocalTimestamp(entry.entry_time)}</h3>
                   <p>{formatNumber(entry.food_eaten_grams)} g eaten</p>
                 </div>
 
