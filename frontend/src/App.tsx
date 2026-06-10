@@ -6,6 +6,7 @@ import DashboardPage from "./pages/DashboardPage";
 import FoodEntriesPage from "./pages/FoodEntriesPage";
 import FoodsPage from "./pages/FoodsPage";
 import FluidsTrackerPage from "./pages/FluidsTrackerPage";
+import HydrationPage from "./pages/HydrationPage";
 import WeightTrackerPage from "./pages/WeightTrackerPage";
 
 type Page =
@@ -13,6 +14,7 @@ type Page =
   | "foodEntries"
   | "bmTracker"
   | "fluidsTracker"
+  | "hydration"
   | "weightTracker"
   | "foods"
   | "bowls";
@@ -53,6 +55,13 @@ function App() {
         </button>
         <button
           type="button"
+          className={currentPage === "hydration" ? "active" : ""}
+          onClick={() => setCurrentPage("hydration")}
+        >
+          Hydration
+        </button>
+        <button
+          type="button"
           className={currentPage === "weightTracker" ? "active" : ""}
           onClick={() => setCurrentPage("weightTracker")}
         >
@@ -78,6 +87,7 @@ function App() {
       {currentPage === "foodEntries" ? <FoodEntriesPage /> : null}
       {currentPage === "bmTracker" ? <BMTrackerPage /> : null}
       {currentPage === "fluidsTracker" ? <FluidsTrackerPage /> : null}
+      {currentPage === "hydration" ? <HydrationPage /> : null}
       {currentPage === "weightTracker" ? <WeightTrackerPage /> : null}
       {currentPage === "foods" ? <FoodsPage /> : null}
       {currentPage === "bowls" ? <BowlsPage /> : null}

@@ -11,6 +11,7 @@ from app.routes import (
     fluid_entries,
     food_entries,
     foods,
+    water_entries,
     weight_entries,
 )
 
@@ -45,4 +46,5 @@ app.include_router(dashboard.router)
 app.include_router(fluid_entries.router)
 app.include_router(food_entries.router)
 app.include_router(foods.router)
+app.include_router(water_entries.router)
 app.include_router(weight_entries.router)
