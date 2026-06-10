@@ -5,8 +5,10 @@ services:
     environment:
       DATABASE_URL: sqlite:////data/gizmo.db
     volumes:
+      # Persist the SQLite database outside the backend container for LAN testing.
       - gizmo-data:/data
     ports:
+      # Expose the API directly on the LAN for health checks and smoke testing.
       - "8000:8000"
     restart: unless-stopped
 
@@ -16,10 +18,12 @@ services:
       args:
         VITE_API_BASE_URL: ""
     ports:
+      # Expose the web app on the LAN at http://<gamehendge-ip>:3000.
       - "3000:80"
     depends_on:
       - backend
     restart: unless-stopped
 
 volumes:
+  # Docker stores this named volume on the host; it contains /data/gizmo.db.
   gizmo-data:
