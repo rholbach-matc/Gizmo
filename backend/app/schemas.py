@@ -146,6 +146,13 @@ class DrinkingWaterEntryResponse(BaseModel):
     created_at: datetime
 
 
+class DashboardActivityItem(BaseModel):
+    type: str
+    entry_time: datetime
+    title: str
+    summary: str
+
+
 class TodayDashboardResponse(BaseModel):
     date: date
     feedings_count: int
@@ -157,3 +164,10 @@ class TodayDashboardResponse(BaseModel):
     sodium_consumed_mg: float
     moisture_consumed_grams: float
     dry_matter_consumed_grams: float
+    last_food_entry: FoodEntryResponse | None
+    last_bm_entry: BMEntryResponse | None
+    last_fluid_entry: FluidEntryResponse | None
+    latest_weight_entry: WeightEntryResponse | None
+    last_water_entry: DrinkingWaterEntryResponse | None
+    today_water_observation_count: int
+    recent_activity: list[DashboardActivityItem]

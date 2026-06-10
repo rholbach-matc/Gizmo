@@ -108,15 +108,75 @@ p {
   padding: 1.25rem;
 }
 
+.dashboard-shell,
 .dashboard-panel {
   display: grid;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .dashboard-grid {
   display: grid;
   gap: 0.85rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dashboard-hero,
+.dashboard-section {
+  background: #fffaf4;
+  border: 1px solid #ead9c7;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(80, 54, 35, 0.08);
+  padding: 1.25rem;
+}
+
+.dashboard-hero {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr minmax(180px, 240px);
+  align-items: center;
+  background: #fff5ea;
+}
+
+.dashboard-hero h2,
+.dashboard-section h2 {
+  font-size: 1.45rem;
+}
+
+.dashboard-hero p:not(.eyebrow) {
+  color: #6c5c52;
+  font-size: 1rem;
+  margin-top: 0.45rem;
+}
+
+.dashboard-hero-stat {
+  background: #6f4e37;
+  border-radius: 8px;
+  color: #fffaf4;
+  display: grid;
+  gap: 0.3rem;
+  min-height: 132px;
+  place-items: center;
+  padding: 1rem;
+  text-align: center;
+}
+
+.dashboard-hero-stat strong {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.dashboard-hero-stat span {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.dashboard-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.overview-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
 .dashboard-card {
@@ -144,6 +204,109 @@ p {
 .dashboard-card span {
   color: #6c5c52;
   font-size: 1rem;
+}
+
+.dashboard-card small {
+  color: #7a6a61;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.overview-card {
+  min-height: 132px;
+}
+
+.care-status-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.status-card {
+  background: #fff;
+  border: 1px solid #ead9c7;
+  border-left: 5px solid #9b5f3a;
+  border-radius: 8px;
+  display: grid;
+  gap: 0.55rem;
+  min-height: 148px;
+  padding: 1rem;
+}
+
+.status-card p {
+  color: #6c5c52;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.status-card strong {
+  color: #2f2926;
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+
+.status-card span {
+  color: #6c5c52;
+  font-size: 0.95rem;
+}
+
+.activity-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.activity-item {
+  background: #fff;
+  border: 1px solid #ead9c7;
+  border-radius: 8px;
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 14px 1fr;
+  padding: 0.9rem 1rem;
+}
+
+.activity-marker {
+  background: #9b5f3a;
+  border-radius: 999px;
+  height: 12px;
+  margin-top: 0.35rem;
+  width: 12px;
+}
+
+.activity-water .activity-marker {
+  background: #477f92;
+}
+
+.activity-fluids .activity-marker {
+  background: #5c8f78;
+}
+
+.activity-bm .activity-marker {
+  background: #8f6a3d;
+}
+
+.activity-weight .activity-marker {
+  background: #7d6fa3;
+}
+
+.activity-item p {
+  color: #6c5c52;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.activity-item h3 {
+  font-size: 1.1rem;
+  margin-top: 0.15rem;
+}
+
+.activity-item span {
+  color: #6c5c52;
+  display: inline-block;
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
 }
 
 .bowl-form,
@@ -367,6 +530,12 @@ p {
   }
 
   .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-hero,
+  .care-status-grid,
+  .overview-grid {
     grid-template-columns: 1fr;
   }
 
