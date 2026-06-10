@@ -103,6 +103,21 @@ class BMEntryResponse(BaseModel):
     created_at: datetime
 
 
+class FluidEntryCreate(BaseModel):
+    amount_ml: float
+    notes: str | None = None
+
+
+class FluidEntryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    entry_time: datetime
+    amount_ml: float
+    notes: str | None
+    created_at: datetime
+
+
 class TodayDashboardResponse(BaseModel):
     date: date
     feedings_count: int

@@ -5,8 +5,15 @@ import BowlsPage from "./pages/BowlsPage";
 import DashboardPage from "./pages/DashboardPage";
 import FoodEntriesPage from "./pages/FoodEntriesPage";
 import FoodsPage from "./pages/FoodsPage";
+import FluidsTrackerPage from "./pages/FluidsTrackerPage";
 
-type Page = "dashboard" | "foodEntries" | "bmTracker" | "foods" | "bowls";
+type Page =
+  | "dashboard"
+  | "foodEntries"
+  | "bmTracker"
+  | "fluidsTracker"
+  | "foods"
+  | "bowls";
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
@@ -37,6 +44,13 @@ function App() {
         </button>
         <button
           type="button"
+          className={currentPage === "fluidsTracker" ? "active" : ""}
+          onClick={() => setCurrentPage("fluidsTracker")}
+        >
+          Fluids Tracker
+        </button>
+        <button
+          type="button"
           className={currentPage === "foods" ? "active" : ""}
           onClick={() => setCurrentPage("foods")}
         >
@@ -54,6 +68,7 @@ function App() {
       {currentPage === "dashboard" ? <DashboardPage /> : null}
       {currentPage === "foodEntries" ? <FoodEntriesPage /> : null}
       {currentPage === "bmTracker" ? <BMTrackerPage /> : null}
+      {currentPage === "fluidsTracker" ? <FluidsTrackerPage /> : null}
       {currentPage === "foods" ? <FoodsPage /> : null}
       {currentPage === "bowls" ? <BowlsPage /> : null}
     </>

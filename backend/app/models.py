@@ -78,3 +78,13 @@ class BMEntry(Base):
     occurred = Column(Boolean, nullable=False)
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class FluidEntry(Base):
+    __tablename__ = "fluid_entries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    entry_time = Column(DateTime, nullable=False)
+    amount_ml = Column(Float, nullable=False)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
