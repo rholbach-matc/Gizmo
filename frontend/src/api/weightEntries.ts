@@ -9,6 +9,7 @@ export type WeightEntry = {
 };
 
 export type WeightEntryCreate = {
+  entry_time?: string;
   weight_lbs: number;
   notes?: string | null;
 };

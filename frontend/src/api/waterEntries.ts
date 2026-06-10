@@ -8,6 +8,7 @@ export type DrinkingWaterEntry = {
 };
 
 export type DrinkingWaterEntryCreate = {
+  entry_time?: string;
   notes?: string | null;
 };
 

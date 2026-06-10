@@ -84,6 +84,7 @@ p {
 
 .page-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin: 0 auto;
   padding: 1rem 2rem 0;
@@ -93,6 +94,8 @@ p {
 .page-tabs button {
   background: #ead9c7;
   color: #58483f;
+  flex: 0 1 auto;
+  white-space: nowrap;
 }
 
 .page-tabs button.active {
@@ -340,9 +343,11 @@ p {
 .food-form textarea,
 .fluid-form input,
 .fluid-form textarea,
+.water-form input,
 .water-form textarea,
 .weight-form input,
 .weight-form textarea,
+.bm-form input,
 .bm-form select,
 .bm-form textarea,
 .entry-form input,
@@ -519,6 +524,12 @@ p {
 
   .page-tabs {
     padding: 1rem 1rem 0;
+  }
+
+  .page-tabs button {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 0;
+    white-space: normal;
   }
 
   h1 {

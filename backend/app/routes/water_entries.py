@@ -1,10 +1,9 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.database import SessionLocal
+from app.time_utils import entry_time_or_now
 
 router = APIRouter(prefix="/water-entries", tags=["Water Entries"])
 
@@ -27,7 +26,7 @@ def create_water_entry(
     db: Session = Depends(get_db),
 ):
     db_water_entry = models.DrinkingWaterEntry(
-        entry_time=datetime.utcnow(),
+        entry_time=entry_time_or_now(water_entry.entry_time),
         notes=water_entry.notes,
     )
 

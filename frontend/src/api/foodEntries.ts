@@ -22,6 +22,7 @@ export type FoodEntry = {
 };
 
 export type FoodEntryCreate = {
+  entry_time?: string;
   bowl_id: number;
   food_id: number;
   starting_total_weight_grams: number;

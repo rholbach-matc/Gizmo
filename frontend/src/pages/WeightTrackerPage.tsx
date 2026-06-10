@@ -6,11 +6,16 @@ import {
   deleteWeightEntry,
   getWeightEntries,
 } from "../api/weightEntries";
-import { formatLocalTimestamp } from "../utils/dateTime";
+import {
+  formatLocalTimestamp,
+  optionalLocalDateTimeToISOString,
+  sortByEntryTimeDescending,
+} from "../utils/dateTime";
 
 function WeightTrackerPage() {
   const [weightEntries, setWeightEntries] = useState<WeightEntry[]>([]);
   const [weightLbs, setWeightLbs] = useState("");
+  const [entryTime, setEntryTime] = useState("");
   const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -21,7 +26,7 @@ function WeightTrackerPage() {
       setIsLoading(true);
       setError(null);
       const loadedWeightEntries = await getWeightEntries();
-      setWeightEntries(loadedWeightEntries);
+      setWeightEntries(sortByEntryTimeDescending(loadedWeightEntries));
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
@@ -45,15 +50,16 @@ function WeightTrackerPage() {
       setError(null);
 
       const newWeightEntry = await createWeightEntry({
+        entry_time: optionalLocalDateTimeToISOString(entryTime),
         weight_lbs: Number(weightLbs),
         notes: notes.trim() || null,
       });
 
-      setWeightEntries((currentWeightEntries) => [
-        newWeightEntry,
-        ...currentWeightEntries,
-      ]);
+      setWeightEntries((currentWeightEntries) =>
+        sortByEntryTimeDescending([newWeightEntry, ...currentWeightEntries]),
+      );
       setWeightLbs("");
+      setEntryTime("");
       setNotes("");
     } catch (caughtError) {
       setError(
@@ -103,6 +109,15 @@ function WeightTrackerPage() {
               value={weightLbs}
               onChange={(event) => setWeightLbs(event.target.value)}
               required
+            />
+          </label>
+
+          <label>
+            Date and Time (optional)
+            <input
+              type="datetime-local"
+              value={entryTime}
+              onChange={(event) => setEntryTime(event.target.value)}
             />
           </label>
 

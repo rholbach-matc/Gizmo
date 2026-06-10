@@ -6,11 +6,16 @@ import {
   deleteFluidEntry,
   getFluidEntries,
 } from "../api/fluidEntries";
-import { formatLocalTimestamp } from "../utils/dateTime";
+import {
+  formatLocalTimestamp,
+  optionalLocalDateTimeToISOString,
+  sortByEntryTimeDescending,
+} from "../utils/dateTime";
 
 function FluidsTrackerPage() {
   const [fluidEntries, setFluidEntries] = useState<FluidEntry[]>([]);
   const [amountMl, setAmountMl] = useState("");
+  const [entryTime, setEntryTime] = useState("");
   const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -21,7 +26,7 @@ function FluidsTrackerPage() {
       setIsLoading(true);
       setError(null);
       const loadedFluidEntries = await getFluidEntries();
-      setFluidEntries(loadedFluidEntries);
+      setFluidEntries(sortByEntryTimeDescending(loadedFluidEntries));
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
@@ -45,15 +50,16 @@ function FluidsTrackerPage() {
       setError(null);
 
       const newFluidEntry = await createFluidEntry({
+        entry_time: optionalLocalDateTimeToISOString(entryTime),
         amount_ml: Number(amountMl),
         notes: notes.trim() || null,
       });
 
-      setFluidEntries((currentFluidEntries) => [
-        newFluidEntry,
-        ...currentFluidEntries,
-      ]);
+      setFluidEntries((currentFluidEntries) =>
+        sortByEntryTimeDescending([newFluidEntry, ...currentFluidEntries]),
+      );
       setAmountMl("");
+      setEntryTime("");
       setNotes("");
     } catch (caughtError) {
       setError(
@@ -103,6 +109,15 @@ function FluidsTrackerPage() {
               value={amountMl}
               onChange={(event) => setAmountMl(event.target.value)}
               required
+            />
+          </label>
+
+          <label>
+            Date and Time (optional)
+            <input
+              type="datetime-local"
+              value={entryTime}
+              onChange={(event) => setEntryTime(event.target.value)}
             />
           </label>
 

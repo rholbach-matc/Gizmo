@@ -6,10 +6,15 @@ import {
   deleteWaterEntry,
   getWaterEntries,
 } from "../api/waterEntries";
-import { formatLocalTimestamp } from "../utils/dateTime";
+import {
+  formatLocalTimestamp,
+  optionalLocalDateTimeToISOString,
+  sortByEntryTimeDescending,
+} from "../utils/dateTime";
 
 function HydrationPage() {
   const [waterEntries, setWaterEntries] = useState<DrinkingWaterEntry[]>([]);
+  const [entryTime, setEntryTime] = useState("");
   const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -20,7 +25,7 @@ function HydrationPage() {
       setIsLoading(true);
       setError(null);
       const loadedWaterEntries = await getWaterEntries();
-      setWaterEntries(loadedWaterEntries);
+      setWaterEntries(sortByEntryTimeDescending(loadedWaterEntries));
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
@@ -44,13 +49,14 @@ function HydrationPage() {
       setError(null);
 
       const newWaterEntry = await createWaterEntry({
+        entry_time: optionalLocalDateTimeToISOString(entryTime),
         notes: notes.trim() || null,
       });
 
-      setWaterEntries((currentWaterEntries) => [
-        newWaterEntry,
-        ...currentWaterEntries,
-      ]);
+      setWaterEntries((currentWaterEntries) =>
+        sortByEntryTimeDescending([newWaterEntry, ...currentWaterEntries]),
+      );
+      setEntryTime("");
       setNotes("");
     } catch (caughtError) {
       setError(
@@ -90,6 +96,15 @@ function HydrationPage() {
       <section className="content-grid" aria-label="Water entry management">
         <form className="panel water-form" onSubmit={handleSubmit}>
           <h2>Log Drinking Observation</h2>
+
+          <label>
+            Date and Time (optional)
+            <input
+              type="datetime-local"
+              value={entryTime}
+              onChange={(event) => setEntryTime(event.target.value)}
+            />
+          </label>
 
           <label>
             Notes

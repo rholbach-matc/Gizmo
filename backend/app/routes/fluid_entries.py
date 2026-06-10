@@ -1,10 +1,9 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.database import SessionLocal
+from app.time_utils import entry_time_or_now
 
 router = APIRouter(prefix="/fluid-entries", tags=["Fluid Entries"])
 
@@ -27,7 +26,7 @@ def create_fluid_entry(
     db: Session = Depends(get_db),
 ):
     db_fluid_entry = models.FluidEntry(
-        entry_time=datetime.utcnow(),
+        entry_time=entry_time_or_now(fluid_entry.entry_time),
         amount_ml=fluid_entry.amount_ml,
         notes=fluid_entry.notes,
     )

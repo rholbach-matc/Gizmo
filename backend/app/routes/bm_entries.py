@@ -1,10 +1,9 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.database import SessionLocal
+from app.time_utils import entry_time_or_now
 
 router = APIRouter(prefix="/bm-entries", tags=["BM Entries"])
 
@@ -27,7 +26,7 @@ def create_bm_entry(
     db: Session = Depends(get_db),
 ):
     db_bm_entry = models.BMEntry(
-        entry_time=datetime.utcnow(),
+        entry_time=entry_time_or_now(bm_entry.entry_time),
         occurred=bm_entry.occurred,
         notes=bm_entry.notes,
     )

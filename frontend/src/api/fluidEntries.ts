@@ -9,6 +9,7 @@ export type FluidEntry = {
 };
 
 export type FluidEntryCreate = {
+  entry_time?: string;
   amount_ml: number;
   notes?: string | null;
 };

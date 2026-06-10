@@ -9,6 +9,7 @@ export type BMEntry = {
 };
 
 export type BMEntryCreate = {
+  entry_time?: string;
   occurred: boolean;
   notes?: string | null;
 };

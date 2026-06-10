@@ -6,11 +6,16 @@ import {
   deleteBMEntry,
   getBMEntries,
 } from "../api/bmEntries";
-import { formatLocalTimestamp } from "../utils/dateTime";
+import {
+  formatLocalTimestamp,
+  optionalLocalDateTimeToISOString,
+  sortByEntryTimeDescending,
+} from "../utils/dateTime";
 
 function BMTrackerPage() {
   const [bmEntries, setBMEntries] = useState<BMEntry[]>([]);
   const [occurred, setOccurred] = useState(true);
+  const [entryTime, setEntryTime] = useState("");
   const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -21,7 +26,7 @@ function BMTrackerPage() {
       setIsLoading(true);
       setError(null);
       const loadedBMEntries = await getBMEntries();
-      setBMEntries(loadedBMEntries);
+      setBMEntries(sortByEntryTimeDescending(loadedBMEntries));
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
@@ -45,15 +50,16 @@ function BMTrackerPage() {
       setError(null);
 
       const newBMEntry = await createBMEntry({
+        entry_time: optionalLocalDateTimeToISOString(entryTime),
         occurred,
         notes: notes.trim() || null,
       });
 
-      setBMEntries((currentBMEntries) => [
-        newBMEntry,
-        ...currentBMEntries,
-      ]);
+      setBMEntries((currentBMEntries) =>
+        sortByEntryTimeDescending([newBMEntry, ...currentBMEntries]),
+      );
       setOccurred(true);
+      setEntryTime("");
       setNotes("");
     } catch (caughtError) {
       setError(
@@ -103,6 +109,15 @@ function BMTrackerPage() {
               <option value="yes">Yes</option>
               <option value="no">No</option>
             </select>
+          </label>
+
+          <label>
+            Date and Time (optional)
+            <input
+              type="datetime-local"
+              value={entryTime}
+              onChange={(event) => setEntryTime(event.target.value)}
+            />
           </label>
 
           <label>

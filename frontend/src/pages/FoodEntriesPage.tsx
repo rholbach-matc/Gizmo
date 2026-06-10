@@ -8,7 +8,11 @@ import {
   getFoodEntries,
 } from "../api/foodEntries";
 import { Food, getFoods } from "../api/foods";
-import { formatLocalTimestamp } from "../utils/dateTime";
+import {
+  formatLocalTimestamp,
+  optionalLocalDateTimeToISOString,
+  sortByEntryTimeDescending,
+} from "../utils/dateTime";
 
 function formatNumber(value: number) {
   return Number(value.toFixed(2));
@@ -22,6 +26,7 @@ function FoodEntriesPage() {
   const [bowlId, setBowlId] = useState("");
   const [startingWeight, setStartingWeight] = useState("");
   const [endingWeight, setEndingWeight] = useState("");
+  const [entryTime, setEntryTime] = useState("");
   const [notes, setNotes] = useState("");
   const [lastSavedEntry, setLastSavedEntry] = useState<FoodEntry | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,7 +46,7 @@ function FoodEntriesPage() {
 
       setFoods(loadedFoods);
       setBowls(loadedBowls);
-      setFoodEntries(loadedFoodEntries);
+      setFoodEntries(sortByEntryTimeDescending(loadedFoodEntries));
       setFoodId(loadedFoods[0]?.id.toString() ?? "");
       setBowlId(loadedBowls[0]?.id.toString() ?? "");
     } catch (caughtError) {
@@ -67,6 +72,7 @@ function FoodEntriesPage() {
       setError(null);
 
       const newFoodEntry = await createFoodEntry({
+        entry_time: optionalLocalDateTimeToISOString(entryTime),
         food_id: Number(foodId),
         bowl_id: Number(bowlId),
         starting_total_weight_grams: Number(startingWeight),
@@ -74,13 +80,13 @@ function FoodEntriesPage() {
         notes: notes.trim() || null,
       });
 
-      setFoodEntries((currentFoodEntries) => [
-        newFoodEntry,
-        ...currentFoodEntries,
-      ]);
+      setFoodEntries((currentFoodEntries) =>
+        sortByEntryTimeDescending([newFoodEntry, ...currentFoodEntries]),
+      );
       setLastSavedEntry(newFoodEntry);
       setStartingWeight("");
       setEndingWeight("");
+      setEntryTime("");
       setNotes("");
     } catch (caughtError) {
       setError(
@@ -183,6 +189,15 @@ function FoodEntriesPage() {
               value={endingWeight}
               onChange={(event) => setEndingWeight(event.target.value)}
               placeholder="180"
+            />
+          </label>
+
+          <label>
+            Date and Time (optional)
+            <input
+              type="datetime-local"
+              value={entryTime}
+              onChange={(event) => setEntryTime(event.target.value)}
             />
           </label>
 

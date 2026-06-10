@@ -58,6 +58,7 @@ class FoodResponse(BaseModel):
 
 
 class FoodEntryCreate(BaseModel):
+    entry_time: datetime | None = None
     bowl_id: int
     food_id: int
     starting_total_weight_grams: float
@@ -89,6 +90,7 @@ class FoodEntryResponse(BaseModel):
 
 
 class BMEntryCreate(BaseModel):
+    entry_time: datetime | None = None
     occurred: bool
     notes: str | None = None
 
@@ -104,6 +106,7 @@ class BMEntryResponse(BaseModel):
 
 
 class FluidEntryCreate(BaseModel):
+    entry_time: datetime | None = None
     amount_ml: float
     notes: str | None = None
 
@@ -119,6 +122,7 @@ class FluidEntryResponse(BaseModel):
 
 
 class WeightEntryCreate(BaseModel):
+    entry_time: datetime | None = None
     weight_lbs: float
     notes: str | None = None
 
@@ -134,6 +138,7 @@ class WeightEntryResponse(BaseModel):
 
 
 class DrinkingWaterEntryCreate(BaseModel):
+    entry_time: datetime | None = None
     notes: str | None = None
 
 

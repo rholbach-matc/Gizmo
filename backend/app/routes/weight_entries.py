@@ -1,10 +1,9 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.database import SessionLocal
+from app.time_utils import entry_time_or_now
 
 router = APIRouter(prefix="/weight-entries", tags=["Weight Entries"])
 
@@ -27,7 +26,7 @@ def create_weight_entry(
     db: Session = Depends(get_db),
 ):
     db_weight_entry = models.WeightEntry(
-        entry_time=datetime.utcnow(),
+        entry_time=entry_time_or_now(weight_entry.entry_time),
         weight_lbs=weight_entry.weight_lbs,
         notes=weight_entry.notes,
     )
