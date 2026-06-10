@@ -37,3 +37,7 @@ coverage/
 .DS_Store
 .idea/
 .vscode/
+
+# Other
+codexSession
+codex-logs/
