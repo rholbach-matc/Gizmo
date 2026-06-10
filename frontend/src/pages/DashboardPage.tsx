@@ -11,6 +11,10 @@ function formatOptionalTime(value: string | null | undefined) {
   return value ? formatLocalTimestamp(value) : "No entries yet";
 }
 
+function formatCount(value: number, singular: string, plural: string) {
+  return value === 1 ? `1 ${singular}` : `${value} ${plural}`;
+}
+
 function DashboardPage() {
   const [dashboard, setDashboard] = useState<TodayDashboard | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -122,12 +126,70 @@ function DashboardPage() {
             : "No water observations recorded",
         },
         {
-          label: "Water Observations Today",
-          value: dashboard.today_water_observation_count,
-          detail:
-            dashboard.today_water_observation_count === 1
-              ? "Observation logged today"
-              : "Observations logged today",
+          label: "Last Episode",
+          value: formatOptionalTime(dashboard.latest_episode_entry?.entry_time),
+          detail: dashboard.latest_episode_entry
+            ? dashboard.latest_episode_entry.severity || "Episode logged"
+            : "No episodes recorded",
+        },
+        {
+          label: "Last Medication",
+          value: formatOptionalTime(dashboard.latest_medication_entry?.entry_time),
+          detail: dashboard.latest_medication_entry
+            ? dashboard.latest_medication_entry.medication_name
+            : "No medications recorded",
+        },
+        {
+          label: "Last Vet Visit",
+          value: formatOptionalTime(dashboard.latest_vet_visit_entry?.entry_time),
+          detail: dashboard.latest_vet_visit_entry
+            ? dashboard.latest_vet_visit_entry.reason || "Vet visit logged"
+            : "No vet visits recorded",
+        },
+      ]
+    : [];
+
+  const careSummaryCards = dashboard
+    ? [
+        {
+          label: "Food",
+          value: dashboard.feedings_count > 0 ? "Yes" : "No",
+          detail: formatCount(dashboard.feedings_count, "feeding", "feedings"),
+          tone: dashboard.feedings_count > 0 ? "good" : "quiet",
+        },
+        {
+          label: "BM",
+          value: dashboard.today_bm_count > 0 ? "Yes" : "No",
+          detail: formatCount(dashboard.today_bm_count, "BM", "BMs"),
+          tone: dashboard.today_bm_count > 0 ? "good" : "quiet",
+        },
+        {
+          label: "Fluids",
+          value: dashboard.today_fluid_count > 0 ? "Yes" : "No",
+          detail: formatCount(dashboard.today_fluid_count, "entry", "entries"),
+          tone: dashboard.today_fluid_count > 0 ? "good" : "quiet",
+        },
+        {
+          label: "Water",
+          value: dashboard.today_water_observation_count > 0 ? "Yes" : "No",
+          detail: formatCount(
+            dashboard.today_water_observation_count,
+            "observation",
+            "observations",
+          ),
+          tone: dashboard.today_water_observation_count > 0 ? "good" : "quiet",
+        },
+        {
+          label: "Medications",
+          value: dashboard.today_medication_count > 0 ? "Yes" : "No",
+          detail: formatCount(dashboard.today_medication_count, "entry", "entries"),
+          tone: dashboard.today_medication_count > 0 ? "good" : "quiet",
+        },
+        {
+          label: "Episodes",
+          value: dashboard.today_episode_count > 0 ? "Yes" : "No",
+          detail: formatCount(dashboard.today_episode_count, "episode", "episodes"),
+          tone: dashboard.today_episode_count > 0 ? "watch" : "quiet",
         },
       ]
     : [];
@@ -136,8 +198,8 @@ function DashboardPage() {
     <main className="app">
       <section className="page-header">
         <p className="eyebrow">Gizmo</p>
-        <h1>Care Command Center</h1>
-        <p>Today&apos;s food, hydration, bathroom, fluids, and weight snapshot.</p>
+        <h1>Care Dashboard</h1>
+        <p>Today&apos;s care, latest status, and recent activity in one place.</p>
       </section>
 
       <section className="dashboard-shell" aria-label="Gizmo care dashboard">
@@ -153,7 +215,11 @@ function DashboardPage() {
             <section className="dashboard-hero">
               <div>
                 <p className="eyebrow">Today&apos;s Status</p>
-                <h2>{dashboard.feedings_count > 0 ? "Food is logged." : "No food logged yet."}</h2>
+                <h2>
+                  {dashboard.feedings_count > 0
+                    ? "Food is logged today."
+                    : "No food logged yet today."}
+                </h2>
                 <p>
                   {dashboard.feedings_count > 0
                     ? `${formatNumber(dashboard.calories_eaten)} calories from ${formatNumber(
@@ -163,8 +229,8 @@ function DashboardPage() {
                 </p>
               </div>
               <div className="dashboard-hero-stat">
-                <strong>{dashboard.today_water_observation_count}</strong>
-                <span>water observations today</span>
+                <strong>{dashboard.recent_activity.length}</strong>
+                <span>recent care events</span>
               </div>
             </section>
 
@@ -179,6 +245,22 @@ function DashboardPage() {
                       {card.unit ? <span> {card.unit}</span> : null}
                     </strong>
                     <small>{card.detail}</small>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="dashboard-section" aria-labelledby="care-summary">
+              <h2 id="care-summary">Today&apos;s Care Summary</h2>
+              <div className="care-summary-grid">
+                {careSummaryCards.map((card) => (
+                  <article
+                    className={`care-summary-card summary-${card.tone}`}
+                    key={card.label}
+                  >
+                    <p>{card.label}</p>
+                    <strong>{card.value}</strong>
+                    <span>{card.detail}</span>
                   </article>
                 ))}
               </div>
@@ -199,7 +281,7 @@ function DashboardPage() {
 
             <section className="dashboard-section" aria-labelledby="recent-care">
               <div className="section-heading">
-                <h2 id="recent-care">Recent Care Activity</h2>
+                <h2 id="recent-care">Unified Care Timeline</h2>
                 <span>{dashboard.recent_activity.length}</span>
               </div>
 
@@ -214,8 +296,11 @@ function DashboardPage() {
                     >
                       <div className="activity-marker" aria-hidden="true" />
                       <div>
-                        <p>{item.title}</p>
+                        <p>
+                          <span className="activity-badge">{item.title}</span>
+                        </p>
                         <h3>{item.summary}</h3>
+                        {item.details ? <small>{item.details}</small> : null}
                         <span>{formatLocalTimestamp(item.entry_time)}</span>
                       </div>
                     </article>

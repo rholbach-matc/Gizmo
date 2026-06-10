@@ -210,6 +210,7 @@ class DashboardActivityItem(BaseModel):
     entry_time: datetime
     title: str
     summary: str
+    details: str | None = None
 
 
 class TodayDashboardResponse(BaseModel):
@@ -228,5 +229,12 @@ class TodayDashboardResponse(BaseModel):
     last_fluid_entry: FluidEntryResponse | None
     latest_weight_entry: WeightEntryResponse | None
     last_water_entry: DrinkingWaterEntryResponse | None
+    latest_episode_entry: EpisodeEntryResponse | None
+    latest_medication_entry: MedicationEntryResponse | None
+    latest_vet_visit_entry: VetVisitEntryResponse | None
     today_water_observation_count: int
+    today_bm_count: int
+    today_fluid_count: int
+    today_medication_count: int
+    today_episode_count: int
     recent_activity: list[DashboardActivityItem]

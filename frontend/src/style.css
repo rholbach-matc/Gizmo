@@ -137,7 +137,7 @@ p {
   gap: 1rem;
   grid-template-columns: 1fr minmax(180px, 240px);
   align-items: center;
-  background: #fff5ea;
+  background: #fff7ee;
 }
 
 .dashboard-hero h2,
@@ -152,7 +152,7 @@ p {
 }
 
 .dashboard-hero-stat {
-  background: #6f4e37;
+  background: #5c6f55;
   border-radius: 8px;
   color: #fffaf4;
   display: grid;
@@ -219,6 +219,52 @@ p {
   min-height: 132px;
 }
 
+.care-summary-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.care-summary-card {
+  background: #fff;
+  border: 1px solid #ead9c7;
+  border-radius: 8px;
+  display: grid;
+  gap: 0.4rem;
+  min-height: 112px;
+  padding: 0.9rem;
+}
+
+.care-summary-card p {
+  color: #6c5c52;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.care-summary-card strong {
+  color: #2f2926;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.care-summary-card span {
+  color: #6c5c52;
+  font-size: 0.9rem;
+}
+
+.summary-good {
+  border-left: 5px solid #5c8f78;
+}
+
+.summary-watch {
+  border-left: 5px solid #b36b42;
+}
+
+.summary-quiet {
+  border-left: 5px solid #d8c2ad;
+}
+
 .care-status-grid {
   display: grid;
   gap: 0.85rem;
@@ -264,17 +310,17 @@ p {
   border: 1px solid #ead9c7;
   border-radius: 8px;
   display: grid;
-  gap: 0.85rem;
-  grid-template-columns: 14px 1fr;
-  padding: 0.9rem 1rem;
+  gap: 0.9rem;
+  grid-template-columns: 16px 1fr;
+  padding: 1rem;
 }
 
 .activity-marker {
   background: #9b5f3a;
   border-radius: 999px;
-  height: 12px;
+  height: 14px;
   margin-top: 0.35rem;
-  width: 12px;
+  width: 14px;
 }
 
 .activity-water .activity-marker {
@@ -293,16 +339,32 @@ p {
   background: #7d6fa3;
 }
 
+.activity-episode .activity-marker {
+  background: #b36b42;
+}
+
+.activity-medication .activity-marker {
+  background: #566f9b;
+}
+
+.activity-vet_visit .activity-marker {
+  background: #8c5f87;
+}
+
 .activity-item p {
-  color: #6c5c52;
-  font-size: 0.85rem;
-  font-weight: 800;
-  text-transform: uppercase;
+  line-height: 1;
 }
 
 .activity-item h3 {
   font-size: 1.1rem;
-  margin-top: 0.15rem;
+  margin-top: 0.45rem;
+}
+
+.activity-item small {
+  color: #6c5c52;
+  display: block;
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
 }
 
 .activity-item span {
@@ -310,6 +372,18 @@ p {
   display: inline-block;
   font-size: 0.95rem;
   margin-top: 0.25rem;
+}
+
+.activity-badge {
+  background: #f0dfcf;
+  border-radius: 999px;
+  color: #58483f;
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  margin: 0;
+  padding: 0.28rem 0.6rem;
+  text-transform: uppercase;
 }
 
 .bowl-form,
@@ -555,6 +629,7 @@ p {
   }
 
   .dashboard-hero,
+  .care-summary-grid,
   .care-status-grid,
   .overview-grid {
     grid-template-columns: 1fr;

@@ -42,11 +42,47 @@ export type DashboardWaterEntry = {
   created_at: string;
 };
 
+export type DashboardEpisodeEntry = {
+  id: number;
+  entry_time: string;
+  severity: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type DashboardMedicationEntry = {
+  id: number;
+  entry_time: string;
+  medication_name: string;
+  dose: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type DashboardVetVisitEntry = {
+  id: number;
+  entry_time: string;
+  reason: string | null;
+  summary: string | null;
+  follow_up_needed: boolean | null;
+  notes: string | null;
+  created_at: string;
+};
+
 export type DashboardActivityItem = {
-  type: "food" | "bm" | "fluids" | "weight" | "water";
+  type:
+    | "food"
+    | "bm"
+    | "fluids"
+    | "weight"
+    | "water"
+    | "episode"
+    | "medication"
+    | "vet_visit";
   entry_time: string;
   title: string;
   summary: string;
+  details: string | null;
 };
 
 export type TodayDashboard = {
@@ -65,7 +101,14 @@ export type TodayDashboard = {
   last_fluid_entry: DashboardFluidEntry | null;
   latest_weight_entry: DashboardWeightEntry | null;
   last_water_entry: DashboardWaterEntry | null;
+  latest_episode_entry: DashboardEpisodeEntry | null;
+  latest_medication_entry: DashboardMedicationEntry | null;
+  latest_vet_visit_entry: DashboardVetVisitEntry | null;
   today_water_observation_count: number;
+  today_bm_count: number;
+  today_fluid_count: number;
+  today_medication_count: number;
+  today_episode_count: number;
   recent_activity: DashboardActivityItem[];
 };
 
