@@ -88,6 +88,21 @@ class FoodEntryResponse(BaseModel):
     created_at: datetime
 
 
+class BMEntryCreate(BaseModel):
+    occurred: bool
+    notes: str | None = None
+
+
+class BMEntryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    entry_time: datetime
+    occurred: bool
+    notes: str | None
+    created_at: datetime
+
+
 class TodayDashboardResponse(BaseModel):
     date: date
     feedings_count: int

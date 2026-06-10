@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import models so SQLAlchemy knows which tables to create.
 from app import models
 from app.database import Base, engine
-from app.routes import bowls, dashboard, food_entries, foods
+from app.routes import bm_entries, bowls, dashboard, food_entries, foods
 
 app = FastAPI(title="Gizmo API")
 
@@ -32,6 +32,7 @@ def health_check():
 
 
 app.include_router(bowls.router)
+app.include_router(bm_entries.router)
 app.include_router(dashboard.router)
 app.include_router(food_entries.router)
 app.include_router(foods.router)
