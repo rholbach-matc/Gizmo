@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -68,3 +68,13 @@ class FoodEntry(Base):
 
     bowl = relationship("Bowl", back_populates="food_entries")
     food = relationship("Food", back_populates="food_entries")
+
+
+class BMEntry(Base):
+    __tablename__ = "bm_entries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    entry_time = Column(DateTime, nullable=False)
+    occurred = Column(Boolean, nullable=False)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

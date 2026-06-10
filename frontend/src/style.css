@@ -148,6 +148,7 @@ p {
 
 .bowl-form,
 .food-form,
+.bm-form,
 .entry-form {
   display: grid;
   gap: 1rem;
@@ -155,6 +156,7 @@ p {
 
 .bowl-form label,
 .food-form label,
+.bm-form label,
 .entry-form label {
   display: grid;
   gap: 0.4rem;
@@ -167,6 +169,8 @@ p {
 .bowl-form textarea,
 .food-form input,
 .food-form textarea,
+.bm-form select,
+.bm-form textarea,
 .entry-form input,
 .entry-form select,
 .entry-form textarea {
@@ -180,6 +184,7 @@ p {
 
 .bowl-form textarea,
 .food-form textarea,
+.bm-form textarea,
 .entry-form textarea {
   min-height: 96px;
   resize: vertical;
@@ -225,6 +230,7 @@ p {
 
 .bowl-list,
 .food-list,
+.bm-list,
 .entry-list {
   display: grid;
   gap: 0.85rem;
@@ -232,6 +238,7 @@ p {
 
 .bowl-card,
 .food-card,
+.bm-card,
 .entry-card,
 .entry-result {
   border: 1px solid #ead9c7;
@@ -243,6 +250,7 @@ p {
 
 .bowl-card div,
 .food-card div,
+.bm-card div,
 .entry-card div {
   display: flex;
   align-items: start;
@@ -252,6 +260,7 @@ p {
 
 .bowl-card h3,
 .food-card h3,
+.bm-card h3,
 .entry-card h3,
 .entry-result h3 {
   font-size: 1.15rem;
@@ -259,6 +268,7 @@ p {
 
 .bowl-card p,
 .food-card p,
+.bm-card p,
 .entry-card p {
   color: #6c5c52;
   font-size: 1rem;
@@ -266,6 +276,7 @@ p {
 
 .bowl-card button,
 .food-card button,
+.bm-card button,
 .entry-card button {
   justify-self: start;
   background: #8f3f30;
