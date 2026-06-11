@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from fastapi import APIRouter, Depends
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -144,6 +146,10 @@ def build_activity_items(
 def get_today_dashboard(db: Session = Depends(get_db)):
     today = caregiver_today()
     start_of_today, start_of_tomorrow = caregiver_day_bounds_for_utc_storage(today)
+    yesterday = today - timedelta(days=1)
+    start_of_yesterday, start_of_today_for_yesterday = (
+        caregiver_day_bounds_for_utc_storage(yesterday)
+    )
 
     totals = (
         db.query(
@@ -170,6 +176,20 @@ def get_today_dashboard(db: Session = Depends(get_db)):
         .filter(models.FoodEntry.ending_total_weight_grams.is_(None))
         .scalar()
         or 0
+    )
+
+    yesterday_totals = (
+        db.query(
+            func.count(models.FoodEntry.id),
+            func.sum(models.FoodEntry.calories_eaten),
+        )
+        .filter(models.FoodEntry.entry_time >= start_of_yesterday)
+        .filter(models.FoodEntry.entry_time < start_of_today_for_yesterday)
+        .filter(models.FoodEntry.ending_total_weight_grams.is_not(None))
+        .one()
+    )
+    yesterday_calories_eaten = (
+        yesterday_totals[1] or 0 if yesterday_totals[0] else None
     )
 
     last_food_entry = (
@@ -324,6 +344,7 @@ def get_today_dashboard(db: Session = Depends(get_db)):
         open_feedings_count=open_feedings_count,
         food_eaten_grams=totals[1] or 0,
         calories_eaten=totals[2] or 0,
+        yesterday_calories_eaten=yesterday_calories_eaten,
         protein_consumed_grams=totals[3] or 0,
         fat_consumed_grams=totals[4] or 0,
         phosphorus_consumed_mg=totals[5] or 0,
