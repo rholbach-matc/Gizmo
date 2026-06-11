@@ -782,6 +782,15 @@ p {
   font-weight: 700;
 }
 
+.today-metric small em {
+  color: #a09080;
+  display: block;
+  font-size: 0.72rem;
+  font-style: normal;
+  margin-top: 0.2rem;
+  white-space: nowrap;
+}
+
 .calorie-goal {
   border-top: 1px solid #4a4038;
   display: grid;
@@ -960,17 +969,36 @@ p {
   display: grid;
   gap: 0.45rem;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  height: 48px;
+  height: 70px;
+}
+
+.trend-bars div {
+  align-items: center;
+  display: grid;
+  gap: 0.25rem;
+  height: 100%;
+  justify-items: stretch;
+}
+
+.trend-calorie-label {
+  align-self: end;
+  color: #c8b8a8;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+  min-height: 0.68rem;
+  text-align: center;
 }
 
 .trend-bars span {
+  align-self: end;
   background: #4a4038;
   border-radius: 5px 5px 0 0;
   display: block;
   min-height: 6px;
 }
 
-.trend-bars span.today {
+.trend-bars div.today span {
   background: #e07a2a;
 }
 

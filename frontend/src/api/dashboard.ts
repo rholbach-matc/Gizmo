@@ -92,6 +92,7 @@ export type TodayDashboard = {
   open_feedings_count: number;
   food_eaten_grams: number;
   calories_eaten: number;
+  yesterday_calories_eaten: number | null;
   protein_consumed_grams: number;
   fat_consumed_grams: number;
   phosphorus_consumed_mg: number;

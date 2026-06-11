@@ -225,6 +225,7 @@ class TodayDashboardResponse(BaseModel):
     open_feedings_count: int
     food_eaten_grams: float
     calories_eaten: float
+    yesterday_calories_eaten: float | None
     protein_consumed_grams: float
     fat_consumed_grams: float
     phosphorus_consumed_mg: float

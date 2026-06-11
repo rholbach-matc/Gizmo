@@ -289,12 +289,21 @@ function DashboardPage() {
                   <Icon name="flame" />
                   <strong>{formatNumber(dashboard.calories_eaten)}</strong>
                   <span>kcal</span>
-                  <small>Calories</small>
+                  <small>
+                    Calories
+                    {dashboard.yesterday_calories_eaten !== null ? (
+                      <em>
+                        Yesterday: {formatNumber(dashboard.yesterday_calories_eaten)} kcal
+                      </em>
+                    ) : null}
+                  </small>
                 </article>
                 <article className="today-metric">
                   <Icon name="bowl" />
-                  <strong>{dashboard.feedings_count}</strong>
-                  <span>entries</span>
+                  <strong>
+                    {dashboard.open_feedings_count} / {dashboard.feedings_count}
+                  </strong>
+                  <span>open / done</span>
                   <small>Food entries</small>
                 </article>
                 <article className="today-metric">
@@ -405,19 +414,25 @@ function DashboardPage() {
 
             <section className="trend-card" aria-labelledby="calorie-trend-title">
               <h2 id="calorie-trend-title">7-day calorie trend</h2>
-              {trendDataDays < 2 ? (
+              {trendDataDays === 0 ? (
                 <p className="trend-empty">Not enough data yet</p>
               ) : (
                 <>
                   <div className="trend-bars" aria-hidden="true">
                     {trendDays.map((day) => (
-                      <span
+                      <div
                         className={day.key === todayKey ? "today" : ""}
                         key={day.key}
-                        style={{
-                          height: `${Math.max(6, (day.calories / trendMax) * 48)}px`,
-                        }}
-                      />
+                      >
+                        <small className="trend-calorie-label">
+                          {day.calories > 0 ? formatNumber(day.calories) : ""}
+                        </small>
+                        <span
+                          style={{
+                            height: `${Math.max(6, (day.calories / trendMax) * 48)}px`,
+                          }}
+                        />
+                      </div>
                     ))}
                   </div>
                   <div className="trend-labels">
