@@ -576,6 +576,33 @@ p {
   margin-bottom: 1rem;
 }
 
+.entry-card-open {
+  background: #fff9ed;
+  border-color: #d49a4a;
+}
+
+.finish-entry-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.finish-entry-form label {
+  color: #58483f;
+  display: grid;
+  font-size: 0.95rem;
+  font-weight: 700;
+  gap: 0.4rem;
+}
+
+.finish-entry-form input {
+  background: #fff;
+  border: 1px solid #d8c2ad;
+  border-radius: 8px;
+  color: #2f2926;
+  padding: 0.75rem;
+  width: 100%;
+}
+
 .entry-result dl {
   display: grid;
   gap: 0.75rem;

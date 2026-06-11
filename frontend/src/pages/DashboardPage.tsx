@@ -47,7 +47,16 @@ function DashboardPage() {
           label: "Feedings",
           value: dashboard.feedings_count,
           unit: "",
-          detail: dashboard.feedings_count > 0 ? "Food logged today" : "No meals logged",
+          detail:
+            dashboard.open_feedings_count > 0
+              ? formatCount(
+                  dashboard.open_feedings_count,
+                  "feeding in progress",
+                  "feedings in progress",
+                )
+              : dashboard.feedings_count > 0
+                ? "Food logged today"
+                : "No meals logged",
         },
         {
           label: "Calories",
@@ -88,9 +97,11 @@ function DashboardPage() {
           label: "Last Feeding",
           value: formatOptionalTime(dashboard.last_food_entry?.entry_time),
           detail: dashboard.last_food_entry
-            ? `${formatNumber(dashboard.last_food_entry.food_eaten_grams)} g, ${formatNumber(
-                dashboard.last_food_entry.calories_eaten,
-              )} cal`
+            ? dashboard.last_food_entry.is_open
+              ? "Feeding in progress"
+              : `${formatNumber(dashboard.last_food_entry.food_eaten_grams ?? 0)} g, ${formatNumber(
+                  dashboard.last_food_entry.calories_eaten ?? 0,
+                )} cal`
             : "No food entries recorded",
         },
         {
@@ -153,9 +164,26 @@ function DashboardPage() {
     ? [
         {
           label: "Food",
-          value: dashboard.feedings_count > 0 ? "Yes" : "No",
-          detail: formatCount(dashboard.feedings_count, "feeding", "feedings"),
-          tone: dashboard.feedings_count > 0 ? "good" : "quiet",
+          value:
+            dashboard.open_feedings_count > 0
+              ? "Open"
+              : dashboard.feedings_count > 0
+                ? "Yes"
+                : "No",
+          detail:
+            dashboard.open_feedings_count > 0
+              ? formatCount(
+                  dashboard.open_feedings_count,
+                  "feeding needs ending weight",
+                  "feedings need ending weight",
+                )
+              : formatCount(dashboard.feedings_count, "feeding", "feedings"),
+          tone:
+            dashboard.open_feedings_count > 0
+              ? "watch"
+              : dashboard.feedings_count > 0
+                ? "good"
+                : "quiet",
         },
         {
           label: "BM",
@@ -216,15 +244,19 @@ function DashboardPage() {
               <div>
                 <p className="eyebrow">Today&apos;s Status</p>
                 <h2>
-                  {dashboard.feedings_count > 0
-                    ? "Food is logged today."
-                    : "No food logged yet today."}
+                  {dashboard.open_feedings_count > 0
+                    ? "Feeding in progress."
+                    : dashboard.feedings_count > 0
+                      ? "Food is logged today."
+                      : "No food logged yet today."}
                 </h2>
                 <p>
-                  {dashboard.feedings_count > 0
-                    ? `${formatNumber(dashboard.calories_eaten)} calories from ${formatNumber(
-                        dashboard.food_eaten_grams,
-                      )} g of food.`
+                  {dashboard.open_feedings_count > 0
+                    ? "Add the ending weight when Gizmo is done eating."
+                    : dashboard.feedings_count > 0
+                      ? `${formatNumber(dashboard.calories_eaten)} calories from ${formatNumber(
+                          dashboard.food_eaten_grams,
+                        )} g of food.`
                     : "Use Food Entries when Gizmo eats so the totals stay current."}
                 </p>
               </div>

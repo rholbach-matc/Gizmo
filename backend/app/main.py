@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Import models so SQLAlchemy knows which tables to create.
 from app import models
-from app.database import Base, engine
+from app.database import Base, engine, migrate_food_entries_for_open_feedings
 from app.routes import (
     bm_entries,
     bowls,
@@ -28,7 +28,7 @@ allowed_origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_methods=["GET", "POST", "DELETE"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE"],
     allow_headers=["*"],
 )
 
@@ -36,6 +36,7 @@ app.add_middleware(
 @app.on_event("startup")
 def create_tables():
     Base.metadata.create_all(bind=engine)
+    migrate_food_entries_for_open_feedings()
 
 
 @app.get("/health")

@@ -62,6 +62,11 @@ class FoodEntryCreate(BaseModel):
     bowl_id: int
     food_id: int
     starting_total_weight_grams: float
+    ending_total_weight_grams: float | None = None
+    notes: str | None = None
+
+
+class FoodEntryFinish(BaseModel):
     ending_total_weight_grams: float
     notes: str | None = None
 
@@ -74,19 +79,20 @@ class FoodEntryResponse(BaseModel):
     bowl_id: int
     food_id: int
     starting_total_weight_grams: float
-    ending_total_weight_grams: float
+    ending_total_weight_grams: float | None
     starting_food_weight_grams: float
-    leftover_food_weight_grams: float
-    food_eaten_grams: float
-    calories_eaten: float
-    protein_consumed_grams: float
-    fat_consumed_grams: float
-    phosphorus_consumed_mg: float
-    sodium_consumed_mg: float
-    moisture_consumed_grams: float
-    dry_matter_consumed_grams: float
+    leftover_food_weight_grams: float | None
+    food_eaten_grams: float | None
+    calories_eaten: float | None
+    protein_consumed_grams: float | None
+    fat_consumed_grams: float | None
+    phosphorus_consumed_mg: float | None
+    sodium_consumed_mg: float | None
+    moisture_consumed_grams: float | None
+    dry_matter_consumed_grams: float | None
     notes: str | None
     created_at: datetime
+    is_open: bool
 
 
 class BMEntryCreate(BaseModel):
@@ -216,6 +222,7 @@ class DashboardActivityItem(BaseModel):
 class TodayDashboardResponse(BaseModel):
     date: date
     feedings_count: int
+    open_feedings_count: int
     food_eaten_grams: float
     calories_eaten: float
     protein_consumed_grams: float

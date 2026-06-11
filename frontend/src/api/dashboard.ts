@@ -3,12 +3,13 @@ import { API_BASE_URL } from "./config";
 export type DashboardFoodEntry = {
   id: number;
   entry_time: string;
-  food_eaten_grams: number;
-  calories_eaten: number;
-  phosphorus_consumed_mg: number;
-  sodium_consumed_mg: number;
+  food_eaten_grams: number | null;
+  calories_eaten: number | null;
+  phosphorus_consumed_mg: number | null;
+  sodium_consumed_mg: number | null;
   notes: string | null;
   created_at: string;
+  is_open: boolean;
 };
 
 export type DashboardBMEntry = {
@@ -88,6 +89,7 @@ export type DashboardActivityItem = {
 export type TodayDashboard = {
   date: string;
   feedings_count: number;
+  open_feedings_count: number;
   food_eaten_grams: number;
   calories_eaten: number;
   protein_consumed_grams: number;
