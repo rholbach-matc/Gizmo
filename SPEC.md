@@ -2,142 +2,362 @@
 
 ## Project Purpose
 
-Gizmo is a caregiving app for tracking daily health data for a chronically ill senior cat.
+Gizmo is a caregiving application for tracking and reviewing health data for a chronically ill senior cat.
 
-Primary goal: help Jackie quickly record and review Gizmo's care information.
+Primary users:
 
-This is no longer primarily a learning project. Prioritize shipping useful functionality quickly.
+* Jackie
+* Ryan
 
-## Current Tech Stack
+Primary goal:
 
-* Frontend: React + Vite + TypeScript
-* Backend: FastAPI + SQLAlchemy
-* Database: SQLite
-* Styling: plain CSS
-* Development workflow: small Codex tasks, frequent commits
+Help caregivers quickly answer:
 
-## Core Product Priorities
+* How is Gizmo doing today?
+* Did he eat enough?
+* When were fluids last given?
+* Has he been drinking?
+* Has he had a BM?
+* Have there been recent shaking episodes?
 
-1. Help Jackie use the app immediately.
-2. Keep workflows simple and fast.
-3. Avoid unnecessary complexity.
-4. Prefer working features over perfect architecture.
-5. Preserve existing working functionality.
+The application prioritizes caregiver usefulness over technical perfection.
 
-## Current Features
+---
 
-* Bowl management
-* Food management
-* Food entries / feedings
-* Guaranteed analysis nutrition model
-* Dry matter basis calculations
-* Food entry nutrition calculations
-* Today dashboard
+# Current Technology Stack
 
-## Important Domain Rules
+Frontend:
 
-### Bowls
+* React
+* TypeScript
+* Vite
+* Plain CSS
 
-Bowl weights are tare weights.
+Backend:
 
-Food calculations must subtract empty bowl weight from total measured weight.
+* FastAPI
+* SQLAlchemy
 
-### Foods
+Database:
 
-Food nutrition is based on guaranteed analysis.
+* SQLite
+
+Deployment:
+
+* Docker
+* Docker Compose
+* Gamehendge Homelab
+
+---
+
+# Core Product Rules
+
+Priorities:
+
+1. Caregiver usefulness
+2. Reliability
+3. Simplicity
+4. Maintainability
+5. Learning
+
+When tradeoffs exist:
+
+Prefer shipping useful functionality unless significant technical debt would be introduced.
+
+---
+
+# Domain Rules
+
+## Bowls
+
+Bowls represent tare weights.
+
+Food calculations must always subtract bowl weight from measured totals.
+
+Bowls store:
+
+* name
+* empty weight
+* color
+* notes
+
+---
+
+## Foods
+
+Nutrition data is based on guaranteed analysis.
 
 Foods store:
 
 * can size grams
 * calories per can
 * calories per gram
-* moisture percent
-* dry matter percent
-* protein as-fed percent
-* protein dry matter percent
-* fat as-fed percent
-* fat dry matter percent
-* phosphorus as-fed percent
-* phosphorus dry matter percent
-* sodium as-fed percent
-* sodium dry matter percent
 
-### Food Entries
+As-fed values:
 
-Food entries represent one feeding / weighing event.
+* moisture
+* protein
+* fat
+* phosphorus
+* sodium
+
+Dry matter basis values:
+
+* protein
+* fat
+* phosphorus
+* sodium
+
+Important:
+
+Do not move nutrition calculations into the frontend.
+
+Backend remains the source of truth.
+
+---
+
+## Food Entries
+
+Food entries represent feeding events.
 
 Backend calculates and stores:
 
 * food eaten grams
 * calories eaten
-* protein consumed grams
-* fat consumed grams
-* phosphorus consumed mg
-* sodium consumed mg
-* moisture consumed grams
-* dry matter consumed grams
+* protein consumed
+* fat consumed
+* phosphorus consumed
+* sodium consumed
+* moisture consumed
+* dry matter consumed
 
-Do not move nutrition calculations into the frontend.
+Historical nutrition values must remain accurate even if food definitions change later.
 
-## Development Rules for Codex
+Therefore:
+
+Calculated values are stored on food entries.
+
+---
+
+# Current Functional Areas
+
+## Dashboard
+
+Dashboard is the primary application screen.
+
+Current responsibilities:
+
+* Today overview
+* Care summary
+* Care status
+* Unified care timeline
+
+The dashboard should answer:
+
+"How is Gizmo doing today?"
+
+in under 10 seconds.
+
+---
+
+## Food Tracking
+
+Supports:
+
+* Foods
+* Bowls
+* Food Entries
+* Nutrition calculations
+
+---
+
+## BM Tracking
+
+Supports:
+
+* Create
+* List
+* Delete
+
+---
+
+## Fluid Tracking
+
+Supports:
+
+* Create
+* List
+* Delete
+
+Tracks Sub-Q fluid administration.
+
+---
+
+## Weight Tracking
+
+Supports:
+
+* Create
+* List
+* Delete
+
+---
+
+## Water Observation Tracking
+
+Supports:
+
+* Create
+* List
+* Delete
+
+Tracks observed drinking events.
+
+Does not estimate water volume.
+
+---
+
+## Episode Tracking
+
+Supports:
+
+* Create
+* List
+* Delete
+
+Tracks:
+
+* Shaking
+* Wobbling
+
+Important:
+
+Episodes are not labeled as seizures.
+
+---
+
+## Medication Tracking
+
+Supports:
+
+* Create
+* List
+* Delete
+
+Tracks medication administration.
+
+Does not currently manage schedules or reminders.
+
+---
+
+## Vet Visit Tracking
+
+Supports:
+
+* Create
+* List
+* Delete
+
+Tracks:
+
+* Reason
+* Summary
+* Follow-up requirements
+* Notes
+
+---
+
+# Timestamp Rules
+
+All caregiving entries support:
+
+* Automatic current timestamp
+* Optional user-provided timestamp
+
+Display rules:
+
+* Store consistently
+* Display in local browser time
+
+Use the shared frontend timestamp utilities.
+
+Do not introduce per-page timestamp logic.
+
+---
+
+# Deployment Rules
+
+Application runs through Docker Compose.
+
+Current deployment:
+
+* Frontend: port 3010
+* Backend: port 8010
+
+SQLite data must persist across container restarts.
+
+Do not introduce infrastructure complexity without a clear benefit.
+
+---
+
+# Development Rules
 
 When implementing tasks:
 
-* Keep scope narrow.
-* Do not add unrelated features.
-* Do not modify frontend when task says backend only.
-* Do not modify backend when task says frontend only.
-* Preserve existing routes and UI behavior.
-* Keep code beginner-readable.
-* Avoid large refactors unless explicitly requested.
-* Prefer simple CRUD patterns already used in the project.
+* Keep scope narrow
+* Preserve existing workflows
+* Follow existing CRUD patterns
+* Keep code beginner-readable
+* Avoid unnecessary abstractions
+* Avoid large refactors unless explicitly requested
 
-## Git Rules
+Prefer consistency over cleverness.
+
+---
+
+# Git Rules
 
 Before changing code:
 
-* Check current branch.
-* Check git status.
-* Mention any unrelated modified files.
+* Check current branch
+* Check git status
+* Mention unrelated modified files
 
 After implementation:
 
-* Summarize changed files.
-* Summarize verification steps.
-* Suggest a commit message.
+* Summarize changed files
+* Summarize verification steps
+* Suggest a commit message
 
 Do not automatically commit.
 
-## Database Rules
+---
 
-SQLite is currently used for development.
+# Database Rules
 
-Alembic is not currently configured.
+SQLite remains the primary database.
 
-If models change during development, it is acceptable to delete and recreate `gizmo.db` while the app is still pre-production.
+Alembic is not currently required.
 
-Do not commit SQLite database files.
+While pre-production:
 
-## Immediate Roadmap
+Deleting and recreating the database is acceptable when schema changes require it.
 
-Next priorities:
+Do not commit database files.
 
-1. BM Tracker
-2. Sub-Q Fluids Tracker
-3. Weight Tracker
-4. Edit existing entries
-5. Basic backups
-6. LAN deployment to Gamehendge
+---
 
-## Success Criteria
+# Success Criteria
 
-The app is successful if Jackie can quickly answer:
+Gizmo is successful if caregivers can quickly determine:
 
-* Did Gizmo eat today?
-* How many calories did he consume?
-* How much phosphorus did he consume?
-* When did he last have fluids?
-* When did he last poop?
+* Did Gizmo eat enough?
+* How many calories has he consumed?
+* How much phosphorus has he consumed?
+* When were fluids last given?
+* Has he been drinking?
+* Has he had a BM?
+* Have there been recent shaking episodes?
 * How is he doing today?
 
-Usefulness matters more than technical perfection.
+Usefulness is more important than technical perfection.

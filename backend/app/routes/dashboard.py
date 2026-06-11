@@ -1,11 +1,10 @@
-from datetime import date, datetime, time, timedelta
-
 from fastapi import APIRouter, Depends
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.database import SessionLocal
+from app.time_utils import caregiver_day_bounds_for_utc_storage, caregiver_today
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
@@ -136,9 +135,8 @@ def build_activity_items(
 
 @router.get("/today", response_model=schemas.TodayDashboardResponse)
 def get_today_dashboard(db: Session = Depends(get_db)):
-    today = date.today()
-    start_of_today = datetime.combine(today, time.min)
-    start_of_tomorrow = start_of_today + timedelta(days=1)
+    today = caregiver_today()
+    start_of_today, start_of_tomorrow = caregiver_day_bounds_for_utc_storage(today)
 
     totals = (
         db.query(
