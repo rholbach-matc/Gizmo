@@ -103,7 +103,6 @@ function VetVisitsPage() {
       <section className="page-header">
         <p className="eyebrow">Gizmo</p>
         <h1>Vet Visits</h1>
-        <p>Record vet visits, summaries, follow-up status, and notes.</p>
       </section>
 
       <section className="content-grid" aria-label="Vet visit entry management">

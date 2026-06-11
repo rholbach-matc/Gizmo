@@ -99,7 +99,6 @@ function EpisodesPage() {
       <section className="page-header">
         <p className="eyebrow">Gizmo</p>
         <h1>Episodes</h1>
-        <p>Record shaking or wobbly episodes and review recent notes.</p>
       </section>
 
       <section className="content-grid" aria-label="Episode entry management">

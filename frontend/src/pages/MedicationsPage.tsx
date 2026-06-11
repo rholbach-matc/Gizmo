@@ -103,7 +103,6 @@ function MedicationsPage() {
       <section className="page-header">
         <p className="eyebrow">Gizmo</p>
         <h1>Medications</h1>
-        <p>Record medication administrations and review recent notes.</p>
       </section>
 
       <section className="content-grid" aria-label="Medication entry management">
