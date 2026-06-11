@@ -5,9 +5,10 @@ from unittest.mock import patch
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app import models
+from app import models, schemas
 from app.database import Base
 from app.routes.dashboard import get_today_dashboard
+from app.routes.food_entries import update_food_entry
 
 
 class DashboardTotalsTest(TestCase):
@@ -93,3 +94,29 @@ class DashboardTotalsTest(TestCase):
             dashboard = get_today_dashboard(self.db)
 
         self.assertIsNone(dashboard.yesterday_calories_eaten)
+
+    def test_dashboard_totals_use_updated_completed_feedings_only(self):
+        self.add_food_entry(datetime(2026, 6, 11, 14, 0), 100, 60)
+        self.add_food_entry(datetime(2026, 6, 11, 15, 0), None, None)
+        completed_entry = (
+            self.db.query(models.FoodEntry)
+            .filter(models.FoodEntry.ending_total_weight_grams.is_not(None))
+            .one()
+        )
+
+        update_food_entry(
+            completed_entry.id,
+            schemas.FoodEntryUpdate(
+                entry_time=datetime(2026, 6, 11, 14, 0),
+                starting_total_weight_grams=130,
+                ending_total_weight_grams=70,
+            ),
+            self.db,
+        )
+
+        with patch("app.routes.dashboard.caregiver_today", return_value=date(2026, 6, 11)):
+            dashboard = get_today_dashboard(self.db)
+
+        self.assertEqual(dashboard.feedings_count, 1)
+        self.assertEqual(dashboard.open_feedings_count, 1)
+        self.assertEqual(dashboard.calories_eaten, 120)
