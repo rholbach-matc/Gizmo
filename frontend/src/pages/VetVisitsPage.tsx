@@ -79,6 +79,10 @@ function VetVisitsPage() {
   }
 
   async function handleDelete(vetVisitEntryId: number) {
+    if (!window.confirm("Delete this vet visit entry?")) {
+      return;
+    }
+
     try {
       setError(null);
       await deleteVetVisitEntry(vetVisitEntryId);

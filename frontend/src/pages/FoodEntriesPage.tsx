@@ -23,6 +23,31 @@ function formatOptionalNumber(value: number | null) {
   return value === null ? "--" : formatNumber(value);
 }
 
+function getFoodName(foods: Food[], foodId: number) {
+  const food = foods.find((currentFood) => currentFood.id === foodId);
+  if (!food) {
+    return "Unknown food";
+  }
+
+  return food.brand ? `${food.name} - ${food.brand}` : food.name;
+}
+
+function getBowlName(bowls: Bowl[], bowlId: number) {
+  return bowls.find((bowl) => bowl.id === bowlId)?.name ?? "Unknown bowl";
+}
+
+function getOpenBowlIds(foodEntries: FoodEntry[]) {
+  return new Set(
+    foodEntries
+      .filter((entry) => entry.is_open)
+      .map((entry) => entry.bowl_id),
+  );
+}
+
+function getFirstAvailableBowlId(bowls: Bowl[], openBowlIds: Set<number>) {
+  return bowls.find((bowl) => !openBowlIds.has(bowl.id))?.id.toString() ?? "";
+}
+
 function FoodEntriesPage() {
   const [foods, setFoods] = useState<Food[]>([]);
   const [bowls, setBowls] = useState<Bowl[]>([]);
@@ -50,11 +75,12 @@ function FoodEntriesPage() {
         getFoodEntries(),
       ]);
 
+      const sortedFoodEntries = sortByEntryTimeDescending(loadedFoodEntries);
       setFoods(loadedFoods);
       setBowls(loadedBowls);
-      setFoodEntries(sortByEntryTimeDescending(loadedFoodEntries));
+      setFoodEntries(sortedFoodEntries);
       setFoodId(loadedFoods[0]?.id.toString() ?? "");
-      setBowlId(loadedBowls[0]?.id.toString() ?? "");
+      setBowlId(getFirstAvailableBowlId(loadedBowls, getOpenBowlIds(sortedFoodEntries)));
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
@@ -89,6 +115,14 @@ function FoodEntriesPage() {
         sortByEntryTimeDescending([newFoodEntry, ...currentFoodEntries]),
       );
       setLastSavedEntry(newFoodEntry);
+      if (newFoodEntry.is_open) {
+        setBowlId(
+          getFirstAvailableBowlId(
+            bowls,
+            getOpenBowlIds([newFoodEntry, ...foodEntries]),
+          ),
+        );
+      }
       setStartingWeight("");
       setEntryTime("");
       setNotes("");
@@ -139,6 +173,10 @@ function FoodEntriesPage() {
   }
 
   async function handleDelete(foodEntryId: number) {
+    if (!window.confirm("Delete this food entry?")) {
+      return;
+    }
+
     try {
       setError(null);
       await deleteFoodEntry(foodEntryId);
@@ -158,6 +196,7 @@ function FoodEntriesPage() {
   }
 
   const openEntriesCount = foodEntries.filter((entry) => entry.is_open).length;
+  const openBowlIds = getOpenBowlIds(foodEntries);
 
   return (
     <main className="app">
@@ -200,8 +239,14 @@ function FoodEntriesPage() {
                 Select bowl
               </option>
               {bowls.map((bowl) => (
-                <option value={bowl.id} key={bowl.id}>
-                  {bowl.name}
+                <option
+                  value={bowl.id}
+                  key={bowl.id}
+                  disabled={openBowlIds.has(bowl.id)}
+                >
+                  {openBowlIds.has(bowl.id)
+                    ? `${bowl.name} - currently in use`
+                    : bowl.name}
                 </option>
               ))}
             </select>
@@ -238,7 +283,7 @@ function FoodEntriesPage() {
             />
           </label>
 
-          <button type="submit" disabled={isSaving || isLoading}>
+          <button type="submit" disabled={isSaving || isLoading || !bowlId}>
             {isSaving ? "Starting..." : "Start Feeding"}
           </button>
         </form>
@@ -317,40 +362,64 @@ function FoodEntriesPage() {
                 key={entry.id}
               >
                 <div>
-                  <h3>{formatLocalTimestamp(entry.entry_time)}</h3>
+                  <h3>
+                    {entry.is_open
+                      ? getFoodName(foods, entry.food_id)
+                      : formatLocalTimestamp(entry.entry_time)}
+                  </h3>
                   <p>
                     {entry.is_open
-                      ? `${formatNumber(entry.starting_food_weight_grams)} g served`
+                      ? "Open feeding"
                       : `${formatOptionalNumber(entry.food_eaten_grams)} g eaten`}
                   </p>
                 </div>
 
                 {entry.is_open ? (
-                  <form
-                    className="finish-entry-form"
-                    onSubmit={(event) => handleFinish(event, entry.id)}
-                  >
-                    <label>
-                      Ending Weight (grams)
-                      <input
-                        required
-                        min="0"
-                        step="0.1"
-                        type="number"
-                        value={finishWeights[entry.id] ?? ""}
-                        onChange={(event) =>
-                          setFinishWeights((currentFinishWeights) => ({
-                            ...currentFinishWeights,
-                            [entry.id]: event.target.value,
-                          }))
-                        }
-                        placeholder="180"
-                      />
-                    </label>
-                    <button type="submit" disabled={finishingEntryId === entry.id}>
-                      {finishingEntryId === entry.id ? "Finishing..." : "Finish Feeding"}
-                    </button>
-                  </form>
+                  <>
+                    <dl className="entry-details">
+                      <div>
+                        <dt>Bowl</dt>
+                        <dd>{getBowlName(bowls, entry.bowl_id)}</dd>
+                      </div>
+                      <div>
+                        <dt>Started</dt>
+                        <dd>{formatLocalTimestamp(entry.entry_time)}</dd>
+                      </div>
+                      <div>
+                        <dt>Starting total</dt>
+                        <dd>{formatNumber(entry.starting_total_weight_grams)} g</dd>
+                      </div>
+                      <div>
+                        <dt>Food served</dt>
+                        <dd>{formatNumber(entry.starting_food_weight_grams)} g</dd>
+                      </div>
+                    </dl>
+                    <form
+                      className="finish-entry-form"
+                      onSubmit={(event) => handleFinish(event, entry.id)}
+                    >
+                      <label>
+                        Ending Weight (grams)
+                        <input
+                          required
+                          min="0"
+                          step="0.1"
+                          type="number"
+                          value={finishWeights[entry.id] ?? ""}
+                          onChange={(event) =>
+                            setFinishWeights((currentFinishWeights) => ({
+                              ...currentFinishWeights,
+                              [entry.id]: event.target.value,
+                            }))
+                          }
+                          placeholder="180"
+                        />
+                      </label>
+                      <button type="submit" disabled={finishingEntryId === entry.id}>
+                        {finishingEntryId === entry.id ? "Finishing..." : "Finish Feeding"}
+                      </button>
+                    </form>
+                  </>
                 ) : (
                   <>
                     <p>{formatOptionalNumber(entry.calories_eaten)} calories</p>

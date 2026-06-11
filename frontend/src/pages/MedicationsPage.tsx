@@ -79,6 +79,10 @@ function MedicationsPage() {
   }
 
   async function handleDelete(medicationEntryId: number) {
+    if (!window.confirm("Delete this medication entry?")) {
+      return;
+    }
+
     try {
       setError(null);
       await deleteMedicationEntry(medicationEntryId);

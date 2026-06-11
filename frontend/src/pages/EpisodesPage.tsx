@@ -75,6 +75,10 @@ function EpisodesPage() {
   }
 
   async function handleDelete(episodeEntryId: number) {
+    if (!window.confirm("Delete this episode entry?")) {
+      return;
+    }
+
     try {
       setError(null);
       await deleteEpisodeEntry(episodeEntryId);

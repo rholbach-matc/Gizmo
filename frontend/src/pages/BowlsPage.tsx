@@ -60,6 +60,10 @@ function BowlsPage() {
   }
 
   async function handleDelete(bowlId: number) {
+    if (!window.confirm("Delete this bowl?")) {
+      return;
+    }
+
     try {
       setError(null);
       await deleteBowl(bowlId);

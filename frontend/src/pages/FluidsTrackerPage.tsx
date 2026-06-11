@@ -73,6 +73,10 @@ function FluidsTrackerPage() {
   }
 
   async function handleDelete(fluidEntryId: number) {
+    if (!window.confirm("Delete this fluid entry?")) {
+      return;
+    }
+
     try {
       setError(null);
       await deleteFluidEntry(fluidEntryId);

@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "./config";
+import { responseError } from "./errors";
 
 export type Bowl = {
   id: number;
@@ -48,6 +49,6 @@ export async function deleteBowl(bowlId: number): Promise<void> {
   });
 
   if (!response.ok) {
-    throw new Error("Could not delete bowl.");
+    throw await responseError(response, "Could not delete bowl.");
   }
 }

@@ -78,6 +78,10 @@ function FoodsPage() {
   }
 
   async function handleDelete(foodId: number) {
+    if (!window.confirm("Delete this food?")) {
+      return;
+    }
+
     try {
       setError(null);
       await deleteFood(foodId);
