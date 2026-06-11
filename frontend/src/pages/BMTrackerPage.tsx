@@ -73,6 +73,10 @@ function BMTrackerPage() {
   }
 
   async function handleDelete(bmEntryId: number) {
+    if (!window.confirm("Delete this BM entry?")) {
+      return;
+    }
+
     try {
       setError(null);
       await deleteBMEntry(bmEntryId);

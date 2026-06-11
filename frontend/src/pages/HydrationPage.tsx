@@ -70,6 +70,10 @@ function HydrationPage() {
   }
 
   async function handleDelete(waterEntryId: number) {
+    if (!window.confirm("Delete this water entry?")) {
+      return;
+    }
+
     try {
       setError(null);
       await deleteWaterEntry(waterEntryId);

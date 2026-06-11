@@ -46,5 +46,23 @@ def delete_bowl(bowl_id: int, db: Session = Depends(get_db)):
             detail="Bowl not found",
         )
 
+    open_feeding = (
+        db.query(models.FoodEntry)
+        .filter(
+            models.FoodEntry.bowl_id == bowl_id,
+            models.FoodEntry.ending_total_weight_grams.is_(None),
+        )
+        .first()
+    )
+
+    if open_feeding is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This bowl is currently being used by an open feeding. "
+                "Finish or delete that feeding first."
+            ),
+        )
+
     db.delete(db_bowl)
     db.commit()

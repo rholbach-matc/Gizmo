@@ -73,6 +73,10 @@ function WeightTrackerPage() {
   }
 
   async function handleDelete(weightEntryId: number) {
+    if (!window.confirm("Delete this weight entry?")) {
+      return;
+    }
+
     try {
       setError(null);
       await deleteWeightEntry(weightEntryId);
