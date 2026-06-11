@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "./config";
+import { responseError } from "./errors";
 
 export type FoodEntry = {
   id: number;
@@ -36,6 +37,13 @@ export type FoodEntryFinish = {
   notes?: string | null;
 };
 
+export type FoodEntryUpdate = {
+  entry_time: string;
+  starting_total_weight_grams: number;
+  ending_total_weight_grams?: number | null;
+  notes?: string | null;
+};
+
 export async function getFoodEntries(): Promise<FoodEntry[]> {
   const response = await fetch(`${API_BASE_URL}/food-entries`);
 
@@ -58,7 +66,7 @@ export async function createFoodEntry(
   });
 
   if (!response.ok) {
-    throw new Error("Could not create food entry.");
+    throw await responseError(response, "Could not create food entry.");
   }
 
   return response.json();
@@ -70,8 +78,27 @@ export async function deleteFoodEntry(foodEntryId: number): Promise<void> {
   });
 
   if (!response.ok) {
-    throw new Error("Could not delete food entry.");
+    throw await responseError(response, "Could not delete food entry.");
   }
+}
+
+export async function updateFoodEntry(
+  foodEntryId: number,
+  foodEntry: FoodEntryUpdate,
+): Promise<FoodEntry> {
+  const response = await fetch(`${API_BASE_URL}/food-entries/${foodEntryId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(foodEntry),
+  });
+
+  if (!response.ok) {
+    throw await responseError(response, "Could not update food entry.");
+  }
+
+  return response.json();
 }
 
 export async function finishFoodEntry(
@@ -87,7 +114,7 @@ export async function finishFoodEntry(
   });
 
   if (!response.ok) {
-    throw new Error("Could not finish food entry.");
+    throw await responseError(response, "Could not finish food entry.");
   }
 
   return response.json();

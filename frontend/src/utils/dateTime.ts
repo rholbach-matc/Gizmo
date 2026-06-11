@@ -18,6 +18,14 @@ export function optionalLocalDateTimeToISOString(value: string) {
   return value ? new Date(value).toISOString() : undefined;
 }
 
+export function localDateTimeInputValue(value: string) {
+  const utcValue = timestampIncludesTimezone(value) ? value : `${value}Z`;
+  const date = new Date(utcValue);
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+
+  return localDate.toISOString().slice(0, 16);
+}
+
 export function sortByEntryTimeDescending<T extends { entry_time: string; id: number }>(
   entries: T[],
 ) {

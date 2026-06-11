@@ -46,6 +46,19 @@ def validate_starting_weight(starting_total_weight_grams: float, bowl: models.Bo
         )
 
 
+def reset_completed_food_entry_values(food_entry: models.FoodEntry):
+    food_entry.ending_total_weight_grams = None
+    food_entry.leftover_food_weight_grams = None
+    food_entry.food_eaten_grams = None
+    food_entry.calories_eaten = None
+    food_entry.protein_consumed_grams = None
+    food_entry.fat_consumed_grams = None
+    food_entry.phosphorus_consumed_mg = None
+    food_entry.sodium_consumed_mg = None
+    food_entry.moisture_consumed_grams = None
+    food_entry.dry_matter_consumed_grams = None
+
+
 def calculate_completed_food_entry(
     food_entry: models.FoodEntry,
     ending_total_weight_grams: float,
@@ -124,6 +137,64 @@ def create_food_entry(
         )
 
     db.add(db_food_entry)
+    db.commit()
+    db.refresh(db_food_entry)
+
+    return db_food_entry
+
+
+@router.patch("/{food_entry_id}", response_model=schemas.FoodEntryResponse)
+def update_food_entry(
+    food_entry_id: int,
+    food_entry_update: schemas.FoodEntryUpdate,
+    db: Session = Depends(get_db),
+):
+    db_food_entry = (
+        db.query(models.FoodEntry)
+        .filter(models.FoodEntry.id == food_entry_id)
+        .first()
+    )
+
+    if db_food_entry is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Food entry not found",
+        )
+
+    if db_food_entry.is_open and food_entry_update.ending_total_weight_grams is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ending weight can only be edited for completed food entries",
+        )
+
+    db_bowl = get_bowl(db, db_food_entry.bowl_id)
+    db_food = get_food(db, db_food_entry.food_id)
+    validate_starting_weight(food_entry_update.starting_total_weight_grams, db_bowl)
+
+    db_food_entry.entry_time = entry_time_or_now(food_entry_update.entry_time)
+    db_food_entry.starting_total_weight_grams = (
+        food_entry_update.starting_total_weight_grams
+    )
+    db_food_entry.starting_food_weight_grams = (
+        food_entry_update.starting_total_weight_grams - db_bowl.empty_weight_grams
+    )
+    db_food_entry.notes = food_entry_update.notes
+
+    if db_food_entry.is_open:
+        reset_completed_food_entry_values(db_food_entry)
+    else:
+        ending_total_weight_grams = (
+            food_entry_update.ending_total_weight_grams
+            if food_entry_update.ending_total_weight_grams is not None
+            else db_food_entry.ending_total_weight_grams
+        )
+        calculate_completed_food_entry(
+            db_food_entry,
+            ending_total_weight_grams,
+            db_bowl,
+            db_food,
+        )
+
     db.commit()
     db.refresh(db_food_entry)
 

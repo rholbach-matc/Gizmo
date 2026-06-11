@@ -71,6 +71,13 @@ class FoodEntryFinish(BaseModel):
     notes: str | None = None
 
 
+class FoodEntryUpdate(BaseModel):
+    entry_time: datetime
+    starting_total_weight_grams: float
+    ending_total_weight_grams: float | None = None
+    notes: str | None = None
+
+
 class FoodEntryResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -129,6 +136,12 @@ class FluidEntryResponse(BaseModel):
 
 class WeightEntryCreate(BaseModel):
     entry_time: datetime | None = None
+    weight_lbs: float
+    notes: str | None = None
+
+
+class WeightEntryUpdate(BaseModel):
+    entry_time: datetime
     weight_lbs: float
     notes: str | None = None
 

@@ -38,6 +38,34 @@ def create_weight_entry(
     return db_weight_entry
 
 
+@router.patch("/{weight_entry_id}", response_model=schemas.WeightEntryResponse)
+def update_weight_entry(
+    weight_entry_id: int,
+    weight_entry_update: schemas.WeightEntryUpdate,
+    db: Session = Depends(get_db),
+):
+    db_weight_entry = (
+        db.query(models.WeightEntry)
+        .filter(models.WeightEntry.id == weight_entry_id)
+        .first()
+    )
+
+    if db_weight_entry is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Weight entry not found",
+        )
+
+    db_weight_entry.entry_time = entry_time_or_now(weight_entry_update.entry_time)
+    db_weight_entry.weight_lbs = weight_entry_update.weight_lbs
+    db_weight_entry.notes = weight_entry_update.notes
+
+    db.commit()
+    db.refresh(db_weight_entry)
+
+    return db_weight_entry
+
+
 @router.get("", response_model=list[schemas.WeightEntryResponse])
 def list_weight_entries(db: Session = Depends(get_db)):
     return (

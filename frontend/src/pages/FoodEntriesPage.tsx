@@ -7,10 +7,12 @@ import {
   deleteFoodEntry,
   finishFoodEntry,
   getFoodEntries,
+  updateFoodEntry,
 } from "../api/foodEntries";
 import { Food, getFoods } from "../api/foods";
 import {
   formatLocalTimestamp,
+  localDateTimeInputValue,
   optionalLocalDateTimeToISOString,
   sortByEntryTimeDescending,
 } from "../utils/dateTime";
@@ -48,6 +50,22 @@ function getFirstAvailableBowlId(bowls: Bowl[], openBowlIds: Set<number>) {
   return bowls.find((bowl) => !openBowlIds.has(bowl.id))?.id.toString() ?? "";
 }
 
+type FoodEntryEditForm = {
+  entryTime: string;
+  startingWeight: string;
+  endingWeight: string;
+  notes: string;
+};
+
+function foodEntryEditForm(entry: FoodEntry): FoodEntryEditForm {
+  return {
+    entryTime: localDateTimeInputValue(entry.entry_time),
+    startingWeight: entry.starting_total_weight_grams.toString(),
+    endingWeight: entry.ending_total_weight_grams?.toString() ?? "",
+    notes: entry.notes ?? "",
+  };
+}
+
 function FoodEntriesPage() {
   const [foods, setFoods] = useState<Food[]>([]);
   const [bowls, setBowls] = useState<Bowl[]>([]);
@@ -58,11 +76,15 @@ function FoodEntriesPage() {
   const [entryTime, setEntryTime] = useState("");
   const [notes, setNotes] = useState("");
   const [finishWeights, setFinishWeights] = useState<Record<number, string>>({});
+  const [editingEntryId, setEditingEntryId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<FoodEntryEditForm | null>(null);
   const [lastSavedEntry, setLastSavedEntry] = useState<FoodEntry | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [finishingEntryId, setFinishingEntryId] = useState<number | null>(null);
+  const [savingEditEntryId, setSavingEditEntryId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   async function loadFoodEntryData() {
     try {
@@ -96,12 +118,31 @@ function FoodEntriesPage() {
     loadFoodEntryData();
   }, []);
 
+  function showSuccessMessage() {
+    setSuccessMessage("Changes saved");
+    window.setTimeout(() => setSuccessMessage(null), 2500);
+  }
+
+  function startEditing(entry: FoodEntry) {
+    setError(null);
+    setSuccessMessage(null);
+    setEditingEntryId(entry.id);
+    setEditForm(foodEntryEditForm(entry));
+  }
+
+  function updateEditForm(field: keyof FoodEntryEditForm, value: string) {
+    setEditForm((currentForm) =>
+      currentForm ? { ...currentForm, [field]: value } : currentForm,
+    );
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     try {
       setIsSaving(true);
       setError(null);
+      setSuccessMessage(null);
 
       const newFoodEntry = await createFoodEntry({
         entry_time: optionalLocalDateTimeToISOString(entryTime),
@@ -143,6 +184,7 @@ function FoodEntriesPage() {
     try {
       setFinishingEntryId(foodEntryId);
       setError(null);
+      setSuccessMessage(null);
 
       const finishedEntry = await finishFoodEntry(foodEntryId, {
         ending_total_weight_grams: Number(finishWeights[foodEntryId]),
@@ -172,6 +214,46 @@ function FoodEntriesPage() {
     }
   }
 
+  async function handleEdit(event: FormEvent<HTMLFormElement>, entry: FoodEntry) {
+    event.preventDefault();
+    if (!editForm) {
+      return;
+    }
+
+    try {
+      setSavingEditEntryId(entry.id);
+      setError(null);
+      setSuccessMessage(null);
+
+      const updatedEntry = await updateFoodEntry(entry.id, {
+        entry_time: optionalLocalDateTimeToISOString(editForm.entryTime) ?? entry.entry_time,
+        starting_total_weight_grams: Number(editForm.startingWeight),
+        ending_total_weight_grams: entry.is_open ? null : Number(editForm.endingWeight),
+        notes: editForm.notes.trim() || null,
+      });
+
+      setFoodEntries((currentFoodEntries) =>
+        sortByEntryTimeDescending(
+          currentFoodEntries.map((currentEntry) =>
+            currentEntry.id === entry.id ? updatedEntry : currentEntry,
+          ),
+        ),
+      );
+      setLastSavedEntry(updatedEntry);
+      setEditingEntryId(null);
+      setEditForm(null);
+      showSuccessMessage();
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Could not update food entry.",
+      );
+    } finally {
+      setSavingEditEntryId(null);
+    }
+  }
+
   async function handleDelete(foodEntryId: number) {
     if (!window.confirm("Delete this food entry?")) {
       return;
@@ -179,6 +261,7 @@ function FoodEntriesPage() {
 
     try {
       setError(null);
+      setSuccessMessage(null);
       await deleteFoodEntry(foodEntryId);
       setFoodEntries((currentFoodEntries) =>
         currentFoodEntries.filter((entry) => entry.id !== foodEntryId),
@@ -186,6 +269,10 @@ function FoodEntriesPage() {
       setLastSavedEntry((currentEntry) =>
         currentEntry?.id === foodEntryId ? null : currentEntry,
       );
+      if (editingEntryId === foodEntryId) {
+        setEditingEntryId(null);
+        setEditForm(null);
+      }
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
@@ -302,6 +389,7 @@ function FoodEntriesPage() {
           </div>
 
           {error ? <p className="error-message">{error}</p> : null}
+          {successMessage ? <p className="success-message">{successMessage}</p> : null}
 
           {!isLoading && (foods.length === 0 || bowls.length === 0) ? (
             <p className="empty-state">Add at least one food and bowl first.</p>
@@ -426,9 +514,87 @@ function FoodEntriesPage() {
                   </>
                 )}
 
-                <button type="button" onClick={() => handleDelete(entry.id)}>
-                  Delete
-                </button>
+                {editingEntryId === entry.id && editForm ? (
+                  <form
+                    className="edit-entry-form"
+                    onSubmit={(event) => handleEdit(event, entry)}
+                  >
+                    <label>
+                      Date and Time
+                      <input
+                        required
+                        type="datetime-local"
+                        value={editForm.entryTime}
+                        onChange={(event) =>
+                          updateEditForm("entryTime", event.target.value)
+                        }
+                      />
+                    </label>
+
+                    <label>
+                      Starting Weight (grams)
+                      <input
+                        required
+                        min="0"
+                        step="0.1"
+                        type="number"
+                        value={editForm.startingWeight}
+                        onChange={(event) =>
+                          updateEditForm("startingWeight", event.target.value)
+                        }
+                      />
+                    </label>
+
+                    {!entry.is_open ? (
+                      <label>
+                        Ending Weight (grams)
+                        <input
+                          required
+                          min="0"
+                          step="0.1"
+                          type="number"
+                          value={editForm.endingWeight}
+                          onChange={(event) =>
+                            updateEditForm("endingWeight", event.target.value)
+                          }
+                        />
+                      </label>
+                    ) : null}
+
+                    <label className="edit-entry-form-wide">
+                      Notes
+                      <textarea
+                        value={editForm.notes}
+                        onChange={(event) => updateEditForm("notes", event.target.value)}
+                      />
+                    </label>
+
+                    <div className="entry-actions">
+                      <button type="submit" disabled={savingEditEntryId === entry.id}>
+                        {savingEditEntryId === entry.id ? "Saving..." : "Save Changes"}
+                      </button>
+                      <button
+                        className="secondary-button"
+                        type="button"
+                        onClick={() => {
+                          setEditingEntryId(null);
+                          setEditForm(null);
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                ) : null}
+
+                <div className="entry-actions">
+                  <button type="button" onClick={() => startEditing(entry)}>
+                    Edit
+                  </button>
+                  <button type="button" onClick={() => handleDelete(entry.id)}>
+                    Delete
+                  </button>
+                </div>
               </article>
             ))}
           </div>
