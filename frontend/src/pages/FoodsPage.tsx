@@ -100,7 +100,6 @@ function FoodsPage() {
       <section className="page-header">
         <p className="eyebrow">Gizmo</p>
         <h1>Foods</h1>
-        <p>Save food details so meal calories can be calculated.</p>
       </section>
 
       <section className="content-grid" aria-label="Food management">

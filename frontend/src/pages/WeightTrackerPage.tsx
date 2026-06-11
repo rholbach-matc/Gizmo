@@ -97,7 +97,6 @@ function WeightTrackerPage() {
       <section className="page-header">
         <p className="eyebrow">Gizmo</p>
         <h1>Weight Tracker</h1>
-        <p>Record body weight and review recent weight notes.</p>
       </section>
 
       <section className="content-grid" aria-label="Weight entry management">

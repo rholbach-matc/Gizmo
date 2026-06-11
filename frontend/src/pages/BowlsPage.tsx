@@ -82,7 +82,6 @@ function BowlsPage() {
       <section className="page-header">
         <p className="eyebrow">Gizmo</p>
         <h1>Bowls</h1>
-        <p>Track each bowl so meal weights stay accurate.</p>
       </section>
 
       <section className="content-grid" aria-label="Bowl management">

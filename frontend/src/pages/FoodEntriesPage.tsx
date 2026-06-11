@@ -203,7 +203,6 @@ function FoodEntriesPage() {
       <section className="page-header">
         <p className="eyebrow">Gizmo</p>
         <h1>Food Entries</h1>
-        <p>Log meals and review the nutrition Gizmo actually ate.</p>
       </section>
 
       <section className="content-grid" aria-label="Food entry management">

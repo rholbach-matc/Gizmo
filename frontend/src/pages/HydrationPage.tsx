@@ -94,7 +94,6 @@ function HydrationPage() {
       <section className="page-header">
         <p className="eyebrow">Gizmo</p>
         <h1>Hydration</h1>
-        <p>Record observed drinking events and review recent water notes.</p>
       </section>
 
       <section className="content-grid" aria-label="Water entry management">

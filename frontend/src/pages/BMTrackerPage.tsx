@@ -97,7 +97,6 @@ function BMTrackerPage() {
       <section className="page-header">
         <p className="eyebrow">Gizmo</p>
         <h1>BM Tracker</h1>
-        <p>Record bowel movements and review recent bathroom notes.</p>
       </section>
 
       <section className="content-grid" aria-label="BM entry management">
