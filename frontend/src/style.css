@@ -416,8 +416,10 @@ p {
 .food-form input,
 .food-form textarea,
 .fluid-form input,
+.fluid-form select,
 .fluid-form textarea,
 .water-form input,
+.water-form select,
 .water-form textarea,
 .weight-form input,
 .weight-form textarea,
@@ -623,6 +625,7 @@ p {
 }
 
 .edit-entry-form input,
+.edit-entry-form select,
 .edit-entry-form textarea {
   background: #fff;
   border: 1px solid #d8c2ad;
@@ -640,6 +643,16 @@ p {
 .edit-entry-form-wide,
 .edit-entry-form .entry-actions {
   grid-column: 1 / -1;
+}
+
+.edit-entry-form .checkbox-label {
+  align-items: center;
+  display: flex;
+  gap: 0.55rem;
+}
+
+.edit-entry-form .checkbox-label input {
+  width: auto;
 }
 
 .entry-details {

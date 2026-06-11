@@ -52,6 +52,38 @@ def list_vet_visit_entries(db: Session = Depends(get_db)):
     )
 
 
+@router.patch("/{vet_visit_entry_id}", response_model=schemas.VetVisitEntryResponse)
+def update_vet_visit_entry(
+    vet_visit_entry_id: int,
+    vet_visit_entry_update: schemas.VetVisitEntryUpdate,
+    db: Session = Depends(get_db),
+):
+    db_vet_visit_entry = (
+        db.query(models.VetVisitEntry)
+        .filter(models.VetVisitEntry.id == vet_visit_entry_id)
+        .first()
+    )
+
+    if db_vet_visit_entry is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Vet visit entry not found",
+        )
+
+    db_vet_visit_entry.entry_time = entry_time_or_now(
+        vet_visit_entry_update.entry_time
+    )
+    db_vet_visit_entry.reason = vet_visit_entry_update.reason
+    db_vet_visit_entry.summary = vet_visit_entry_update.summary
+    db_vet_visit_entry.follow_up_needed = vet_visit_entry_update.follow_up_needed
+    db_vet_visit_entry.notes = vet_visit_entry_update.notes
+
+    db.commit()
+    db.refresh(db_vet_visit_entry)
+
+    return db_vet_visit_entry
+
+
 @router.delete("/{vet_visit_entry_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_vet_visit_entry(vet_visit_entry_id: int, db: Session = Depends(get_db)):
     db_vet_visit_entry = (

@@ -5,12 +5,32 @@ import {
   createVetVisitEntry,
   deleteVetVisitEntry,
   getVetVisitEntries,
+  updateVetVisitEntry,
 } from "../api/vetVisitEntries";
 import {
   formatLocalTimestamp,
+  localDateTimeInputValue,
   optionalLocalDateTimeToISOString,
   sortByEntryTimeDescending,
 } from "../utils/dateTime";
+
+type VetVisitEntryEditForm = {
+  entryTime: string;
+  reason: string;
+  summary: string;
+  followUpNeeded: boolean;
+  notes: string;
+};
+
+function vetVisitEntryEditForm(entry: VetVisitEntry): VetVisitEntryEditForm {
+  return {
+    entryTime: localDateTimeInputValue(entry.entry_time),
+    reason: entry.reason ?? "",
+    summary: entry.summary ?? "",
+    followUpNeeded: Boolean(entry.follow_up_needed),
+    notes: entry.notes ?? "",
+  };
+}
 
 function VetVisitsPage() {
   const [vetVisitEntries, setVetVisitEntries] = useState<VetVisitEntry[]>([]);
@@ -19,9 +39,13 @@ function VetVisitsPage() {
   const [summary, setSummary] = useState("");
   const [followUpNeeded, setFollowUpNeeded] = useState(false);
   const [notes, setNotes] = useState("");
+  const [editingEntryId, setEditingEntryId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<VetVisitEntryEditForm | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [savingEditEntryId, setSavingEditEntryId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   async function loadVetVisitEntries() {
     try {
@@ -44,12 +68,34 @@ function VetVisitsPage() {
     loadVetVisitEntries();
   }, []);
 
+  function showSuccessMessage() {
+    setSuccessMessage("Changes saved");
+    window.setTimeout(() => setSuccessMessage(null), 2500);
+  }
+
+  function startEditing(entry: VetVisitEntry) {
+    setError(null);
+    setSuccessMessage(null);
+    setEditingEntryId(entry.id);
+    setEditForm(vetVisitEntryEditForm(entry));
+  }
+
+  function updateEditForm(
+    field: keyof VetVisitEntryEditForm,
+    value: string | boolean,
+  ) {
+    setEditForm((currentForm) =>
+      currentForm ? { ...currentForm, [field]: value } : currentForm,
+    );
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     try {
       setIsSaving(true);
       setError(null);
+      setSuccessMessage(null);
 
       const newVetVisitEntry = await createVetVisitEntry({
         entry_time: optionalLocalDateTimeToISOString(entryTime),
@@ -78,6 +124,46 @@ function VetVisitsPage() {
     }
   }
 
+  async function handleEdit(event: FormEvent<HTMLFormElement>, entry: VetVisitEntry) {
+    event.preventDefault();
+    if (!editForm) {
+      return;
+    }
+
+    try {
+      setSavingEditEntryId(entry.id);
+      setError(null);
+      setSuccessMessage(null);
+
+      const updatedEntry = await updateVetVisitEntry(entry.id, {
+        entry_time: optionalLocalDateTimeToISOString(editForm.entryTime) ?? entry.entry_time,
+        reason: editForm.reason.trim() || null,
+        summary: editForm.summary.trim() || null,
+        follow_up_needed: editForm.followUpNeeded,
+        notes: editForm.notes.trim() || null,
+      });
+
+      setVetVisitEntries((currentVetVisitEntries) =>
+        sortByEntryTimeDescending(
+          currentVetVisitEntries.map((currentEntry) =>
+            currentEntry.id === entry.id ? updatedEntry : currentEntry,
+          ),
+        ),
+      );
+      setEditingEntryId(null);
+      setEditForm(null);
+      showSuccessMessage();
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Could not update vet visit entry.",
+      );
+    } finally {
+      setSavingEditEntryId(null);
+    }
+  }
+
   async function handleDelete(vetVisitEntryId: number) {
     if (!window.confirm("Delete this vet visit entry?")) {
       return;
@@ -85,10 +171,15 @@ function VetVisitsPage() {
 
     try {
       setError(null);
+      setSuccessMessage(null);
       await deleteVetVisitEntry(vetVisitEntryId);
       setVetVisitEntries((currentVetVisitEntries) =>
         currentVetVisitEntries.filter((entry) => entry.id !== vetVisitEntryId),
       );
+      if (editingEntryId === vetVisitEntryId) {
+        setEditingEntryId(null);
+        setEditForm(null);
+      }
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
@@ -171,6 +262,7 @@ function VetVisitsPage() {
           </div>
 
           {error ? <p className="error-message">{error}</p> : null}
+          {successMessage ? <p className="success-message">{successMessage}</p> : null}
 
           {!isLoading && vetVisitEntries.length === 0 ? (
             <p className="empty-state">No vet visits saved yet.</p>
@@ -192,9 +284,89 @@ function VetVisitsPage() {
                 </p>
                 {entry.notes ? <p>{entry.notes}</p> : null}
 
-                <button type="button" onClick={() => handleDelete(entry.id)}>
-                  Delete
-                </button>
+                {editingEntryId === entry.id && editForm ? (
+                  <form
+                    className="edit-entry-form"
+                    onSubmit={(event) => handleEdit(event, entry)}
+                  >
+                    <label>
+                      Reason
+                      <input
+                        type="text"
+                        value={editForm.reason}
+                        onChange={(event) =>
+                          updateEditForm("reason", event.target.value)
+                        }
+                      />
+                    </label>
+
+                    <label>
+                      Date and Time
+                      <input
+                        required
+                        type="datetime-local"
+                        value={editForm.entryTime}
+                        onChange={(event) =>
+                          updateEditForm("entryTime", event.target.value)
+                        }
+                      />
+                    </label>
+
+                    <label className="edit-entry-form-wide">
+                      Summary
+                      <textarea
+                        value={editForm.summary}
+                        onChange={(event) =>
+                          updateEditForm("summary", event.target.value)
+                        }
+                      />
+                    </label>
+
+                    <label className="checkbox-label edit-entry-form-wide">
+                      <input
+                        type="checkbox"
+                        checked={editForm.followUpNeeded}
+                        onChange={(event) =>
+                          updateEditForm("followUpNeeded", event.target.checked)
+                        }
+                      />
+                      Follow-up needed
+                    </label>
+
+                    <label className="edit-entry-form-wide">
+                      Notes
+                      <textarea
+                        value={editForm.notes}
+                        onChange={(event) => updateEditForm("notes", event.target.value)}
+                      />
+                    </label>
+
+                    <div className="entry-actions">
+                      <button type="submit" disabled={savingEditEntryId === entry.id}>
+                        {savingEditEntryId === entry.id ? "Saving..." : "Save Changes"}
+                      </button>
+                      <button
+                        className="secondary-button"
+                        type="button"
+                        onClick={() => {
+                          setEditingEntryId(null);
+                          setEditForm(null);
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                ) : null}
+
+                <div className="entry-actions">
+                  <button type="button" onClick={() => startEditing(entry)}>
+                    Edit
+                  </button>
+                  <button type="button" onClick={() => handleDelete(entry.id)}>
+                    Delete
+                  </button>
+                </div>
               </article>
             ))}
           </div>

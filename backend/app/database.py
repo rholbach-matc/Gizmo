@@ -129,3 +129,84 @@ def migrate_food_entries_for_open_feedings():
         )
         connection.commit()
         connection.exec_driver_sql("PRAGMA foreign_keys=ON")
+
+
+def migrate_remaining_tracker_references():
+    if engine.dialect.name != "sqlite":
+        return
+
+    with engine.connect() as connection:
+        connection.exec_driver_sql(
+            """
+            CREATE TABLE IF NOT EXISTS medications (
+                id INTEGER NOT NULL,
+                name VARCHAR NOT NULL,
+                notes TEXT,
+                created_at DATETIME NOT NULL,
+                PRIMARY KEY (id),
+                UNIQUE (name)
+            )
+            """
+        )
+        connection.exec_driver_sql(
+            "CREATE INDEX IF NOT EXISTS ix_medications_id ON medications (id)"
+        )
+
+        medication_entries_exists = connection.exec_driver_sql(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'medication_entries'"
+        ).fetchone()
+        if medication_entries_exists is not None:
+            medication_columns = {
+                column[1]
+                for column in connection.exec_driver_sql(
+                    "PRAGMA table_info(medication_entries)"
+                ).fetchall()
+            }
+            if "medication_id" not in medication_columns:
+                connection.exec_driver_sql(
+                    "ALTER TABLE medication_entries ADD COLUMN medication_id INTEGER"
+                )
+
+            connection.exec_driver_sql(
+                """
+                INSERT OR IGNORE INTO medications (name, notes, created_at)
+                SELECT DISTINCT medication_name, NULL, CURRENT_TIMESTAMP
+                FROM medication_entries
+                WHERE medication_name IS NOT NULL AND TRIM(medication_name) != ''
+                """
+            )
+            connection.exec_driver_sql(
+                """
+                UPDATE medication_entries
+                SET medication_id = (
+                    SELECT medications.id
+                    FROM medications
+                    WHERE medications.name = medication_entries.medication_name
+                )
+                WHERE medication_id IS NULL
+                """
+            )
+
+        water_entries_exists = connection.exec_driver_sql(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'water_entries'"
+        ).fetchone()
+        if water_entries_exists is not None:
+            water_columns = {
+                column[1]
+                for column in connection.exec_driver_sql(
+                    "PRAGMA table_info(water_entries)"
+                ).fetchall()
+            }
+            if "observation_type" not in water_columns:
+                connection.exec_driver_sql(
+                    """
+                    ALTER TABLE water_entries
+                    ADD COLUMN observation_type VARCHAR NOT NULL DEFAULT 'drank_water'
+                    """
+                )
+            if "bowl_id" not in water_columns:
+                connection.exec_driver_sql(
+                    "ALTER TABLE water_entries ADD COLUMN bowl_id INTEGER"
+                )
+
+        connection.commit()

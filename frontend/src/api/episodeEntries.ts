@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "./config";
+import { responseError } from "./errors";
 
 export type EpisodeEntry = {
   id: number;
@@ -10,6 +11,12 @@ export type EpisodeEntry = {
 
 export type EpisodeEntryCreate = {
   entry_time?: string;
+  severity?: string | null;
+  notes?: string | null;
+};
+
+export type EpisodeEntryUpdate = {
+  entry_time: string;
   severity?: string | null;
   notes?: string | null;
 };
@@ -37,6 +44,28 @@ export async function createEpisodeEntry(
 
   if (!response.ok) {
     throw new Error("Could not create episode entry.");
+  }
+
+  return response.json();
+}
+
+export async function updateEpisodeEntry(
+  episodeEntryId: number,
+  episodeEntry: EpisodeEntryUpdate,
+): Promise<EpisodeEntry> {
+  const response = await fetch(
+    `${API_BASE_URL}/episode-entries/${episodeEntryId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(episodeEntry),
+    },
+  );
+
+  if (!response.ok) {
+    throw await responseError(response, "Could not update episode entry.");
   }
 
   return response.json();

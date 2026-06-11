@@ -21,6 +21,20 @@ class BowlResponse(BaseModel):
     created_at: datetime
 
 
+class MedicationCreate(BaseModel):
+    name: str
+    notes: str | None = None
+
+
+class MedicationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    notes: str | None
+    created_at: datetime
+
+
 class FoodCreate(BaseModel):
     name: str
     brand: str | None = None
@@ -108,6 +122,12 @@ class BMEntryCreate(BaseModel):
     notes: str | None = None
 
 
+class BMEntryUpdate(BaseModel):
+    entry_time: datetime
+    occurred: bool
+    notes: str | None = None
+
+
 class BMEntryResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -120,6 +140,12 @@ class BMEntryResponse(BaseModel):
 
 class FluidEntryCreate(BaseModel):
     entry_time: datetime | None = None
+    amount_ml: float
+    notes: str | None = None
+
+
+class FluidEntryUpdate(BaseModel):
+    entry_time: datetime
     amount_ml: float
     notes: str | None = None
 
@@ -158,6 +184,15 @@ class WeightEntryResponse(BaseModel):
 
 class DrinkingWaterEntryCreate(BaseModel):
     entry_time: datetime | None = None
+    observation_type: str = "drank_water"
+    bowl_id: int | None = None
+    notes: str | None = None
+
+
+class DrinkingWaterEntryUpdate(BaseModel):
+    entry_time: datetime
+    observation_type: str
+    bowl_id: int | None = None
     notes: str | None = None
 
 
@@ -166,12 +201,20 @@ class DrinkingWaterEntryResponse(BaseModel):
 
     id: int
     entry_time: datetime
+    observation_type: str
+    bowl_id: int | None
     notes: str | None
     created_at: datetime
 
 
 class EpisodeEntryCreate(BaseModel):
     entry_time: datetime | None = None
+    severity: str | None = None
+    notes: str | None = None
+
+
+class EpisodeEntryUpdate(BaseModel):
+    entry_time: datetime
     severity: str | None = None
     notes: str | None = None
 
@@ -188,7 +231,14 @@ class EpisodeEntryResponse(BaseModel):
 
 class MedicationEntryCreate(BaseModel):
     entry_time: datetime | None = None
-    medication_name: str
+    medication_id: int
+    dose: str | None = None
+    notes: str | None = None
+
+
+class MedicationEntryUpdate(BaseModel):
+    entry_time: datetime
+    medication_id: int
     dose: str | None = None
     notes: str | None = None
 
@@ -198,6 +248,7 @@ class MedicationEntryResponse(BaseModel):
 
     id: int
     entry_time: datetime
+    medication_id: int | None
     medication_name: str
     dose: str | None
     notes: str | None
@@ -206,6 +257,14 @@ class MedicationEntryResponse(BaseModel):
 
 class VetVisitEntryCreate(BaseModel):
     entry_time: datetime | None = None
+    reason: str | None = None
+    summary: str | None = None
+    follow_up_needed: bool | None = None
+    notes: str | None = None
+
+
+class VetVisitEntryUpdate(BaseModel):
+    entry_time: datetime
     reason: str | None = None
     summary: str | None = None
     follow_up_needed: bool | None = None
