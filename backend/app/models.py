@@ -52,22 +52,26 @@ class FoodEntry(Base):
     bowl_id = Column(Integer, ForeignKey("bowls.id"), nullable=False)
     food_id = Column(Integer, ForeignKey("foods.id"), nullable=False)
     starting_total_weight_grams = Column(Float, nullable=False)
-    ending_total_weight_grams = Column(Float, nullable=False)
+    ending_total_weight_grams = Column(Float, nullable=True)
     starting_food_weight_grams = Column(Float, nullable=False)
-    leftover_food_weight_grams = Column(Float, nullable=False)
-    food_eaten_grams = Column(Float, nullable=False)
-    calories_eaten = Column(Float, nullable=False)
-    protein_consumed_grams = Column(Float, nullable=False)
-    fat_consumed_grams = Column(Float, nullable=False)
-    phosphorus_consumed_mg = Column(Float, nullable=False)
-    sodium_consumed_mg = Column(Float, nullable=False)
-    moisture_consumed_grams = Column(Float, nullable=False)
-    dry_matter_consumed_grams = Column(Float, nullable=False)
+    leftover_food_weight_grams = Column(Float, nullable=True)
+    food_eaten_grams = Column(Float, nullable=True)
+    calories_eaten = Column(Float, nullable=True)
+    protein_consumed_grams = Column(Float, nullable=True)
+    fat_consumed_grams = Column(Float, nullable=True)
+    phosphorus_consumed_mg = Column(Float, nullable=True)
+    sodium_consumed_mg = Column(Float, nullable=True)
+    moisture_consumed_grams = Column(Float, nullable=True)
+    dry_matter_consumed_grams = Column(Float, nullable=True)
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     bowl = relationship("Bowl", back_populates="food_entries")
     food = relationship("Food", back_populates="food_entries")
+
+    @property
+    def is_open(self):
+        return self.ending_total_weight_grams is None
 
 
 class BMEntry(Base):

@@ -36,16 +36,23 @@ def build_activity_items(
     activity_items = []
 
     for entry in food_entries:
+        if entry.is_open:
+            summary = f"{format_number(entry.starting_food_weight_grams)} g served"
+            details = "Feeding in progress"
+        else:
+            summary = (
+                f"{format_number(entry.food_eaten_grams)} g eaten, "
+                f"{format_number(entry.calories_eaten)} cal"
+            )
+            details = f"{format_number(entry.phosphorus_consumed_mg)} mg phosphorus"
+
         activity_items.append(
             schemas.DashboardActivityItem(
                 type="food",
                 entry_time=entry.entry_time,
                 title="Food entry",
-                summary=(
-                    f"{format_number(entry.food_eaten_grams)} g eaten, "
-                    f"{format_number(entry.calories_eaten)} cal"
-                ),
-                details=f"{format_number(entry.phosphorus_consumed_mg)} mg phosphorus",
+                summary=summary,
+                details=details,
             )
         )
 
@@ -152,7 +159,17 @@ def get_today_dashboard(db: Session = Depends(get_db)):
         )
         .filter(models.FoodEntry.entry_time >= start_of_today)
         .filter(models.FoodEntry.entry_time < start_of_tomorrow)
+        .filter(models.FoodEntry.ending_total_weight_grams.is_not(None))
         .one()
+    )
+
+    open_feedings_count = (
+        db.query(func.count(models.FoodEntry.id))
+        .filter(models.FoodEntry.entry_time >= start_of_today)
+        .filter(models.FoodEntry.entry_time < start_of_tomorrow)
+        .filter(models.FoodEntry.ending_total_weight_grams.is_(None))
+        .scalar()
+        or 0
     )
 
     last_food_entry = (
@@ -304,6 +321,7 @@ def get_today_dashboard(db: Session = Depends(get_db)):
     return schemas.TodayDashboardResponse(
         date=today,
         feedings_count=totals[0] or 0,
+        open_feedings_count=open_feedings_count,
         food_eaten_grams=totals[1] or 0,
         calories_eaten=totals[2] or 0,
         protein_consumed_grams=totals[3] or 0,

@@ -6,19 +6,20 @@ export type FoodEntry = {
   bowl_id: number;
   food_id: number;
   starting_total_weight_grams: number;
-  ending_total_weight_grams: number;
+  ending_total_weight_grams: number | null;
   starting_food_weight_grams: number;
-  leftover_food_weight_grams: number;
-  food_eaten_grams: number;
-  calories_eaten: number;
-  protein_consumed_grams: number;
-  fat_consumed_grams: number;
-  phosphorus_consumed_mg: number;
-  sodium_consumed_mg: number;
-  moisture_consumed_grams: number;
-  dry_matter_consumed_grams: number;
+  leftover_food_weight_grams: number | null;
+  food_eaten_grams: number | null;
+  calories_eaten: number | null;
+  protein_consumed_grams: number | null;
+  fat_consumed_grams: number | null;
+  phosphorus_consumed_mg: number | null;
+  sodium_consumed_mg: number | null;
+  moisture_consumed_grams: number | null;
+  dry_matter_consumed_grams: number | null;
   notes: string | null;
   created_at: string;
+  is_open: boolean;
 };
 
 export type FoodEntryCreate = {
@@ -26,6 +27,11 @@ export type FoodEntryCreate = {
   bowl_id: number;
   food_id: number;
   starting_total_weight_grams: number;
+  ending_total_weight_grams?: number;
+  notes?: string | null;
+};
+
+export type FoodEntryFinish = {
   ending_total_weight_grams: number;
   notes?: string | null;
 };
@@ -66,4 +72,23 @@ export async function deleteFoodEntry(foodEntryId: number): Promise<void> {
   if (!response.ok) {
     throw new Error("Could not delete food entry.");
   }
+}
+
+export async function finishFoodEntry(
+  foodEntryId: number,
+  foodEntry: FoodEntryFinish,
+): Promise<FoodEntry> {
+  const response = await fetch(`${API_BASE_URL}/food-entries/${foodEntryId}/finish`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(foodEntry),
+  });
+
+  if (!response.ok) {
+    throw new Error("Could not finish food entry.");
+  }
+
+  return response.json();
 }

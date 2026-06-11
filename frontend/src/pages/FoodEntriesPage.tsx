@@ -5,6 +5,7 @@ import {
   FoodEntry,
   createFoodEntry,
   deleteFoodEntry,
+  finishFoodEntry,
   getFoodEntries,
 } from "../api/foodEntries";
 import { Food, getFoods } from "../api/foods";
@@ -18,6 +19,10 @@ function formatNumber(value: number) {
   return Number(value.toFixed(2));
 }
 
+function formatOptionalNumber(value: number | null) {
+  return value === null ? "--" : formatNumber(value);
+}
+
 function FoodEntriesPage() {
   const [foods, setFoods] = useState<Food[]>([]);
   const [bowls, setBowls] = useState<Bowl[]>([]);
@@ -25,12 +30,13 @@ function FoodEntriesPage() {
   const [foodId, setFoodId] = useState("");
   const [bowlId, setBowlId] = useState("");
   const [startingWeight, setStartingWeight] = useState("");
-  const [endingWeight, setEndingWeight] = useState("");
   const [entryTime, setEntryTime] = useState("");
   const [notes, setNotes] = useState("");
+  const [finishWeights, setFinishWeights] = useState<Record<number, string>>({});
   const [lastSavedEntry, setLastSavedEntry] = useState<FoodEntry | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [finishingEntryId, setFinishingEntryId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function loadFoodEntryData() {
@@ -76,7 +82,6 @@ function FoodEntriesPage() {
         food_id: Number(foodId),
         bowl_id: Number(bowlId),
         starting_total_weight_grams: Number(startingWeight),
-        ending_total_weight_grams: Number(endingWeight),
         notes: notes.trim() || null,
       });
 
@@ -85,7 +90,6 @@ function FoodEntriesPage() {
       );
       setLastSavedEntry(newFoodEntry);
       setStartingWeight("");
-      setEndingWeight("");
       setEntryTime("");
       setNotes("");
     } catch (caughtError) {
@@ -96,6 +100,41 @@ function FoodEntriesPage() {
       );
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function handleFinish(event: FormEvent<HTMLFormElement>, foodEntryId: number) {
+    event.preventDefault();
+
+    try {
+      setFinishingEntryId(foodEntryId);
+      setError(null);
+
+      const finishedEntry = await finishFoodEntry(foodEntryId, {
+        ending_total_weight_grams: Number(finishWeights[foodEntryId]),
+      });
+
+      setFoodEntries((currentFoodEntries) =>
+        sortByEntryTimeDescending(
+          currentFoodEntries.map((entry) =>
+            entry.id === foodEntryId ? finishedEntry : entry,
+          ),
+        ),
+      );
+      setLastSavedEntry(finishedEntry);
+      setFinishWeights((currentFinishWeights) => {
+        const updatedFinishWeights = { ...currentFinishWeights };
+        delete updatedFinishWeights[foodEntryId];
+        return updatedFinishWeights;
+      });
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Could not finish food entry.",
+      );
+    } finally {
+      setFinishingEntryId(null);
     }
   }
 
@@ -118,6 +157,8 @@ function FoodEntriesPage() {
     }
   }
 
+  const openEntriesCount = foodEntries.filter((entry) => entry.is_open).length;
+
   return (
     <main className="app">
       <section className="page-header">
@@ -128,7 +169,7 @@ function FoodEntriesPage() {
 
       <section className="content-grid" aria-label="Food entry management">
         <form className="panel entry-form" onSubmit={handleSubmit}>
-          <h2>Add Food Entry</h2>
+          <h2>Start Feeding</h2>
 
           <label>
             Food
@@ -180,19 +221,6 @@ function FoodEntriesPage() {
           </label>
 
           <label>
-            Ending Weight (grams)
-            <input
-              required
-              min="0"
-              step="0.1"
-              type="number"
-              value={endingWeight}
-              onChange={(event) => setEndingWeight(event.target.value)}
-              placeholder="180"
-            />
-          </label>
-
-          <label>
             Date and Time (optional)
             <input
               type="datetime-local"
@@ -211,7 +239,7 @@ function FoodEntriesPage() {
           </label>
 
           <button type="submit" disabled={isSaving || isLoading}>
-            {isSaving ? "Saving..." : "Save Entry"}
+            {isSaving ? "Starting..." : "Start Feeding"}
           </button>
         </form>
 
@@ -221,7 +249,11 @@ function FoodEntriesPage() {
             {isLoading ? (
               <span>Loading...</span>
             ) : (
-              <span>{foodEntries.length}</span>
+              <span>
+                {openEntriesCount > 0
+                  ? `${openEntriesCount} open`
+                  : `${foodEntries.length} saved`}
+              </span>
             )}
           </div>
 
@@ -233,37 +265,44 @@ function FoodEntriesPage() {
 
           {lastSavedEntry ? (
             <article className="entry-result">
-              <h3>Last Saved</h3>
-              <dl>
-                <div>
-                  <dt>Food eaten</dt>
-                  <dd>{formatNumber(lastSavedEntry.food_eaten_grams)} g</dd>
-                </div>
-                <div>
-                  <dt>Calories</dt>
-                  <dd>{formatNumber(lastSavedEntry.calories_eaten)}</dd>
-                </div>
-                <div>
-                  <dt>Protein</dt>
-                  <dd>{formatNumber(lastSavedEntry.protein_consumed_grams)} g</dd>
-                </div>
-                <div>
-                  <dt>Fat</dt>
-                  <dd>{formatNumber(lastSavedEntry.fat_consumed_grams)} g</dd>
-                </div>
-                <div>
-                  <dt>Phosphorus</dt>
-                  <dd>{formatNumber(lastSavedEntry.phosphorus_consumed_mg)} mg</dd>
-                </div>
-                <div>
-                  <dt>Sodium</dt>
-                  <dd>{formatNumber(lastSavedEntry.sodium_consumed_mg)} mg</dd>
-                </div>
-                <div>
-                  <dt>Moisture</dt>
-                  <dd>{formatNumber(lastSavedEntry.moisture_consumed_grams)} g</dd>
-                </div>
-              </dl>
+              <h3>{lastSavedEntry.is_open ? "Feeding Started" : "Feeding Finished"}</h3>
+              {lastSavedEntry.is_open ? (
+                <p>
+                  {formatNumber(lastSavedEntry.starting_food_weight_grams)} g served.
+                  Add ending weight when Gizmo is done.
+                </p>
+              ) : (
+                <dl>
+                  <div>
+                    <dt>Food eaten</dt>
+                    <dd>{formatOptionalNumber(lastSavedEntry.food_eaten_grams)} g</dd>
+                  </div>
+                  <div>
+                    <dt>Calories</dt>
+                    <dd>{formatOptionalNumber(lastSavedEntry.calories_eaten)}</dd>
+                  </div>
+                  <div>
+                    <dt>Protein</dt>
+                    <dd>{formatOptionalNumber(lastSavedEntry.protein_consumed_grams)} g</dd>
+                  </div>
+                  <div>
+                    <dt>Fat</dt>
+                    <dd>{formatOptionalNumber(lastSavedEntry.fat_consumed_grams)} g</dd>
+                  </div>
+                  <div>
+                    <dt>Phosphorus</dt>
+                    <dd>{formatOptionalNumber(lastSavedEntry.phosphorus_consumed_mg)} mg</dd>
+                  </div>
+                  <div>
+                    <dt>Sodium</dt>
+                    <dd>{formatOptionalNumber(lastSavedEntry.sodium_consumed_mg)} mg</dd>
+                  </div>
+                  <div>
+                    <dt>Moisture</dt>
+                    <dd>{formatOptionalNumber(lastSavedEntry.moisture_consumed_grams)} g</dd>
+                  </div>
+                </dl>
+              )}
             </article>
           ) : null}
 
@@ -273,14 +312,51 @@ function FoodEntriesPage() {
 
           <div className="entry-list">
             {foodEntries.map((entry) => (
-              <article className="entry-card" key={entry.id}>
+              <article
+                className={`entry-card ${entry.is_open ? "entry-card-open" : ""}`}
+                key={entry.id}
+              >
                 <div>
                   <h3>{formatLocalTimestamp(entry.entry_time)}</h3>
-                  <p>{formatNumber(entry.food_eaten_grams)} g eaten</p>
+                  <p>
+                    {entry.is_open
+                      ? `${formatNumber(entry.starting_food_weight_grams)} g served`
+                      : `${formatOptionalNumber(entry.food_eaten_grams)} g eaten`}
+                  </p>
                 </div>
 
-                <p>{formatNumber(entry.calories_eaten)} calories</p>
-                <p>{formatNumber(entry.phosphorus_consumed_mg)} mg phosphorus</p>
+                {entry.is_open ? (
+                  <form
+                    className="finish-entry-form"
+                    onSubmit={(event) => handleFinish(event, entry.id)}
+                  >
+                    <label>
+                      Ending Weight (grams)
+                      <input
+                        required
+                        min="0"
+                        step="0.1"
+                        type="number"
+                        value={finishWeights[entry.id] ?? ""}
+                        onChange={(event) =>
+                          setFinishWeights((currentFinishWeights) => ({
+                            ...currentFinishWeights,
+                            [entry.id]: event.target.value,
+                          }))
+                        }
+                        placeholder="180"
+                      />
+                    </label>
+                    <button type="submit" disabled={finishingEntryId === entry.id}>
+                      {finishingEntryId === entry.id ? "Finishing..." : "Finish Feeding"}
+                    </button>
+                  </form>
+                ) : (
+                  <>
+                    <p>{formatOptionalNumber(entry.calories_eaten)} calories</p>
+                    <p>{formatOptionalNumber(entry.phosphorus_consumed_mg)} mg phosphorus</p>
+                  </>
+                )}
 
                 <button type="button" onClick={() => handleDelete(entry.id)}>
                   Delete

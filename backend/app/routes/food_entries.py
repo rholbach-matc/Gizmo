@@ -16,6 +16,79 @@ def get_db():
         db.close()
 
 
+def get_bowl(db: Session, bowl_id: int):
+    db_bowl = db.query(models.Bowl).filter(models.Bowl.id == bowl_id).first()
+    if db_bowl is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Bowl not found",
+        )
+
+    return db_bowl
+
+
+def get_food(db: Session, food_id: int):
+    db_food = db.query(models.Food).filter(models.Food.id == food_id).first()
+    if db_food is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Food not found",
+        )
+
+    return db_food
+
+
+def validate_starting_weight(starting_total_weight_grams: float, bowl: models.Bowl):
+    if starting_total_weight_grams < bowl.empty_weight_grams:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Starting total weight cannot be less than empty bowl weight",
+        )
+
+
+def calculate_completed_food_entry(
+    food_entry: models.FoodEntry,
+    ending_total_weight_grams: float,
+    bowl: models.Bowl,
+    food: models.Food,
+):
+    if ending_total_weight_grams > food_entry.starting_total_weight_grams:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ending total weight cannot be greater than starting total weight",
+        )
+
+    if ending_total_weight_grams < bowl.empty_weight_grams:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ending total weight cannot be less than empty bowl weight",
+        )
+
+    leftover_food_weight_grams = ending_total_weight_grams - bowl.empty_weight_grams
+    food_eaten_grams = food_entry.starting_food_weight_grams - leftover_food_weight_grams
+
+    food_entry.ending_total_weight_grams = ending_total_weight_grams
+    food_entry.leftover_food_weight_grams = leftover_food_weight_grams
+    food_entry.food_eaten_grams = food_eaten_grams
+    food_entry.calories_eaten = food_eaten_grams * food.calories_per_gram
+    food_entry.protein_consumed_grams = food_eaten_grams * (
+        food.protein_as_fed_percent / 100
+    )
+    food_entry.fat_consumed_grams = food_eaten_grams * (food.fat_as_fed_percent / 100)
+    food_entry.phosphorus_consumed_mg = (
+        food_eaten_grams * (food.phosphorus_as_fed_percent / 100) * 1000
+    )
+    food_entry.sodium_consumed_mg = (
+        food_eaten_grams * (food.sodium_as_fed_percent / 100) * 1000
+    )
+    food_entry.moisture_consumed_grams = food_eaten_grams * (
+        food.moisture_percent / 100
+    )
+    food_entry.dry_matter_consumed_grams = food_eaten_grams * (
+        food.dry_matter_percent / 100
+    )
+
+
 @router.post(
     "",
     response_model=schemas.FoodEntryResponse,
@@ -25,49 +98,12 @@ def create_food_entry(
     food_entry: schemas.FoodEntryCreate,
     db: Session = Depends(get_db),
 ):
-    if food_entry.ending_total_weight_grams > food_entry.starting_total_weight_grams:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Ending total weight cannot be greater than starting total weight",
-        )
-
-    db_bowl = db.query(models.Bowl).filter(models.Bowl.id == food_entry.bowl_id).first()
-    if db_bowl is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Bowl not found",
-        )
-
-    db_food = db.query(models.Food).filter(models.Food.id == food_entry.food_id).first()
-    if db_food is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Food not found",
-        )
+    db_bowl = get_bowl(db, food_entry.bowl_id)
+    db_food = get_food(db, food_entry.food_id)
+    validate_starting_weight(food_entry.starting_total_weight_grams, db_bowl)
 
     starting_food_weight_grams = (
         food_entry.starting_total_weight_grams - db_bowl.empty_weight_grams
-    )
-    leftover_food_weight_grams = (
-        food_entry.ending_total_weight_grams - db_bowl.empty_weight_grams
-    )
-    food_eaten_grams = starting_food_weight_grams - leftover_food_weight_grams
-    calories_eaten = food_eaten_grams * db_food.calories_per_gram
-    protein_consumed_grams = food_eaten_grams * (
-        db_food.protein_as_fed_percent / 100
-    )
-    fat_consumed_grams = food_eaten_grams * (db_food.fat_as_fed_percent / 100)
-    phosphorus_consumed_mg = (
-        food_eaten_grams * (db_food.phosphorus_as_fed_percent / 100) * 1000
-    )
-    sodium_consumed_mg = (
-        food_eaten_grams * (db_food.sodium_as_fed_percent / 100) * 1000
-    )
-    moisture_consumed_grams = food_eaten_grams * (
-        db_food.moisture_percent / 100
-    )
-    dry_matter_consumed_grams = food_eaten_grams * (
-        db_food.dry_matter_percent / 100
     )
 
     db_food_entry = models.FoodEntry(
@@ -75,21 +111,61 @@ def create_food_entry(
         bowl_id=food_entry.bowl_id,
         food_id=food_entry.food_id,
         starting_total_weight_grams=food_entry.starting_total_weight_grams,
-        ending_total_weight_grams=food_entry.ending_total_weight_grams,
         starting_food_weight_grams=starting_food_weight_grams,
-        leftover_food_weight_grams=leftover_food_weight_grams,
-        food_eaten_grams=food_eaten_grams,
-        calories_eaten=calories_eaten,
-        protein_consumed_grams=protein_consumed_grams,
-        fat_consumed_grams=fat_consumed_grams,
-        phosphorus_consumed_mg=phosphorus_consumed_mg,
-        sodium_consumed_mg=sodium_consumed_mg,
-        moisture_consumed_grams=moisture_consumed_grams,
-        dry_matter_consumed_grams=dry_matter_consumed_grams,
         notes=food_entry.notes,
     )
 
+    if food_entry.ending_total_weight_grams is not None:
+        calculate_completed_food_entry(
+            db_food_entry,
+            food_entry.ending_total_weight_grams,
+            db_bowl,
+            db_food,
+        )
+
     db.add(db_food_entry)
+    db.commit()
+    db.refresh(db_food_entry)
+
+    return db_food_entry
+
+
+@router.patch("/{food_entry_id}/finish", response_model=schemas.FoodEntryResponse)
+def finish_food_entry(
+    food_entry_id: int,
+    food_entry_finish: schemas.FoodEntryFinish,
+    db: Session = Depends(get_db),
+):
+    db_food_entry = (
+        db.query(models.FoodEntry)
+        .filter(models.FoodEntry.id == food_entry_id)
+        .first()
+    )
+
+    if db_food_entry is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Food entry not found",
+        )
+
+    if not db_food_entry.is_open:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Food entry is already finished",
+        )
+
+    db_bowl = get_bowl(db, db_food_entry.bowl_id)
+    db_food = get_food(db, db_food_entry.food_id)
+    calculate_completed_food_entry(
+        db_food_entry,
+        food_entry_finish.ending_total_weight_grams,
+        db_bowl,
+        db_food,
+    )
+
+    if food_entry_finish.notes is not None:
+        db_food_entry.notes = food_entry_finish.notes
+
     db.commit()
     db.refresh(db_food_entry)
 
