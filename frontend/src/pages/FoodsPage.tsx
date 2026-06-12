@@ -343,7 +343,7 @@ function FoodsPage() {
                   aria-expanded={isExpanded}
                   aria-label={`${isExpanded ? "Collapse" : "Expand"} ${food.name}`}
                 >
-                  <div className="ref-card-collapsed food-card-summary">
+                  <div className="food-card-summary">
                     <div className="food-card-package">
                       <span>{food.brand}</span>
                       <span>Can: {formatNumber(food.can_size_grams)}g</span>
@@ -363,15 +363,9 @@ function FoodsPage() {
                     </div>
 
                     <div className="food-card-metric-labels" aria-hidden="true">
-                      <span>
-                        cal/g
-                      </span>
-                      <span>
-                        Phos DM
-                      </span>
-                      <span>
-                        Protein DM
-                      </span>
+                      <span>Cal/g</span>
+                      <span>Phos DM</span>
+                      <span>Protein DM</span>
                       <span>Na DM</span>
                     </div>
                   </div>
