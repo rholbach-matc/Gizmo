@@ -347,6 +347,10 @@ p {
   background: #9a7ab8;
 }
 
+.activity-mood .activity-marker {
+  background: #c47a8a;
+}
+
 .activity-medication .activity-marker {
   background: #566f9b;
 }
@@ -369,6 +373,7 @@ p {
   display: block;
   font-size: 0.95rem;
   margin-top: 0.25rem;
+  white-space: pre-line;
 }
 
 .activity-item span {
@@ -1162,6 +1167,10 @@ p {
 
 .dashboard-app .activity-vomit .activity-marker {
   background: #9a7ab8;
+}
+
+.dashboard-app .activity-mood .activity-marker {
+  background: #c47a8a;
 }
 
 .dashboard-app .activity-food .activity-marker {

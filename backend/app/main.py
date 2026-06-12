@@ -18,6 +18,7 @@ from app.routes import (
     food_entries,
     foods,
     medication_entries,
+    mood_entries,
     vet_visit_entries,
     vomit_entries,
     water_entries,
@@ -59,6 +60,7 @@ app.include_router(fluid_entries.router)
 app.include_router(food_entries.router)
 app.include_router(foods.router)
 app.include_router(medication_entries.router)
+app.include_router(mood_entries.router)
 app.include_router(vet_visit_entries.router)
 app.include_router(vomit_entries.router)
 app.include_router(water_entries.router)

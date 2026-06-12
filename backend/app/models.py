@@ -149,6 +149,20 @@ class VomitEntry(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 
+class MoodEntry(Base):
+    __tablename__ = "mood_entries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    entry_time = Column(DateTime, nullable=False)
+    mood_rating = Column(Integer, nullable=True)
+    appetite_rating = Column(Integer, nullable=True)
+    energy_rating = Column(Integer, nullable=True)
+    social_rating = Column(Integer, nullable=True)
+    yowling_rating = Column(Integer, nullable=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
 class MedicationEntry(Base):
     __tablename__ = "medication_entries"
 

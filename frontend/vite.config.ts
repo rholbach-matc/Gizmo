@@ -16,6 +16,7 @@ export default defineConfig({
       "/foods": apiTarget,
       "/health": apiTarget,
       "/medication-entries": apiTarget,
+      "/mood-entries": apiTarget,
       "/vet-visit-entries": apiTarget,
       "/vomit-entries": apiTarget,
       "/water-entries": apiTarget,
