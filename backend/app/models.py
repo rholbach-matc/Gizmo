@@ -61,6 +61,7 @@ class FoodEntry(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     entry_time = Column(DateTime, nullable=False)
+    finished_at = Column(DateTime, nullable=True)
     bowl_id = Column(Integer, ForeignKey("bowls.id"), nullable=False)
     food_id = Column(Integer, ForeignKey("foods.id"), nullable=False)
     starting_total_weight_grams = Column(Float, nullable=False)

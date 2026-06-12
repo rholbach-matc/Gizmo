@@ -131,6 +131,28 @@ def migrate_food_entries_for_open_feedings():
         connection.exec_driver_sql("PRAGMA foreign_keys=ON")
 
 
+def migrate_food_entries_finished_at():
+    if engine.dialect.name != "sqlite":
+        return
+
+    with engine.connect() as connection:
+        food_entries_exists = connection.exec_driver_sql(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'food_entries'"
+        ).fetchone()
+        if food_entries_exists is None:
+            return
+
+        columns = {
+            column[1]
+            for column in connection.exec_driver_sql(
+                "PRAGMA table_info(food_entries)"
+            ).fetchall()
+        }
+        if "finished_at" not in columns:
+            connection.exec_driver_sql("ALTER TABLE food_entries ADD COLUMN finished_at DATETIME")
+            connection.commit()
+
+
 def migrate_remaining_tracker_references():
     if engine.dialect.name != "sqlite":
         return

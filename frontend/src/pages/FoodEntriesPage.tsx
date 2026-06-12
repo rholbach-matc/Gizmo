@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, KeyboardEvent, MouseEvent, useEffect, useState } from "react";
 
 import { Bowl, getBowls } from "../api/bowls";
 import {
@@ -25,6 +25,19 @@ function formatOptionalNumber(value: number | null) {
   return value === null ? "--" : formatNumber(value);
 }
 
+function populatedNumber(value: number | null, unit = "") {
+  if (value === null) {
+    return null;
+  }
+
+  return `${formatNumber(value)}${unit ? ` ${unit}` : ""}`;
+}
+
+function populatedText(value: string | null) {
+  const trimmedValue = value?.trim();
+  return trimmedValue ? trimmedValue : null;
+}
+
 function getFoodName(foods: Food[], foodId: number, fallbackName?: string) {
   const food = foods.find((currentFood) => currentFood.id === foodId);
   if (!food) {
@@ -32,6 +45,25 @@ function getFoodName(foods: Food[], foodId: number, fallbackName?: string) {
   }
 
   return food.brand ? `${food.name} - ${food.brand}` : food.name;
+}
+
+function getFoodSummary(foods: Food[], entry: FoodEntry) {
+  const food = foods.find((currentFood) => currentFood.id === entry.food_id);
+
+  if (food) {
+    return {
+      name: food.name,
+      brand: food.brand,
+    };
+  }
+
+  const fallbackName = entry.food_name || "Unknown Food";
+  const [name, brand] = fallbackName.split(" - ", 2);
+
+  return {
+    name,
+    brand: brand ?? null,
+  };
 }
 
 function getBowlName(bowls: Bowl[], bowlId: number) {
@@ -61,6 +93,11 @@ type FoodEntryEditForm = {
   notes: string;
 };
 
+type NutritionDetail = {
+  label: string;
+  value: string | null;
+};
+
 function foodEntryEditForm(entry: FoodEntry): FoodEntryEditForm {
   return {
     entryTime: localDateTimeInputValue(entry.entry_time),
@@ -81,6 +118,7 @@ function FoodEntriesPage() {
   const [notes, setNotes] = useState("");
   const [finishWeights, setFinishWeights] = useState<Record<number, string>>({});
   const [editingEntryId, setEditingEntryId] = useState<number | null>(null);
+  const [expandedEntryIds, setExpandedEntryIds] = useState<Set<number>>(new Set());
   const [editForm, setEditForm] = useState<FoodEntryEditForm | null>(null);
   const [lastSavedEntry, setLastSavedEntry] = useState<FoodEntry | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -132,6 +170,73 @@ function FoodEntriesPage() {
     setSuccessMessage(null);
     setEditingEntryId(entry.id);
     setEditForm(foodEntryEditForm(entry));
+    if (!entry.is_open) {
+      setExpandedEntryIds((currentExpandedEntryIds) => {
+        const nextExpandedEntryIds = new Set(currentExpandedEntryIds);
+        nextExpandedEntryIds.add(entry.id);
+        return nextExpandedEntryIds;
+      });
+    }
+  }
+
+  function toggleFinishedEntry(entryId: number) {
+    setExpandedEntryIds((currentExpandedEntryIds) => {
+      const nextExpandedEntryIds = new Set(currentExpandedEntryIds);
+
+      if (nextExpandedEntryIds.has(entryId)) {
+        nextExpandedEntryIds.delete(entryId);
+      } else {
+        nextExpandedEntryIds.add(entryId);
+      }
+
+      return nextExpandedEntryIds;
+    });
+  }
+
+  function handleFinishedCardClick(entryId: number) {
+    toggleFinishedEntry(entryId);
+  }
+
+  function handleFinishedCardKeyDown(
+    event: KeyboardEvent<HTMLElement>,
+    entryId: number,
+  ) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      toggleFinishedEntry(entryId);
+    }
+  }
+
+  function handleNestedActionClick(event: MouseEvent<HTMLElement>) {
+    event.stopPropagation();
+  }
+
+  function foodEntryNutritionDetails(entry: FoodEntry): NutritionDetail[] {
+    return [
+      { label: "Calories consumed", value: populatedNumber(entry.calories_eaten) },
+      {
+        label: "Protein consumed",
+        value: populatedNumber(entry.protein_consumed_grams, "g"),
+      },
+      { label: "Fat consumed", value: populatedNumber(entry.fat_consumed_grams, "g") },
+      {
+        label: "Phosphorus consumed",
+        value: populatedNumber(entry.phosphorus_consumed_mg, "mg"),
+      },
+      {
+        label: "Sodium consumed",
+        value: populatedNumber(entry.sodium_consumed_mg, "mg"),
+      },
+      {
+        label: "Moisture consumed",
+        value: populatedNumber(entry.moisture_consumed_grams, "g"),
+      },
+      {
+        label: "Dry matter consumed",
+        value: populatedNumber(entry.dry_matter_consumed_grams, "g"),
+      },
+      { label: "Notes", value: populatedText(entry.notes) },
+    ].filter((detail) => detail.value !== null);
   }
 
   function updateEditForm(field: keyof FoodEntryEditForm, value: string) {
@@ -290,7 +395,7 @@ function FoodEntriesPage() {
   const openBowlIds = getOpenBowlIds(foodEntries);
 
   return (
-    <main className="app">
+    <main className="app food-entries-page">
       <section className="page-header">
         <p className="eyebrow">Gizmo</p>
         <h1>Food Entries</h1>
@@ -448,24 +553,66 @@ function FoodEntriesPage() {
           ) : null}
 
           <div className="entry-list">
-            {foodEntries.map((entry) => (
+            {foodEntries.map((entry) => {
+              const foodSummary = getFoodSummary(foods, entry);
+              const isExpanded = expandedEntryIds.has(entry.id);
+              const nutritionDetails = foodEntryNutritionDetails(entry);
+
+              return (
               <article
-                className={`entry-card ${entry.is_open ? "entry-card-open" : ""}`}
+                className={`entry-card ref-card ${
+                  entry.is_open ? "entry-card-open" : "entry-card-finished"
+                }`}
                 key={entry.id}
+                onClick={
+                  entry.is_open ? undefined : () => handleFinishedCardClick(entry.id)
+                }
+                onKeyDown={
+                  entry.is_open
+                    ? undefined
+                    : (event) => handleFinishedCardKeyDown(event, entry.id)
+                }
+                role={entry.is_open ? undefined : "button"}
+                tabIndex={entry.is_open ? undefined : 0}
+                aria-expanded={entry.is_open ? undefined : isExpanded}
+                aria-label={
+                  entry.is_open
+                    ? undefined
+                    : `${isExpanded ? "Collapse" : "Expand"} finished feeding for ${
+                        foodSummary.name
+                      }`
+                }
               >
-                <div>
-                  <h3>
-                    {entry.is_open
-                      ? foodEntryName(foods, entry)
-                      : `Finished Feeding - ${foodEntryName(foods, entry)}`}
-                  </h3>
-                  <p>
-                    {entry.is_open
-                      ? "Open feeding"
-                      : `${formatOptionalNumber(entry.food_eaten_grams)} g eaten - ${formatLocalTimestamp(
-                          entry.entry_time,
-                        )}`}
-                  </p>
+                <div className="entry-card-summary">
+                  <div
+                    className={`entry-card-meta-row ${
+                      entry.is_open ? "entry-card-meta-row-open" : ""
+                    }`}
+                  >
+                    <span
+                      className={`entry-status-badge ${
+                        entry.is_open ? "entry-status-open" : "entry-status-finished"
+                      }`}
+                    >
+                      {entry.is_open ? "Open Feeding" : "Finished Feeding"}
+                    </span>
+                    {!entry.is_open ? (
+                      <div className="entry-card-times">
+                        <span>Started {formatLocalTimestamp(entry.entry_time)}</span>
+                        <span>
+                          Finished{" "}
+                          {entry.finished_at
+                            ? formatLocalTimestamp(entry.finished_at)
+                            : "time not saved"}
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <h3 className="entry-card-name">{foodSummary.name}</h3>
+                  {foodSummary.brand ? (
+                    <p className="entry-card-brand">{foodSummary.brand}</p>
+                  ) : null}
                 </div>
 
                 {entry.is_open ? (
@@ -490,6 +637,7 @@ function FoodEntriesPage() {
                     </dl>
                     <form
                       className="finish-entry-form"
+                      onClick={handleNestedActionClick}
                       onSubmit={(event) => handleFinish(event, entry.id)}
                     >
                       <label>
@@ -516,14 +664,49 @@ function FoodEntriesPage() {
                   </>
                 ) : (
                   <>
-                    <p>{formatOptionalNumber(entry.calories_eaten)} calories</p>
-                    <p>{formatOptionalNumber(entry.phosphorus_consumed_mg)} mg phosphorus</p>
+                    <dl className="entry-details entry-key-metrics">
+                      <div>
+                        <dt>Starting weight</dt>
+                        <dd>{formatNumber(entry.starting_total_weight_grams)} g</dd>
+                      </div>
+                      <div>
+                        <dt>Ending weight</dt>
+                        <dd>{formatOptionalNumber(entry.ending_total_weight_grams)} g</dd>
+                      </div>
+                      <div>
+                        <dt>Food eaten</dt>
+                        <dd>{formatOptionalNumber(entry.food_eaten_grams)} g</dd>
+                      </div>
+                      <div>
+                        <dt>Calories</dt>
+                        <dd>{formatOptionalNumber(entry.calories_eaten)}</dd>
+                      </div>
+                    </dl>
+
+                    {isExpanded ? (
+                      <section
+                        className="ref-card-expanded entry-expanded"
+                        aria-label={`${foodSummary.name} consumed nutrition`}
+                      >
+                        {nutritionDetails.length > 0 ? (
+                          <dl className="nutrition-grid entry-nutrition-grid">
+                            {nutritionDetails.map((detail) => (
+                              <div className="nutrition-group" key={detail.label}>
+                                <dt>{detail.label}</dt>
+                                <dd>{detail.value}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                        ) : null}
+                      </section>
+                    ) : null}
                   </>
                 )}
 
                 {editingEntryId === entry.id && editForm ? (
                   <form
                     className="edit-entry-form"
+                    onClick={handleNestedActionClick}
                     onSubmit={(event) => handleEdit(event, entry)}
                   >
                     <label>
@@ -594,16 +777,31 @@ function FoodEntriesPage() {
                   </form>
                 ) : null}
 
-                <div className="entry-actions">
-                  <button type="button" onClick={() => startEditing(entry)}>
-                    Edit
-                  </button>
-                  <button type="button" onClick={() => handleDelete(entry.id)}>
-                    Delete
-                  </button>
-                </div>
+                {entry.is_open || isExpanded ? (
+                  <div className="entry-actions">
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        handleNestedActionClick(event);
+                        startEditing(entry);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        handleNestedActionClick(event);
+                        handleDelete(entry.id);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ) : null}
               </article>
-            ))}
+              );
+            })}
           </div>
         </section>
       </section>
