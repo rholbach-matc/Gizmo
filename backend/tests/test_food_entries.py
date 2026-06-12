@@ -23,6 +23,7 @@ class FoodEntryWorkflowTest(TestCase):
         self.bowl = models.Bowl(name="Test Bowl", empty_weight_grams=10)
         self.food = models.Food(
             name="Test Food",
+            brand="Test Brand",
             can_size_grams=100,
             calories_per_can=200,
             calories_per_gram=2,
@@ -56,6 +57,7 @@ class FoodEntryWorkflowTest(TestCase):
         )
 
         self.assertTrue(entry.is_open)
+        self.assertEqual(entry.food_name, "Test Food - Test Brand")
         self.assertEqual(entry.starting_food_weight_grams, 100)
         self.assertIsNone(entry.ending_total_weight_grams)
         self.assertIsNone(entry.food_eaten_grams)
@@ -87,6 +89,26 @@ class FoodEntryWorkflowTest(TestCase):
         self.assertEqual(finished_entry.sodium_consumed_mg, 25)
         self.assertEqual(finished_entry.moisture_consumed_grams, 40)
         self.assertEqual(finished_entry.dry_matter_consumed_grams, 10)
+
+    def test_food_entry_response_includes_unknown_food_when_catalog_row_is_deleted(self):
+        entry = create_food_entry(
+            schemas.FoodEntryCreate(
+                bowl_id=self.bowl.id,
+                food_id=self.food.id,
+                starting_total_weight_grams=110,
+                ending_total_weight_grams=60,
+            ),
+            self.db,
+        )
+        self.db.query(models.Food).filter(models.Food.id == self.food.id).delete(
+            synchronize_session=False
+        )
+        self.db.commit()
+        self.db.expire(entry, ["food"])
+
+        response = schemas.FoodEntryResponse.model_validate(entry)
+
+        self.assertEqual(response.food_name, "Unknown Food")
 
     def test_create_food_entry_still_supports_completed_entry(self):
         entry = create_food_entry(

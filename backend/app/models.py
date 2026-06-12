@@ -85,6 +85,17 @@ class FoodEntry(Base):
     def is_open(self):
         return self.ending_total_weight_grams is None
 
+    @property
+    def food_name(self):
+        if self.food is None:
+            return "Unknown Food"
+
+        return (
+            f"{self.food.name} - {self.food.brand}"
+            if self.food.brand
+            else self.food.name
+        )
+
 
 class BMEntry(Base):
     __tablename__ = "bm_entries"

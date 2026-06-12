@@ -100,6 +100,7 @@ class FoodEntryResponse(BaseModel):
     entry_time: datetime
     bowl_id: int
     food_id: int
+    food_name: str
     starting_total_weight_grams: float
     ending_total_weight_grams: float | None
     starting_food_weight_grams: float
