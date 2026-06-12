@@ -25,10 +25,10 @@ function formatOptionalNumber(value: number | null) {
   return value === null ? "--" : formatNumber(value);
 }
 
-function getFoodName(foods: Food[], foodId: number) {
+function getFoodName(foods: Food[], foodId: number, fallbackName?: string) {
   const food = foods.find((currentFood) => currentFood.id === foodId);
   if (!food) {
-    return "Unknown food";
+    return fallbackName ?? "Unknown Food";
   }
 
   return food.brand ? `${food.name} - ${food.brand}` : food.name;
@@ -36,6 +36,10 @@ function getFoodName(foods: Food[], foodId: number) {
 
 function getBowlName(bowls: Bowl[], bowlId: number) {
   return bowls.find((bowl) => bowl.id === bowlId)?.name ?? "Unknown bowl";
+}
+
+function foodEntryName(foods: Food[], entry: FoodEntry) {
+  return getFoodName(foods, entry.food_id, entry.food_name);
 }
 
 function getOpenBowlIds(foodEntries: FoodEntry[]) {
@@ -398,6 +402,7 @@ function FoodEntriesPage() {
           {lastSavedEntry ? (
             <article className="entry-result">
               <h3>{lastSavedEntry.is_open ? "Feeding Started" : "Feeding Finished"}</h3>
+              <p className="food-entry-name">{foodEntryName(foods, lastSavedEntry)}</p>
               {lastSavedEntry.is_open ? (
                 <p>
                   {formatNumber(lastSavedEntry.starting_food_weight_grams)} g served.
@@ -451,13 +456,15 @@ function FoodEntriesPage() {
                 <div>
                   <h3>
                     {entry.is_open
-                      ? getFoodName(foods, entry.food_id)
-                      : formatLocalTimestamp(entry.entry_time)}
+                      ? foodEntryName(foods, entry)
+                      : `Finished Feeding - ${foodEntryName(foods, entry)}`}
                   </h3>
                   <p>
                     {entry.is_open
                       ? "Open feeding"
-                      : `${formatOptionalNumber(entry.food_eaten_grams)} g eaten`}
+                      : `${formatOptionalNumber(entry.food_eaten_grams)} g eaten - ${formatLocalTimestamp(
+                          entry.entry_time,
+                        )}`}
                   </p>
                 </div>
 

@@ -24,6 +24,7 @@ class DashboardTotalsTest(TestCase):
         self.bowl = models.Bowl(name="Test Bowl", empty_weight_grams=10)
         self.food = models.Food(
             name="Test Food",
+            brand="Test Brand",
             can_size_grams=100,
             calories_per_can=200,
             calories_per_gram=2,
@@ -91,6 +92,11 @@ class DashboardTotalsTest(TestCase):
         self.assertEqual(dashboard.open_feedings_count, 1)
         self.assertEqual(dashboard.calories_eaten, 100)
         self.assertEqual(dashboard.yesterday_calories_eaten, 80)
+
+        food_items = [
+            item for item in dashboard.recent_activity if item.type == "food"
+        ]
+        self.assertIn("Test Food - Test Brand", food_items[1].summary)
 
     def test_dashboard_omits_yesterday_calories_when_no_completed_feedings(self):
         self.add_food_entry(datetime(2026, 6, 10, 14, 0), None, None)

@@ -61,10 +61,10 @@ function entryLocalDateKey(entryTime: string) {
   return localDateKey(new Date(normalizeTimestamp(entryTime)));
 }
 
-function getFoodName(foods: Food[], foodId: number) {
+function getFoodName(foods: Food[], foodId: number, fallbackName?: string) {
   const food = foods.find((currentFood) => currentFood.id === foodId);
   if (!food) {
-    return "Unknown food";
+    return fallbackName ?? "Unknown Food";
   }
 
   return food.brand ? `${food.name} - ${food.brand}` : food.name;
@@ -402,7 +402,7 @@ function DashboardPage({ onDateChipClick }: DashboardPageProps) {
                 {visibleOpenFeedings.map((entry) => (
                   <article className="open-feeding-item" key={entry.id}>
                     <div>
-                      <strong>{getFoodName(foods, entry.food_id)}</strong>
+                      <strong>{getFoodName(foods, entry.food_id, entry.food_name)}</strong>
                       <span>
                         {getBowlName(bowls, entry.bowl_id)} ·{" "}
                         {formatNumber(entry.starting_total_weight_grams)} g ·{" "}
@@ -487,7 +487,7 @@ function DashboardPage({ onDateChipClick }: DashboardPageProps) {
                 <form className="finish-modal" onSubmit={handleFinish}>
                   <h2>Finish Feeding</h2>
                   <p>
-                    {getFoodName(foods, finishEntry.food_id)} ·{" "}
+                    {getFoodName(foods, finishEntry.food_id, finishEntry.food_name)} ·{" "}
                     {getBowlName(bowls, finishEntry.bowl_id)}
                   </p>
                   <label>

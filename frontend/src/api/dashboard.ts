@@ -3,6 +3,7 @@ import { API_BASE_URL } from "./config";
 export type DashboardFoodEntry = {
   id: number;
   entry_time: string;
+  food_name: string;
   food_eaten_grams: number | null;
   calories_eaten: number | null;
   phosphorus_consumed_mg: number | null;

@@ -72,7 +72,7 @@ def build_activity_items(
             details = "Feeding in progress"
         else:
             summary = (
-                f"{format_number(entry.food_eaten_grams)} g eaten, "
+                f"{format_number(entry.food_eaten_grams)} g eaten of {entry.food_name}, "
                 f"{format_number(entry.calories_eaten)} cal"
             )
             details = f"{format_number(entry.phosphorus_consumed_mg)} mg phosphorus"

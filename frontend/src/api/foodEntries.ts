@@ -6,6 +6,7 @@ export type FoodEntry = {
   entry_time: string;
   bowl_id: number;
   food_id: number;
+  food_name: string;
   starting_total_weight_grams: number;
   ending_total_weight_grams: number | null;
   starting_food_weight_grams: number;
