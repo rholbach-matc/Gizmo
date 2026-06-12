@@ -115,6 +115,7 @@ class FoodEntryResponse(BaseModel):
 
     id: int
     entry_time: datetime
+    finished_at: datetime | None
     bowl_id: int
     food_id: int
     food_name: str

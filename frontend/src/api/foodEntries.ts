@@ -4,6 +4,7 @@ import { responseError } from "./errors";
 export type FoodEntry = {
   id: number;
   entry_time: string;
+  finished_at: string | null;
   bowl_id: number;
   food_id: number;
   food_name: string;

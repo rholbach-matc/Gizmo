@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -47,6 +49,7 @@ def validate_starting_weight(starting_total_weight_grams: float, bowl: models.Bo
 
 
 def reset_completed_food_entry_values(food_entry: models.FoodEntry):
+    food_entry.finished_at = None
     food_entry.ending_total_weight_grams = None
     food_entry.leftover_food_weight_grams = None
     food_entry.food_eaten_grams = None
@@ -135,6 +138,7 @@ def create_food_entry(
             db_bowl,
             db_food,
         )
+        db_food_entry.finished_at = datetime.utcnow()
 
     db.add(db_food_entry)
     db.commit()
@@ -233,6 +237,7 @@ def finish_food_entry(
         db_bowl,
         db_food,
     )
+    db_food_entry.finished_at = datetime.utcnow()
 
     if food_entry_finish.notes is not None:
         db_food_entry.notes = food_entry_finish.notes

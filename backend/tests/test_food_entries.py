@@ -89,6 +89,7 @@ class FoodEntryWorkflowTest(TestCase):
         self.assertEqual(finished_entry.sodium_consumed_mg, 25)
         self.assertEqual(finished_entry.moisture_consumed_grams, 40)
         self.assertEqual(finished_entry.dry_matter_consumed_grams, 10)
+        self.assertIsNotNone(finished_entry.finished_at)
 
     def test_food_entry_response_includes_unknown_food_when_catalog_row_is_deleted(self):
         entry = create_food_entry(

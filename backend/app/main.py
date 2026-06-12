@@ -6,6 +6,7 @@ from app import models
 from app.database import (
     Base,
     engine,
+    migrate_food_entries_finished_at,
     migrate_food_entries_for_open_feedings,
     migrate_remaining_tracker_references,
 )
@@ -44,6 +45,7 @@ app.add_middleware(
 def create_tables():
     Base.metadata.create_all(bind=engine)
     migrate_food_entries_for_open_feedings()
+    migrate_food_entries_finished_at()
     migrate_remaining_tracker_references()
 
 

@@ -829,6 +829,205 @@ p {
   margin: 0;
 }
 
+.food-entries-page .entry-list {
+  gap: 0.75rem;
+}
+
+.food-entries-page .entry-card,
+.food-entries-page .entry-card div,
+.food-entries-page .entry-card .entry-actions {
+  align-items: initial;
+  justify-content: initial;
+}
+
+.food-entries-page .entry-card {
+  background: var(--ref-card-surface);
+  border-color: var(--ref-card-border);
+  color: var(--ref-text-primary);
+  min-width: 0;
+  transition:
+    border-color 120ms ease,
+    opacity 120ms ease;
+}
+
+.food-entries-page .entry-card-finished {
+  cursor: pointer;
+}
+
+.food-entries-page .entry-card-finished:active {
+  border-color: var(--ref-text-secondary);
+  opacity: 0.88;
+}
+
+.food-entries-page .entry-card-finished:focus-visible {
+  border-color: var(--ref-text-secondary);
+  outline: 0;
+}
+
+.food-entries-page .entry-card-open {
+  border-left: 5px solid #d4904a;
+}
+
+.entry-card-summary {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.entry-card-meta-row {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-width: 0;
+}
+
+.entry-card-meta-row-open {
+  grid-template-columns: 1fr;
+}
+
+.entry-status-badge {
+  align-self: start;
+  border: 1px solid var(--ref-card-border);
+  border-radius: 999px;
+  color: var(--ref-text-primary);
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+  padding: 0.38rem 0.55rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.entry-status-open {
+  background: rgba(212, 144, 74, 0.16);
+  border-color: #d4904a;
+}
+
+.entry-status-finished {
+  background: var(--ref-sunken-inset);
+  color: var(--ref-text-secondary);
+}
+
+.entry-card-times {
+  color: var(--ref-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  font-weight: 800;
+  gap: 0.35rem 0.7rem;
+  justify-content: end;
+  line-height: 1.25;
+  min-width: 0;
+  text-align: right;
+}
+
+.food-entries-page .entry-card h3.entry-card-name {
+  color: var(--ref-text-primary);
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1.25;
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+.food-entries-page .entry-card p.entry-card-brand {
+  color: var(--ref-text-secondary);
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1.25;
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.food-entries-page .entry-details {
+  border-top: 1px solid var(--ref-card-border);
+  padding-top: 0.75rem;
+}
+
+.food-entries-page .entry-card .entry-details div,
+.food-entries-page .entry-card .nutrition-group {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.food-entries-page .entry-details dt {
+  color: var(--ref-text-muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.food-entries-page .entry-details dd {
+  color: var(--ref-text-primary);
+  font-size: 0.98rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.entry-expanded {
+  gap: 0.75rem;
+}
+
+.entry-nutrition-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.entry-nutrition-grid .nutrition-group {
+  min-width: 0;
+}
+
+.entry-nutrition-grid dt {
+  color: var(--ref-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.entry-nutrition-grid dd {
+  color: var(--ref-text-primary);
+  font-size: 1rem;
+  font-weight: 800;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.food-entries-page .finish-entry-form,
+.food-entries-page .edit-entry-form {
+  border-top: 1px solid var(--ref-card-border);
+  padding-top: 0.85rem;
+}
+
+.food-entries-page .finish-entry-form label,
+.food-entries-page .edit-entry-form label {
+  color: var(--ref-text-secondary);
+}
+
+.food-entries-page .finish-entry-form input,
+.food-entries-page .edit-entry-form input,
+.food-entries-page .edit-entry-form textarea {
+  background: var(--ref-input-bg);
+  border-color: var(--ref-input-border);
+  color: var(--ref-input-text);
+}
+
+.food-entries-page .entry-card button {
+  background: var(--ref-button-primary-bg);
+  color: var(--ref-button-primary-text);
+}
+
+.food-entries-page .entry-actions {
+  border-top: 1px solid var(--ref-card-border);
+  padding-top: 0.75rem;
+}
+
 .reference-app {
   background: var(--ref-page-bg);
   box-shadow: 0 0 0 100vmax var(--ref-page-bg);
