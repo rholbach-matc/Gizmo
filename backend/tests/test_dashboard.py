@@ -161,6 +161,12 @@ class DashboardTotalsTest(TestCase):
                     severity="moderate",
                     notes="after breakfast",
                 ),
+                models.MoodEntry(
+                    entry_time=datetime(2026, 6, 11, 11, 45),
+                    mood_rating=4,
+                    energy_rating=2,
+                    yowling_rating=5,
+                ),
                 models.MedicationEntry(
                     entry_time=datetime(2026, 6, 11, 12, 0),
                     medication_id=self.medication.id,
@@ -199,6 +205,7 @@ class DashboardTotalsTest(TestCase):
                 "water",
                 "episode",
                 "vomit",
+                "mood",
                 "medication",
                 "vet_visit",
                 "weight",
@@ -261,3 +268,28 @@ class DashboardTotalsTest(TestCase):
         self.assertEqual(vomit_items[0].summary, "severe")
         self.assertEqual(vomit_items[0].details, "evening event")
         self.assertFalse(hasattr(dashboard, "today_vomit_count"))
+
+    def test_dashboard_includes_mood_in_activity_with_entered_ratings_only(self):
+        self.db.add(
+            models.MoodEntry(
+                entry_time=datetime(2026, 6, 11, 18, 0),
+                mood_rating=4,
+                energy_rating=2,
+                yowling_rating=5,
+            )
+        )
+        self.db.commit()
+
+        with patch("app.routes.dashboard.caregiver_today", return_value=date(2026, 6, 11)):
+            today_dashboard = get_today_dashboard(self.db)
+        day_dashboard = get_day_dashboard(date(2026, 6, 11), self.db)
+
+        mood_items = [
+            item for item in today_dashboard.recent_activity if item.type == "mood"
+        ]
+        self.assertEqual(len(mood_items), 1)
+        self.assertEqual(mood_items[0].title, "Mood Check-In")
+        self.assertEqual(mood_items[0].summary, "Mood: 4")
+        self.assertEqual(mood_items[0].details, "Energy: 2\nYowling: 5")
+        self.assertNotIn("Appetite", mood_items[0].details)
+        self.assertEqual([item.type for item in day_dashboard.activity], ["mood"])

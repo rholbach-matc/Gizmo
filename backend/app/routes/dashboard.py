@@ -33,6 +33,22 @@ def format_water_observation_type(observation_type: str):
     }.get(observation_type, "Water observation")
 
 
+def mood_entry_lines(entry: models.MoodEntry):
+    rating_fields = [
+        ("Mood", entry.mood_rating),
+        ("Appetite", entry.appetite_rating),
+        ("Energy", entry.energy_rating),
+        ("Social", entry.social_rating),
+        ("Yowling", entry.yowling_rating),
+    ]
+    lines = [f"{label}: {rating}" for label, rating in rating_fields if rating is not None]
+
+    if entry.notes:
+        lines.append(entry.notes)
+
+    return lines
+
+
 def build_activity_items(
     food_entries: list[models.FoodEntry],
     bm_entries: list[models.BMEntry],
@@ -41,6 +57,7 @@ def build_activity_items(
     water_entries: list[models.DrinkingWaterEntry],
     episode_entries: list[models.EpisodeEntry],
     vomit_entries: list[models.VomitEntry],
+    mood_entries: list[models.MoodEntry],
     medication_entries: list[models.MedicationEntry],
     vet_visit_entries: list[models.VetVisitEntry],
     *,
@@ -137,6 +154,18 @@ def build_activity_items(
                 title="Vomit",
                 summary=entry.severity,
                 details=entry.notes,
+            )
+        )
+
+    for entry in mood_entries:
+        lines = mood_entry_lines(entry)
+        activity_items.append(
+            schemas.DashboardActivityItem(
+                type="mood",
+                entry_time=entry.entry_time,
+                title="Mood Check-In",
+                summary=lines[0] if lines else "Mood Check-In",
+                details="\n".join(lines[1:]) if len(lines) > 1 else None,
             )
         )
 
@@ -364,6 +393,12 @@ def get_today_dashboard(db: Session = Depends(get_db)):
         .limit(RECENT_ACTIVITY_LIMIT)
         .all()
     )
+    recent_mood_entries = (
+        db.query(models.MoodEntry)
+        .order_by(models.MoodEntry.entry_time.desc(), models.MoodEntry.id.desc())
+        .limit(RECENT_ACTIVITY_LIMIT)
+        .all()
+    )
     recent_medication_entries = (
         db.query(models.MedicationEntry)
         .order_by(
@@ -417,6 +452,7 @@ def get_today_dashboard(db: Session = Depends(get_db)):
             recent_water_entries,
             recent_episode_entries,
             recent_vomit_entries,
+            recent_mood_entries,
             recent_medication_entries,
             recent_vet_visit_entries,
         ),
@@ -533,6 +569,13 @@ def get_day_dashboard(day: date, db: Session = Depends(get_db)):
         start_of_next_day,
         ascending=True,
     )
+    mood_entries = entries_for_day(
+        db.query(models.MoodEntry),
+        models.MoodEntry,
+        start_of_day,
+        start_of_next_day,
+        ascending=True,
+    )
     medication_entries = entries_for_day(
         db.query(models.MedicationEntry),
         models.MedicationEntry,
@@ -566,6 +609,7 @@ def get_day_dashboard(day: date, db: Session = Depends(get_db)):
             water_entries,
             episode_entries,
             vomit_entries,
+            mood_entries,
             medication_entries,
             vet_visit_entries,
             reverse=False,

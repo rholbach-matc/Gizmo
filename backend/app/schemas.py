@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class BowlCreate(BaseModel):
@@ -251,6 +251,54 @@ class VomitEntryResponse(BaseModel):
     id: int
     entry_time: datetime
     severity: VomitSeverity
+    notes: str | None
+    created_at: datetime
+
+
+class MoodEntryBase(BaseModel):
+    mood_rating: int | None = Field(default=None, ge=1, le=5)
+    appetite_rating: int | None = Field(default=None, ge=1, le=5)
+    energy_rating: int | None = Field(default=None, ge=1, le=5)
+    social_rating: int | None = Field(default=None, ge=1, le=5)
+    yowling_rating: int | None = Field(default=None, ge=1, le=5)
+    notes: str | None = None
+
+    @model_validator(mode="after")
+    def require_rating_or_notes(self):
+        ratings = [
+            self.mood_rating,
+            self.appetite_rating,
+            self.energy_rating,
+            self.social_rating,
+            self.yowling_rating,
+        ]
+        has_rating = any(rating is not None for rating in ratings)
+        has_notes = self.notes is not None and self.notes.strip() != ""
+
+        if not has_rating and not has_notes:
+            raise ValueError("At least one rating or notes is required")
+
+        return self
+
+
+class MoodEntryCreate(MoodEntryBase):
+    entry_time: datetime | None = None
+
+
+class MoodEntryUpdate(MoodEntryBase):
+    entry_time: datetime
+
+
+class MoodEntryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    entry_time: datetime
+    mood_rating: int | None
+    appetite_rating: int | None
+    energy_rating: int | None
+    social_rating: int | None
+    yowling_rating: int | None
     notes: str | None
     created_at: datetime
 

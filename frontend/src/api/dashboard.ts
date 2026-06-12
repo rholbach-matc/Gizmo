@@ -82,6 +82,7 @@ export type DashboardActivityItem = {
     | "water"
     | "episode"
     | "vomit"
+    | "mood"
     | "medication"
     | "vet_visit";
   entry_time: string;

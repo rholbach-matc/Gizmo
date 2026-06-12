@@ -11,6 +11,7 @@ import FluidsTrackerPage from "./pages/FluidsTrackerPage";
 import HistoricalDayPage from "./pages/HistoricalDayPage";
 import HydrationPage from "./pages/HydrationPage";
 import MedicationsPage from "./pages/MedicationsPage";
+import MoodTrackerPage from "./pages/MoodTrackerPage";
 import VetVisitsPage from "./pages/VetVisitsPage";
 import VomitTrackerPage from "./pages/VomitTrackerPage";
 import WeightTrackerPage from "./pages/WeightTrackerPage";
@@ -23,6 +24,7 @@ type Page =
   | "medications"
   | "vetVisits"
   | "vomitTracker"
+  | "moodTracker"
   | "bmTracker"
   | "fluidsTracker"
   | "hydration"
@@ -86,6 +88,7 @@ function App() {
   const morePages: { label: string; page: Page }[] = [
     { label: "Vet Visits", page: "vetVisits" },
     { label: "Vomit Tracker", page: "vomitTracker" },
+    { label: "Mood Tracker", page: "moodTracker" },
     { label: "BM Tracker", page: "bmTracker" },
     { label: "Fluids Tracker", page: "fluidsTracker" },
     { label: "Weight Tracker", page: "weightTracker" },
@@ -195,6 +198,7 @@ function App() {
       {currentPage === "medications" ? <MedicationsPage /> : null}
       {currentPage === "vetVisits" ? <VetVisitsPage /> : null}
       {currentPage === "vomitTracker" ? <VomitTrackerPage /> : null}
+      {currentPage === "moodTracker" ? <MoodTrackerPage /> : null}
       {currentPage === "bmTracker" ? <BMTrackerPage /> : null}
       {currentPage === "fluidsTracker" ? <FluidsTrackerPage /> : null}
       {currentPage === "hydration" ? <HydrationPage /> : null}
