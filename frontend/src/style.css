@@ -1036,6 +1036,47 @@ p {
   padding-top: 0.75rem;
 }
 
+.food-entries-page .page-header h1 {
+  color: var(--ref-text-primary);
+}
+
+.food-entries-page .page-header .eyebrow {
+  color: var(--ref-text-muted);
+}
+
+.food-entries-page .entry-form {
+  background: var(--ref-card-surface);
+  border-color: var(--ref-card-border);
+  box-shadow: none;
+}
+
+.food-entries-page .entry-form h2 {
+  color: var(--ref-text-primary);
+  font-weight: 900;
+}
+
+.food-entries-page .entry-form label {
+  color: var(--ref-text-secondary);
+}
+
+.food-entries-page .entry-form input,
+.food-entries-page .entry-form select,
+.food-entries-page .entry-form textarea {
+  background: var(--ref-sunken-inset);
+  border-color: var(--ref-card-border);
+  color: var(--ref-text-primary);
+}
+
+.food-entries-page .entry-form input::placeholder,
+.food-entries-page .entry-form textarea::placeholder {
+  color: var(--ref-text-muted);
+}
+
+.food-entries-page .entry-form button[type="submit"] {
+  background: var(--ref-button-primary-bg);
+  color: var(--ref-button-primary-text);
+}
+
 .reference-app {
   background: var(--ref-page-bg);
   box-shadow: 0 0 0 100vmax var(--ref-page-bg);
