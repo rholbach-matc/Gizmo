@@ -1,72 +1,237 @@
 # Gizmo Roadmap
 
-This roadmap captures near-term usability needs and longer-term caregiving ideas for Gizmo. The focus remains helping Jackie quickly record and review Gizmo's daily care.
+This roadmap captures upcoming work for Gizmo and should be used to guide implementation priorities.
 
-## Immediate Usability Fixes
+Gizmo is an actively used caregiving application containing real caregiving data.
 
-- Add edit support for existing entries so mistakes can be corrected without deleting and recreating records.
-- Make date/time entry easy and consistent across all trackers.
-- Keep tracker lists sorted newest first and make older entries easy to find.
-- Improve food entry speed for repeated meals and common bowls.
-- Add clearer empty states and success feedback after saving entries.
-- Review mobile layouts after more real phone use, especially dense dashboard and navigation areas.
+Prioritize caregiver usefulness, reliability, simplicity, and safe incremental improvements.
 
-## Care Tracking Ideas
+---
 
-- Add a daily calorie target with a 190 calorie minimum goal.
-- Track Sub-Q fluids with care guidance context: every 3-4 days, typically 50-75 mL.
-- Improve shaking/wobbly episode tracking for events that happen many times per day, possibly with quick count buttons or grouped daily summaries.
-- Keep medication and supplement logging flexible because medications/supplements vary over time.
-- Add outdoor leash time tracking, including date/time, duration, notes, and whether Gizmo seemed comfortable.
-- Add yowling/vocalization tracking with optional time, frequency, intensity, and notes.
-- Add quick-entry flows for high-frequency observations like drinking water and episodes.
-- Consider appetite/interest notes separate from measured food intake.
-- Consider stool quality details for BM entries, while keeping the basic BM workflow fast.
+# Current Priorities
 
-## Dashboard And Analytics Ideas
+1. Historical Day View
+2. Vomit Tracker
+3. Mood Tracker
+4. Food Nutrition Improvements
+5. Quality of Life Check-In
+6. Trend Expansion
+7. Backup Automation
+8. Reminder System
 
-- Continue making the dashboard the central caregiving overview.
-- Add trends/charts/analytics for calories, weight, fluids, water observations, BMs, medications, and episodes.
-- Show whether Gizmo is on pace for the 190 calorie minimum goal today.
-- Add simple weekly summaries for food intake, fluids, weight, and episode frequency.
-- Add "last done" status for fluids, medications, vet visits, and leash time.
-- Add lightweight risk/status indicators without medical diagnosis or advice.
-- Add filters to the unified care timeline by event type.
-- Add daily timeline grouping so high-frequency events do not overwhelm the dashboard.
+When priorities conflict, caregiver feedback takes precedence over roadmap ordering.
 
-## Notifications/Reminders
+---
 
-- Add optional notifications for fluids every 3-4 days.
-- Add optional medication reminders only after medication logging is stable.
-- Add reminders when calories are below the 190 calorie minimum goal late in the day.
-- Add configurable reminder settings rather than hard-coding care schedules.
-- Keep reminders informational and avoid medical advice.
+# Near-Term Features
 
-## Data Management
+## Historical Day View
 
-- Add export for care history, likely CSV first.
-- Add backup and restore flow for the SQLite database.
-- Add food table/search/filter views for managing foods as the food list grows.
-- Add filters for tracker pages by date range and event type.
-- Add printable or shareable summaries for vet visits.
-- Avoid committing SQLite database files.
+Allow caregivers to review a previous day's care activity.
 
-## UI Improvements
+Display:
 
-- Improve dashboard polish while keeping the interface quiet, warm, and caregiver-focused.
-- Make common actions reachable quickly on phone.
-- Add compact table/search/filter views for foods.
-- Improve timeline badges and event grouping as data volume grows.
-- Keep plain CSS and avoid adding UI libraries unless there is a clear need.
-- Make forms more forgiving with better validation messages.
+* Calories consumed
+* Food entries
+* Fluids
+* Weight
+* Medications
+* Episodes
+* Water observations
+* BM activity
+* Unified timeline
 
-## Deferred/Complex Ideas
+Goal:
 
-- Medication schedules, inventory, and refill tracking.
-- Advanced charts and correlations between symptoms, foods, medications, and fluids.
-- Authentication and multi-user support.
-- Multi-pet support.
-- Cloud sync or hosted deployment.
-- Push notifications across devices.
-- Automated imports from vet records or lab reports.
-- Medical interpretation, diagnosis, or treatment recommendations.
+Help caregivers answer:
+
+"How was Gizmo doing on a specific day?"
+
+---
+
+## Vomit Tracker
+
+Track:
+
+* Date/time
+* Severity
+* Notes
+
+Future considerations:
+
+* Hairball
+* Bile
+* Blood
+* Food present
+
+Integrate with:
+
+* Dashboard
+* Timeline
+* Future trends
+
+---
+
+## Mood Tracker
+
+Track quality-of-life indicators over time.
+
+Fields:
+
+* Mood rating (1-5)
+* Appetite rating (1-5)
+* Energy rating (1-5)
+* Notes
+
+Integrate with:
+
+* Timeline
+* Historical trends
+
+Goal:
+
+Provide visibility into behavioral changes that may not be reflected in nutrition or weight data.
+
+---
+
+## Food Nutrition Improvements
+
+Improve management of saved foods and bowls.
+
+Allow editing of:
+
+* Foods
+* Bowls
+
+Improve visibility of:
+
+* Can size
+* Calories per can
+* Moisture
+* Protein
+* Fat
+* Phosphorus
+* Sodium
+
+Protect reference data from accidental deletion.
+
+---
+
+# Quality Of Life
+
+Develop an original Gizmo Quality of Life Check-In.
+
+Do not reproduce copyrighted questionnaires.
+
+Store:
+
+* Date
+* Responses
+* Total score
+* Notes
+
+Provide:
+
+* Historical results
+* Trend visibility
+
+Goal:
+
+Support caregiver awareness of long-term quality-of-life changes.
+
+---
+
+# Dashboard And Trends
+
+The dashboard remains the primary application screen.
+
+The dashboard should help caregivers identify:
+
+* Improvement
+* Stability
+* Decline
+
+Future work:
+
+* Vomit trends
+* Mood trends
+* Episode trends
+* Weight trends
+* Medication adherence trends
+* Quality-of-life trends
+* Historical day comparisons
+* Daily summaries
+* Weekly summaries
+
+The dashboard should continue answering:
+
+"How is Gizmo doing today?"
+
+in under 10 seconds.
+
+---
+
+# Notifications And Reminders
+
+Future work:
+
+* Fluid reminders
+* Medication reminders
+* Calorie goal reminders
+* Configurable reminder schedules
+
+Reminders should remain informational and should not provide medical advice.
+
+---
+
+# Data Management
+
+Future work:
+
+* SQLite backup automation
+* Backup restore workflow
+* CSV export
+* Date-range filtering
+* Printable summaries
+* Shareable reports
+
+Protecting caregiving data is mandatory.
+
+---
+
+# UI Improvements
+
+Continue improving:
+
+* Mobile usability
+* Dashboard clarity
+* Timeline readability
+* Form usability
+* Caregiver workflow speed
+
+Prioritize:
+
+* Fewer taps
+* Less typing
+* Faster entry
+* Reduced caregiver cognitive load
+
+---
+
+# Deferred / Complex Features
+
+Not currently prioritized:
+
+* Medication schedules
+* Medication inventory tracking
+* Refill management
+* Authentication
+* Multi-user support
+* Multi-pet support
+* Cloud synchronization
+* Hosted deployment
+* Push notifications
+* Automated vet record imports
+* Medical diagnosis or treatment recommendations
+
+These features should only be considered when they clearly improve caregiver usefulness.

@@ -148,15 +148,37 @@ Dashboard is the primary application screen.
 Current responsibilities:
 
 * Today overview
-* Care summary
 * Care status
+* Open feeding visibility
+* Daily calorie visibility
+* Recent care activity
 * Unified care timeline
+* Basic trend visibility
 
 The dashboard should answer:
 
 "How is Gizmo doing today?"
 
 in under 10 seconds.
+
+The dashboard should help caregivers identify:
+
+* Improvement
+* Stability
+* Decline
+
+When adding dashboard features, prioritize:
+
+* Clarity
+* Actionability
+* Trend awareness
+* Mobile usability
+
+Avoid:
+
+* Excessive scrolling
+* Raw data overload
+* Information that does not support caregiving decisions
 
 ---
 
@@ -177,6 +199,7 @@ Supports:
 
 * Create
 * List
+* Edit
 * Delete
 
 ---
@@ -187,6 +210,7 @@ Supports:
 
 * Create
 * List
+* Edit
 * Delete
 
 Tracks Sub-Q fluid administration.
@@ -199,6 +223,7 @@ Supports:
 
 * Create
 * List
+* Edit
 * Delete
 
 ---
@@ -209,6 +234,7 @@ Supports:
 
 * Create
 * List
+* Edit
 * Delete
 
 Tracks observed drinking events.
@@ -223,6 +249,7 @@ Supports:
 
 * Create
 * List
+* Edit
 * Delete
 
 Tracks:
@@ -242,6 +269,7 @@ Supports:
 
 * Create
 * List
+* Edit
 * Delete
 
 Tracks medication administration.
@@ -256,6 +284,7 @@ Supports:
 
 * Create
 * List
+* Edit
 * Delete
 
 Tracks:
@@ -339,13 +368,38 @@ SQLite remains the primary database.
 
 Alembic is not currently required.
 
-While pre-production:
+Production Data Rules
 
-Deleting and recreating the database is acceptable when schema changes require it.
+Gizmo contains active caregiving data.
+
+Before schema changes:
+
+1. Create a backup
+2. Test migration on a copied database
+3. Verify migrated results
+4. Deploy only after verification
+
+Protecting caregiving data takes priority over development speed.
+
+Do not delete or recreate production databases.
 
 Do not commit database files.
 
 ---
+
+# Deletion Rules
+
+Production caregiving records should generally be editable.
+
+Deletion should be used carefully.
+
+When implementing deletion:
+
+* Require confirmation
+* Consider caregiver impact
+* Protect reference/catalog data when appropriate
+
+Foods and Bowls should not be casually removable if historical data depends on them.
 
 # Success Criteria
 
