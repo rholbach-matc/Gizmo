@@ -410,6 +410,7 @@ class TodayDashboardResponse(BaseModel):
     today_fluid_count: int
     today_medication_count: int
     today_episode_count: int
+    today_yowling_observation_count: int
     recent_activity: list[DashboardActivityItem]
 
 

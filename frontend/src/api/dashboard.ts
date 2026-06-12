@@ -118,6 +118,7 @@ export type TodayDashboard = {
   today_fluid_count: number;
   today_medication_count: number;
   today_episode_count: number;
+  today_yowling_observation_count: number;
   recent_activity: DashboardActivityItem[];
 };
 

@@ -339,6 +339,14 @@ def get_today_dashboard(db: Session = Depends(get_db)):
         .scalar()
         or 0
     )
+    today_yowling_observation_count = (
+        db.query(func.count(models.MoodEntry.id))
+        .filter(models.MoodEntry.entry_time >= start_of_today)
+        .filter(models.MoodEntry.entry_time < start_of_tomorrow)
+        .filter(models.MoodEntry.yowling_rating.is_not(None))
+        .scalar()
+        or 0
+    )
 
     today_water_observation_count = (
         db.query(func.count(models.DrinkingWaterEntry.id))
@@ -444,6 +452,7 @@ def get_today_dashboard(db: Session = Depends(get_db)):
         today_fluid_count=today_fluid_count,
         today_medication_count=today_medication_count,
         today_episode_count=today_episode_count,
+        today_yowling_observation_count=today_yowling_observation_count,
         recent_activity=build_activity_items(
             recent_food_entries,
             recent_bm_entries,

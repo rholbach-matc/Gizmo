@@ -318,9 +318,13 @@ function DashboardPage({ onDateChipClick }: DashboardPageProps) {
                 </article>
                 <article className="today-metric">
                   <Icon name="activity" />
-                  <strong>{dashboard.today_episode_count}</strong>
-                  <span>today</span>
-                  <small>Episodes</small>
+                  <div className="behavior-counts">
+                    <strong>Episodes: {dashboard.today_episode_count}</strong>
+                    <strong>
+                      Yowls: {dashboard.today_yowling_observation_count}
+                    </strong>
+                  </div>
+                  <small>Behavior</small>
                 </article>
                 <article className="today-metric">
                   <Icon name="droplet" />
