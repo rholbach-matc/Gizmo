@@ -221,14 +221,15 @@ function BowlsPage() {
 
           <div className="bowl-list">
             {bowls.map((bowl) => (
-              <article className="bowl-card" key={bowl.id}>
-                <div>
-                  <h3>{bowl.name}</h3>
-                  <p>{bowl.empty_weight_grams} g empty</p>
+              <article className="ref-card bowl-card" key={bowl.id}>
+                <div className="ref-card-collapsed">
+                  <div className="ref-card-main">
+                    <h3>{bowl.name}</h3>
+                    <p>{bowl.empty_weight_grams} g empty</p>
+                    {bowl.color ? <p>Color: {bowl.color}</p> : null}
+                    {bowl.notes ? <p className="truncate-line">{bowl.notes}</p> : null}
+                  </div>
                 </div>
-
-                {bowl.color ? <p>Color: {bowl.color}</p> : null}
-                {bowl.notes ? <p>{bowl.notes}</p> : null}
 
                 {editingBowlId === bowl.id && editForm ? (
                   <form

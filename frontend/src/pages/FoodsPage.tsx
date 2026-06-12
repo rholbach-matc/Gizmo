@@ -18,6 +18,11 @@ type FoodDetail = {
   unit?: string;
 };
 
+type FoodDetailGroup = {
+  title: string;
+  details: FoodDetail[];
+};
+
 function foodEditForm(food: Food): FoodEditForm {
   return {
     canSize: food.can_size_grams.toString(),
@@ -42,64 +47,61 @@ function hasStoredValue(value: string | number | null) {
   return typeof value === "number" || value.trim().length > 0;
 }
 
-function foodDetails(food: Food): FoodDetail[] {
+function foodDetailGroups(food: Food): FoodDetailGroup[] {
   return [
-    { label: "Name", value: food.name },
-    { label: "Brand", value: food.brand },
-    { label: "Can size", value: formatNumber(food.can_size_grams), unit: "g" },
     {
-      label: "Calories per can",
-      value: formatNumber(food.calories_per_can),
-      unit: "cal",
+      title: "Package",
+      details: [
+        { label: "Can size", value: formatNumber(food.can_size_grams), unit: "g" },
+        {
+          label: "Calories per can",
+          value: formatNumber(food.calories_per_can),
+          unit: "cal",
+        },
+        {
+          label: "Calories per gram",
+          value: formatNumber(food.calories_per_gram),
+          unit: "cal/g",
+        },
+      ],
     },
     {
-      label: "Calories per gram",
-      value: formatNumber(food.calories_per_gram),
-      unit: "cal/g",
-    },
-    { label: "Moisture", value: formatNumber(food.moisture_percent), unit: "%" },
-    {
-      label: "Protein as-fed",
-      value: formatNumber(food.protein_as_fed_percent),
-      unit: "%",
-    },
-    {
-      label: "Fat as-fed",
-      value: formatNumber(food.fat_as_fed_percent),
-      unit: "%",
+      title: "As-fed",
+      details: [
+        { label: "Moisture", value: formatNumber(food.moisture_percent), unit: "%" },
+        { label: "Protein", value: formatNumber(food.protein_as_fed_percent), unit: "%" },
+        { label: "Fat", value: formatNumber(food.fat_as_fed_percent), unit: "%" },
+        {
+          label: "Phosphorus",
+          value: formatNumber(food.phosphorus_as_fed_percent),
+          unit: "%",
+        },
+        { label: "Sodium", value: formatNumber(food.sodium_as_fed_percent), unit: "%" },
+      ],
     },
     {
-      label: "Phosphorus as-fed",
-      value: formatNumber(food.phosphorus_as_fed_percent),
-      unit: "%",
+      title: "Dry matter",
+      details: [
+        {
+          label: "Protein",
+          value: formatNumber(food.protein_dry_matter_percent),
+          unit: "%",
+        },
+        { label: "Fat", value: formatNumber(food.fat_dry_matter_percent), unit: "%" },
+        {
+          label: "Phosphorus",
+          value: formatNumber(food.phosphorus_dry_matter_percent),
+          unit: "%",
+        },
+        { label: "Sodium", value: formatNumber(food.sodium_dry_matter_percent), unit: "%" },
+      ],
     },
-    {
-      label: "Sodium as-fed",
-      value: formatNumber(food.sodium_as_fed_percent),
-      unit: "%",
-    },
-    {
-      label: "Protein dry matter",
-      value: formatNumber(food.protein_dry_matter_percent),
-      unit: "%",
-    },
-    {
-      label: "Fat dry matter",
-      value: formatNumber(food.fat_dry_matter_percent),
-      unit: "%",
-    },
-    {
-      label: "Phosphorus dry matter",
-      value: formatNumber(food.phosphorus_dry_matter_percent),
-      unit: "%",
-    },
-    {
-      label: "Sodium dry matter",
-      value: formatNumber(food.sodium_dry_matter_percent),
-      unit: "%",
-    },
-    { label: "Notes", value: food.notes },
-  ].filter((detail) => hasStoredValue(detail.value));
+  ]
+    .map((group) => ({
+      ...group,
+      details: group.details.filter((detail) => hasStoredValue(detail.value)),
+    }))
+    .filter((group) => group.details.length > 0);
 }
 
 function FoodsPage() {
@@ -114,6 +116,7 @@ function FoodsPage() {
   const [phosphorus, setPhosphorus] = useState("");
   const [sodium, setSodium] = useState("");
   const [notes, setNotes] = useState("");
+  const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [editingFoodId, setEditingFoodId] = useState<number | null>(null);
@@ -142,6 +145,19 @@ function FoodsPage() {
     loadFoods();
   }, []);
 
+  function resetNewFoodForm() {
+    setName("");
+    setBrand("");
+    setCanSize("");
+    setCaloriesPerCan("");
+    setMoisture("");
+    setProtein("");
+    setFat("");
+    setPhosphorus("");
+    setSodium("");
+    setNotes("");
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -164,16 +180,8 @@ function FoodsPage() {
       });
 
       setFoods((currentFoods) => [...currentFoods, newFood]);
-      setName("");
-      setBrand("");
-      setCanSize("");
-      setCaloriesPerCan("");
-      setMoisture("");
-      setProtein("");
-      setFat("");
-      setPhosphorus("");
-      setSodium("");
-      setNotes("");
+      resetNewFoodForm();
+      setIsAddFormOpen(false);
     } catch (caughtError) {
       setError(
         caughtError instanceof Error ? caughtError.message : "Could not create food.",
@@ -268,150 +276,14 @@ function FoodsPage() {
   }
 
   return (
-    <main className="app">
-      <section className="page-header">
+    <main className="app reference-app foods-page">
+      <section className="page-header reference-page-header">
         <p className="eyebrow">Gizmo</p>
         <h1>Foods</h1>
       </section>
 
-      <section className="content-grid" aria-label="Food management">
-        <form className="panel food-form" onSubmit={handleSubmit}>
-          <h2>Add a Food</h2>
-
-          <label>
-            Name
-            <input
-              required
-              type="text"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Chicken pate"
-            />
-          </label>
-
-          <label>
-            Brand
-            <input
-              type="text"
-              value={brand}
-              onChange={(event) => setBrand(event.target.value)}
-              placeholder="Favorite brand"
-            />
-          </label>
-
-          <div className="form-row">
-            <label>
-              Can size grams
-              <input
-                required
-                min="0"
-                step="0.1"
-                type="number"
-                value={canSize}
-                onChange={(event) => setCanSize(event.target.value)}
-                placeholder="156"
-              />
-            </label>
-
-            <label>
-              Calories per can
-              <input
-                required
-                min="0"
-                step="0.1"
-                type="number"
-                value={caloriesPerCan}
-                onChange={(event) => setCaloriesPerCan(event.target.value)}
-                placeholder="180"
-              />
-            </label>
-          </div>
-
-          <label>
-            Moisture percent
-            <input
-              required
-              min="0"
-              max="99.9"
-              step="0.1"
-              type="number"
-              value={moisture}
-              onChange={(event) => setMoisture(event.target.value)}
-              placeholder="78"
-            />
-          </label>
-
-          <div className="form-row">
-            <label>
-              Protein as-fed percent
-              <input
-                required
-                min="0"
-                step="0.01"
-                type="number"
-                value={protein}
-                onChange={(event) => setProtein(event.target.value)}
-                placeholder="10"
-              />
-            </label>
-
-            <label>
-              Fat as-fed percent
-              <input
-                required
-                min="0"
-                step="0.01"
-                type="number"
-                value={fat}
-                onChange={(event) => setFat(event.target.value)}
-                placeholder="5"
-              />
-            </label>
-          </div>
-
-          <div className="form-row">
-            <label>
-              Phosphorus as-fed percent
-              <input
-                required
-                min="0"
-                step="0.01"
-                type="number"
-                value={phosphorus}
-                onChange={(event) => setPhosphorus(event.target.value)}
-                placeholder="0.2"
-              />
-            </label>
-
-            <label>
-              Sodium as-fed percent
-              <input
-                required
-                min="0"
-                step="0.01"
-                type="number"
-                value={sodium}
-                onChange={(event) => setSodium(event.target.value)}
-                placeholder="0.08"
-              />
-            </label>
-          </div>
-
-          <label>
-            Notes
-            <textarea
-              value={notes}
-              onChange={(event) => setNotes(event.target.value)}
-              placeholder="Texture, flavor, or feeding notes"
-            />
-          </label>
-
-          <button type="submit" disabled={isSaving}>
-            {isSaving ? "Adding..." : "Add Food"}
-          </button>
-        </form>
-
-        <section className="panel">
+      <section className="reference-stack" aria-label="Food management">
+        <section className="reference-panel">
           <div className="section-heading">
             <h2>Saved Foods</h2>
             {isLoading ? <span>Loading...</span> : <span>{foods.length}</span>}
@@ -426,185 +298,212 @@ function FoodsPage() {
 
           <div className="food-list">
             {foods.map((food) => {
-              const details = foodDetails(food);
+              const detailGroups = foodDetailGroups(food);
               const isExpanded = expandedFoodIds.has(food.id);
 
               return (
-                <article className="food-card" key={food.id}>
-                  <div>
-                    <h3>{food.name}</h3>
-                    <p>{formatNumber(food.calories_per_gram)} cal/g</p>
-                  </div>
+                <article className="ref-card food-card" key={food.id}>
+                  <div className="ref-card-collapsed">
+                    <div className="ref-card-main">
+                      <h3>{food.name}</h3>
+                      {food.brand ? <p>{food.brand}</p> : null}
+                      {food.notes ? <p className="truncate-line">{food.notes}</p> : null}
+                    </div>
 
-                  {food.brand ? <p>Brand: {food.brand}</p> : null}
-                  <p>
-                    {formatNumber(food.protein_dry_matter_percent)}% protein dry
-                    matter
-                  </p>
-                  <p>
-                    {formatNumber(food.phosphorus_dry_matter_percent)}% phosphorus
-                    dry matter
-                  </p>
-                  {food.notes ? <p>{food.notes}</p> : null}
+                    <div className="food-card-metrics" aria-label="Key nutrition values">
+                      <span>
+                        <strong>{formatNumber(food.calories_per_gram)}</strong>
+                        cal/g
+                      </span>
+                      <span>
+                        <strong>{formatNumber(food.phosphorus_dry_matter_percent)}%</strong>
+                        Phos DM
+                      </span>
+                      <span>
+                        <strong>{formatNumber(food.protein_dry_matter_percent)}%</strong>
+                        Protein DM
+                      </span>
+                    </div>
 
-                  {editingFoodId === food.id && editForm ? (
-                    <form
-                      className="edit-entry-form"
-                      onSubmit={(event) => handleEdit(event, food)}
+                    <button
+                      type="button"
+                      className="chevron-button"
+                      onClick={() => toggleExpanded(food.id)}
+                      aria-expanded={isExpanded}
+                      aria-label={`${isExpanded ? "Collapse" : "Expand"} ${food.name}`}
                     >
-                      <div className="form-row edit-entry-form-wide">
-                        <label>
-                          Can size grams
-                          <input
-                            required
-                            min="0"
-                            step="0.1"
-                            type="number"
-                            value={editForm.canSize}
-                            onChange={(event) =>
-                              updateEditForm("canSize", event.target.value)
-                            }
-                          />
-                        </label>
-
-                        <label>
-                          Calories per can
-                          <input
-                            required
-                            min="0"
-                            step="0.1"
-                            type="number"
-                            value={editForm.caloriesPerCan}
-                            onChange={(event) =>
-                              updateEditForm("caloriesPerCan", event.target.value)
-                            }
-                          />
-                        </label>
-                      </div>
-
-                      <label>
-                        Moisture percent
-                        <input
-                          required
-                          min="0"
-                          max="99.9"
-                          step="0.1"
-                          type="number"
-                          value={editForm.moisture}
-                          onChange={(event) =>
-                            updateEditForm("moisture", event.target.value)
-                          }
-                        />
-                      </label>
-
-                      <label>
-                        Protein as-fed percent
-                        <input
-                          required
-                          min="0"
-                          step="0.01"
-                          type="number"
-                          value={editForm.protein}
-                          onChange={(event) =>
-                            updateEditForm("protein", event.target.value)
-                          }
-                        />
-                      </label>
-
-                      <label>
-                        Fat as-fed percent
-                        <input
-                          required
-                          min="0"
-                          step="0.01"
-                          type="number"
-                          value={editForm.fat}
-                          onChange={(event) =>
-                            updateEditForm("fat", event.target.value)
-                          }
-                        />
-                      </label>
-
-                      <label>
-                        Phosphorus as-fed percent
-                        <input
-                          required
-                          min="0"
-                          step="0.01"
-                          type="number"
-                          value={editForm.phosphorus}
-                          onChange={(event) =>
-                            updateEditForm("phosphorus", event.target.value)
-                          }
-                        />
-                      </label>
-
-                      <label>
-                        Sodium as-fed percent
-                        <input
-                          required
-                          min="0"
-                          step="0.01"
-                          type="number"
-                          value={editForm.sodium}
-                          onChange={(event) =>
-                            updateEditForm("sodium", event.target.value)
-                          }
-                        />
-                      </label>
-
-                      <div className="entry-actions">
-                        <button type="submit" disabled={savingEditFoodId === food.id}>
-                          {savingEditFoodId === food.id
-                            ? "Saving..."
-                            : "Save Changes"}
-                        </button>
-                        <button
-                          type="button"
-                          className="secondary-button"
-                          onClick={() => {
-                            setEditingFoodId(null);
-                            setEditForm(null);
-                          }}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  ) : null}
-
-                  <div className="entry-actions">
-                    <button type="button" onClick={() => toggleExpanded(food.id)}>
-                      {isExpanded ? "Hide Details" : "Details"}
-                    </button>
-                    <button type="button" onClick={() => startEditing(food)}>
-                      Edit
-                    </button>
-                    <button type="button" onClick={() => handleDelete(food.id)}>
-                      Delete
+                      <span aria-hidden="true">{isExpanded ? "v" : ">"}</span>
                     </button>
                   </div>
 
                   {isExpanded ? (
                     <section
-                      className="food-detail-panel"
+                      className="ref-card-expanded food-detail-panel"
                       aria-label={`${food.name} nutrition details`}
                     >
-                      {details.length > 0 ? (
-                        <dl>
-                          {details.map((detail) => (
-                            <div key={detail.label}>
-                              <dt>{detail.label}</dt>
-                              <dd>
-                                {detail.value}
-                                {detail.unit ? ` ${detail.unit}` : ""}
-                              </dd>
-                            </div>
+                      {detailGroups.length > 0 ? (
+                        <div className="nutrition-grid">
+                          {detailGroups.map((group) => (
+                            <section className="nutrition-group" key={group.title}>
+                              <h4>{group.title}</h4>
+                              <dl>
+                                {group.details.map((detail) => (
+                                  <div key={`${group.title}-${detail.label}`}>
+                                    <dt>{detail.label}</dt>
+                                    <dd>
+                                      {detail.value}
+                                      {detail.unit ? ` ${detail.unit}` : ""}
+                                    </dd>
+                                  </div>
+                                ))}
+                              </dl>
+                            </section>
                           ))}
-                        </dl>
-                      ) : (
-                        <p>No additional details saved</p>
-                      )}
+                        </div>
+                      ) : null}
+
+                      {editingFoodId === food.id && editForm ? (
+                        <form
+                          className="form-compact edit-entry-form food-edit-form"
+                          onSubmit={(event) => handleEdit(event, food)}
+                        >
+                          <p className="form-section-label">Nutrition values</p>
+
+                          <div className="form-row">
+                            <label>
+                              Can size (g)
+                              <input
+                                required
+                                min="0"
+                                step="0.1"
+                                type="number"
+                                value={editForm.canSize}
+                                onChange={(event) =>
+                                  updateEditForm("canSize", event.target.value)
+                                }
+                              />
+                            </label>
+
+                            <label>
+                              Calories per can
+                              <input
+                                required
+                                min="0"
+                                step="0.1"
+                                type="number"
+                                value={editForm.caloriesPerCan}
+                                onChange={(event) =>
+                                  updateEditForm("caloriesPerCan", event.target.value)
+                                }
+                              />
+                            </label>
+                          </div>
+
+                          <div className="form-row">
+                            <label>
+                              Moisture %
+                              <input
+                                required
+                                min="0"
+                                max="99.9"
+                                step="0.1"
+                                type="number"
+                                value={editForm.moisture}
+                                onChange={(event) =>
+                                  updateEditForm("moisture", event.target.value)
+                                }
+                              />
+                            </label>
+
+                            <label>
+                              Protein as-fed %
+                              <input
+                                required
+                                min="0"
+                                step="0.01"
+                                type="number"
+                                value={editForm.protein}
+                                onChange={(event) =>
+                                  updateEditForm("protein", event.target.value)
+                                }
+                              />
+                            </label>
+                          </div>
+
+                          <div className="form-row">
+                            <label>
+                              Fat as-fed %
+                              <input
+                                required
+                                min="0"
+                                step="0.01"
+                                type="number"
+                                value={editForm.fat}
+                                onChange={(event) =>
+                                  updateEditForm("fat", event.target.value)
+                                }
+                              />
+                            </label>
+
+                            <label>
+                              Phosphorus as-fed %
+                              <input
+                                required
+                                min="0"
+                                step="0.01"
+                                type="number"
+                                value={editForm.phosphorus}
+                                onChange={(event) =>
+                                  updateEditForm("phosphorus", event.target.value)
+                                }
+                              />
+                            </label>
+                          </div>
+
+                          <div className="form-row">
+                            <label>
+                              Sodium as-fed %
+                              <input
+                                required
+                                min="0"
+                                step="0.01"
+                                type="number"
+                                value={editForm.sodium}
+                                onChange={(event) =>
+                                  updateEditForm("sodium", event.target.value)
+                                }
+                              />
+                            </label>
+                          </div>
+
+                          <div className="entry-actions">
+                            <button type="submit" disabled={savingEditFoodId === food.id}>
+                              {savingEditFoodId === food.id
+                                ? "Saving..."
+                                : "Save Changes"}
+                            </button>
+                            <button
+                              type="button"
+                              className="secondary-button"
+                              onClick={() => {
+                                setEditingFoodId(null);
+                                setEditForm(null);
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </form>
+                      ) : null}
+
+                      <div className="entry-actions food-detail-actions">
+                        <button type="button" onClick={() => startEditing(food)}>
+                          Edit
+                        </button>
+                        <button type="button" onClick={() => handleDelete(food.id)}>
+                          Delete
+                        </button>
+                      </div>
                     </section>
                   ) : null}
                 </article>
@@ -612,6 +511,167 @@ function FoodsPage() {
             })}
           </div>
         </section>
+
+        <button
+          type="button"
+          className="add-reference-button"
+          onClick={() => setIsAddFormOpen((currentIsOpen) => !currentIsOpen)}
+          aria-expanded={isAddFormOpen}
+        >
+          + Add New Food
+        </button>
+
+        {isAddFormOpen ? (
+          <form className="ref-card form-compact food-form" onSubmit={handleSubmit}>
+            <h2>Add a Food</h2>
+
+            <label>
+              Name
+              <input
+                required
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Chicken pate"
+              />
+            </label>
+
+            <label>
+              Brand
+              <input
+                type="text"
+                value={brand}
+                onChange={(event) => setBrand(event.target.value)}
+                placeholder="Favorite brand"
+              />
+            </label>
+
+            <p className="form-section-label">Nutrition values</p>
+
+            <div className="form-row">
+              <label>
+                Can size (g)
+                <input
+                  required
+                  min="0"
+                  step="0.1"
+                  type="number"
+                  value={canSize}
+                  onChange={(event) => setCanSize(event.target.value)}
+                  placeholder="156"
+                />
+              </label>
+
+              <label>
+                Calories per can
+                <input
+                  required
+                  min="0"
+                  step="0.1"
+                  type="number"
+                  value={caloriesPerCan}
+                  onChange={(event) => setCaloriesPerCan(event.target.value)}
+                  placeholder="180"
+                />
+              </label>
+            </div>
+
+            <div className="form-row">
+              <label>
+                Moisture %
+                <input
+                  required
+                  min="0"
+                  max="99.9"
+                  step="0.1"
+                  type="number"
+                  value={moisture}
+                  onChange={(event) => setMoisture(event.target.value)}
+                  placeholder="78"
+                />
+              </label>
+
+              <label>
+                Protein as-fed %
+                <input
+                  required
+                  min="0"
+                  step="0.01"
+                  type="number"
+                  value={protein}
+                  onChange={(event) => setProtein(event.target.value)}
+                  placeholder="10"
+                />
+              </label>
+            </div>
+
+            <div className="form-row">
+              <label>
+                Fat as-fed %
+                <input
+                  required
+                  min="0"
+                  step="0.01"
+                  type="number"
+                  value={fat}
+                  onChange={(event) => setFat(event.target.value)}
+                  placeholder="5"
+                />
+              </label>
+
+              <label>
+                Phosphorus as-fed %
+                <input
+                  required
+                  min="0"
+                  step="0.01"
+                  type="number"
+                  value={phosphorus}
+                  onChange={(event) => setPhosphorus(event.target.value)}
+                  placeholder="0.2"
+                />
+              </label>
+            </div>
+
+            <div className="form-row">
+              <label>
+                Sodium as-fed %
+                <input
+                  required
+                  min="0"
+                  step="0.01"
+                  type="number"
+                  value={sodium}
+                  onChange={(event) => setSodium(event.target.value)}
+                  placeholder="0.08"
+                />
+              </label>
+            </div>
+
+            <label>
+              Notes
+              <textarea
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                placeholder="Texture, flavor, or feeding notes"
+              />
+            </label>
+
+            <button type="submit" disabled={isSaving}>
+              {isSaving ? "Adding..." : "Save Food"}
+            </button>
+            <button
+              type="button"
+              className="cancel-link-button"
+              onClick={() => {
+                resetNewFoodForm();
+                setIsAddFormOpen(false);
+              }}
+            >
+              Cancel
+            </button>
+          </form>
+        ) : null}
       </section>
     </main>
   );
