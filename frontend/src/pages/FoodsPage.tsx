@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, KeyboardEvent, MouseEvent, useEffect, useState } from "react";
 
 import { Food, createFood, deleteFood, getFoods, updateFood } from "../api/foods";
 
@@ -230,6 +230,37 @@ function FoodsPage() {
     });
   }
 
+  function handleCardToggleClick(
+    event: MouseEvent<HTMLElement>,
+    foodId: number,
+  ) {
+    const target = event.target as HTMLElement;
+
+    if (target.closest("button, input, textarea, select, a, form")) {
+      return;
+    }
+
+    toggleExpanded(foodId);
+  }
+
+  function handleCardToggleKeyDown(
+    event: KeyboardEvent<HTMLElement>,
+    foodId: number,
+  ) {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+
+    const target = event.target as HTMLElement;
+
+    if (target.closest("button, input, textarea, select, a, form")) {
+      return;
+    }
+
+    event.preventDefault();
+    toggleExpanded(foodId);
+  }
+
   function updateEditForm(field: keyof FoodEditForm, value: string) {
     setEditForm((currentForm) =>
       currentForm ? { ...currentForm, [field]: value } : currentForm,
@@ -302,38 +333,47 @@ function FoodsPage() {
               const isExpanded = expandedFoodIds.has(food.id);
 
               return (
-                <article className="ref-card food-card" key={food.id}>
-                  <div className="ref-card-collapsed">
-                    <div className="ref-card-main">
-                      <h3>{food.name}</h3>
-                      {food.brand ? <p>{food.brand}</p> : null}
-                      {food.notes ? <p className="truncate-line">{food.notes}</p> : null}
+                <article
+                  className="ref-card food-card"
+                  key={food.id}
+                  onClick={(event) => handleCardToggleClick(event, food.id)}
+                  onKeyDown={(event) => handleCardToggleKeyDown(event, food.id)}
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={isExpanded}
+                  aria-label={`${isExpanded ? "Collapse" : "Expand"} ${food.name}`}
+                >
+                  <div className="ref-card-collapsed food-card-summary">
+                    <div className="food-card-package">
+                      <span>{food.brand}</span>
+                      <span>Can: {formatNumber(food.can_size_grams)}g</span>
+                      <span>Cal/can: {formatNumber(food.calories_per_can)}</span>
                     </div>
 
-                    <div className="food-card-metrics" aria-label="Key nutrition values">
+                    <h3 className="food-card-name">{food.name}</h3>
+
+                    <div
+                      className="food-card-metric-values"
+                      aria-label="Key nutrition values"
+                    >
+                      <strong>{formatNumber(food.calories_per_gram)}</strong>
+                      <strong>{formatNumber(food.phosphorus_dry_matter_percent)}%</strong>
+                      <strong>{formatNumber(food.protein_dry_matter_percent)}%</strong>
+                      <strong>{formatNumber(food.sodium_dry_matter_percent)}%</strong>
+                    </div>
+
+                    <div className="food-card-metric-labels" aria-hidden="true">
                       <span>
-                        <strong>{formatNumber(food.calories_per_gram)}</strong>
                         cal/g
                       </span>
                       <span>
-                        <strong>{formatNumber(food.phosphorus_dry_matter_percent)}%</strong>
                         Phos DM
                       </span>
                       <span>
-                        <strong>{formatNumber(food.protein_dry_matter_percent)}%</strong>
                         Protein DM
                       </span>
+                      <span>Na DM</span>
                     </div>
-
-                    <button
-                      type="button"
-                      className="chevron-button"
-                      onClick={() => toggleExpanded(food.id)}
-                      aria-expanded={isExpanded}
-                      aria-label={`${isExpanded ? "Collapse" : "Expand"} ${food.name}`}
-                    >
-                      <span aria-hidden="true">{isExpanded ? "v" : ">"}</span>
-                    </button>
                   </div>
 
                   {isExpanded ? (
@@ -360,6 +400,13 @@ function FoodsPage() {
                             </section>
                           ))}
                         </div>
+                      ) : null}
+
+                      {food.notes ? (
+                        <section className="nutrition-group food-notes-detail">
+                          <h4>Notes</h4>
+                          <p>{food.notes}</p>
+                        </section>
                       ) : null}
 
                       {editingFoodId === food.id && editForm ? (
