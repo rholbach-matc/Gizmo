@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "./config";
+import { responseError } from "./errors";
 
 export type Food = {
   id: number;
@@ -34,6 +35,16 @@ export type FoodCreate = {
   notes?: string | null;
 };
 
+export type FoodUpdate = {
+  can_size_grams: number;
+  calories_per_can: number;
+  moisture_percent: number;
+  protein_as_fed_percent: number;
+  fat_as_fed_percent: number;
+  phosphorus_as_fed_percent: number;
+  sodium_as_fed_percent: number;
+};
+
 export async function getFoods(): Promise<Food[]> {
   const response = await fetch(`${API_BASE_URL}/foods`);
 
@@ -55,6 +66,22 @@ export async function createFood(food: FoodCreate): Promise<Food> {
 
   if (!response.ok) {
     throw new Error("Could not create food.");
+  }
+
+  return response.json();
+}
+
+export async function updateFood(foodId: number, food: FoodUpdate): Promise<Food> {
+  const response = await fetch(`${API_BASE_URL}/foods/${foodId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(food),
+  });
+
+  if (!response.ok) {
+    throw await responseError(response, "Could not update food.");
   }
 
   return response.json();

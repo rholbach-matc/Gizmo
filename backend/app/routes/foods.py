@@ -15,8 +15,7 @@ def get_db():
         db.close()
 
 
-@router.post("", response_model=schemas.FoodResponse, status_code=status.HTTP_201_CREATED)
-def create_food(food: schemas.FoodCreate, db: Session = Depends(get_db)):
+def validated_food_nutrition(food: schemas.FoodCreate | schemas.FoodUpdate):
     if food.can_size_grams <= 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -72,22 +71,40 @@ def create_food(food: schemas.FoodCreate, db: Session = Depends(get_db)):
         food.sodium_as_fed_percent / dry_matter_percent * 100
     )
 
+    return {
+        "calories_per_gram": calories_per_gram,
+        "dry_matter_percent": dry_matter_percent,
+        "protein_dry_matter_percent": protein_dry_matter_percent,
+        "fat_dry_matter_percent": fat_dry_matter_percent,
+        "phosphorus_dry_matter_percent": phosphorus_dry_matter_percent,
+        "sodium_dry_matter_percent": sodium_dry_matter_percent,
+    }
+
+
+@router.post("", response_model=schemas.FoodResponse, status_code=status.HTTP_201_CREATED)
+def create_food(food: schemas.FoodCreate, db: Session = Depends(get_db)):
+    calculated_values = validated_food_nutrition(food)
+
     db_food = models.Food(
         name=food.name,
         brand=food.brand,
         can_size_grams=food.can_size_grams,
         calories_per_can=food.calories_per_can,
-        calories_per_gram=calories_per_gram,
+        calories_per_gram=calculated_values["calories_per_gram"],
         moisture_percent=food.moisture_percent,
-        dry_matter_percent=dry_matter_percent,
+        dry_matter_percent=calculated_values["dry_matter_percent"],
         protein_as_fed_percent=food.protein_as_fed_percent,
-        protein_dry_matter_percent=protein_dry_matter_percent,
+        protein_dry_matter_percent=calculated_values[
+            "protein_dry_matter_percent"
+        ],
         fat_as_fed_percent=food.fat_as_fed_percent,
-        fat_dry_matter_percent=fat_dry_matter_percent,
+        fat_dry_matter_percent=calculated_values["fat_dry_matter_percent"],
         phosphorus_as_fed_percent=food.phosphorus_as_fed_percent,
-        phosphorus_dry_matter_percent=phosphorus_dry_matter_percent,
+        phosphorus_dry_matter_percent=calculated_values[
+            "phosphorus_dry_matter_percent"
+        ],
         sodium_as_fed_percent=food.sodium_as_fed_percent,
-        sodium_dry_matter_percent=sodium_dry_matter_percent,
+        sodium_dry_matter_percent=calculated_values["sodium_dry_matter_percent"],
         notes=food.notes,
     )
 
@@ -101,6 +118,48 @@ def create_food(food: schemas.FoodCreate, db: Session = Depends(get_db)):
 @router.get("", response_model=list[schemas.FoodResponse])
 def list_foods(db: Session = Depends(get_db)):
     return db.query(models.Food).order_by(models.Food.id).all()
+
+
+@router.patch("/{food_id}", response_model=schemas.FoodResponse)
+def update_food(
+    food_id: int,
+    food_update: schemas.FoodUpdate,
+    db: Session = Depends(get_db),
+):
+    db_food = db.query(models.Food).filter(models.Food.id == food_id).first()
+
+    if db_food is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Food not found",
+        )
+
+    calculated_values = validated_food_nutrition(food_update)
+
+    db_food.can_size_grams = food_update.can_size_grams
+    db_food.calories_per_can = food_update.calories_per_can
+    db_food.calories_per_gram = calculated_values["calories_per_gram"]
+    db_food.moisture_percent = food_update.moisture_percent
+    db_food.dry_matter_percent = calculated_values["dry_matter_percent"]
+    db_food.protein_as_fed_percent = food_update.protein_as_fed_percent
+    db_food.protein_dry_matter_percent = calculated_values[
+        "protein_dry_matter_percent"
+    ]
+    db_food.fat_as_fed_percent = food_update.fat_as_fed_percent
+    db_food.fat_dry_matter_percent = calculated_values["fat_dry_matter_percent"]
+    db_food.phosphorus_as_fed_percent = food_update.phosphorus_as_fed_percent
+    db_food.phosphorus_dry_matter_percent = calculated_values[
+        "phosphorus_dry_matter_percent"
+    ]
+    db_food.sodium_as_fed_percent = food_update.sodium_as_fed_percent
+    db_food.sodium_dry_matter_percent = calculated_values[
+        "sodium_dry_matter_percent"
+    ]
+
+    db.commit()
+    db.refresh(db_food)
+
+    return db_food
 
 
 @router.delete("/{food_id}", status_code=status.HTTP_204_NO_CONTENT)

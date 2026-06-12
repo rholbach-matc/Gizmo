@@ -17,6 +17,8 @@ export type BowlCreate = {
   notes?: string | null;
 };
 
+export type BowlUpdate = BowlCreate;
+
 export async function getBowls(): Promise<Bowl[]> {
   const response = await fetch(`${API_BASE_URL}/bowls`);
 
@@ -38,6 +40,25 @@ export async function createBowl(bowl: BowlCreate): Promise<Bowl> {
 
   if (!response.ok) {
     throw new Error("Could not create bowl.");
+  }
+
+  return response.json();
+}
+
+export async function updateBowl(
+  bowlId: number,
+  bowl: BowlUpdate,
+): Promise<Bowl> {
+  const response = await fetch(`${API_BASE_URL}/bowls/${bowlId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(bowl),
+  });
+
+  if (!response.ok) {
+    throw await responseError(response, "Could not update bowl.");
   }
 
   return response.json();

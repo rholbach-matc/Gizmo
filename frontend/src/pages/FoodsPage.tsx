@@ -1,6 +1,28 @@
 import { FormEvent, useEffect, useState } from "react";
 
-import { Food, createFood, deleteFood, getFoods } from "../api/foods";
+import { Food, createFood, deleteFood, getFoods, updateFood } from "../api/foods";
+
+type FoodEditForm = {
+  canSize: string;
+  caloriesPerCan: string;
+  moisture: string;
+  protein: string;
+  fat: string;
+  phosphorus: string;
+  sodium: string;
+};
+
+function foodEditForm(food: Food): FoodEditForm {
+  return {
+    canSize: food.can_size_grams.toString(),
+    caloriesPerCan: food.calories_per_can.toString(),
+    moisture: food.moisture_percent.toString(),
+    protein: food.protein_as_fed_percent.toString(),
+    fat: food.fat_as_fed_percent.toString(),
+    phosphorus: food.phosphorus_as_fed_percent.toString(),
+    sodium: food.sodium_as_fed_percent.toString(),
+  };
+}
 
 function FoodsPage() {
   const [foods, setFoods] = useState<Food[]>([]);
@@ -16,7 +38,11 @@ function FoodsPage() {
   const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [editingFoodId, setEditingFoodId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<FoodEditForm | null>(null);
+  const [savingEditFoodId, setSavingEditFoodId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   async function loadFoods() {
     try {
@@ -43,6 +69,7 @@ function FoodsPage() {
     try {
       setIsSaving(true);
       setError(null);
+      setSuccessMessage(null);
 
       const newFood = await createFood({
         name,
@@ -92,6 +119,58 @@ function FoodsPage() {
       setError(
         caughtError instanceof Error ? caughtError.message : "Could not delete food.",
       );
+    }
+  }
+
+  function startEditing(food: Food) {
+    setEditingFoodId(food.id);
+    setEditForm(foodEditForm(food));
+    setError(null);
+    setSuccessMessage(null);
+  }
+
+  function updateEditForm(field: keyof FoodEditForm, value: string) {
+    setEditForm((currentForm) =>
+      currentForm ? { ...currentForm, [field]: value } : currentForm,
+    );
+  }
+
+  async function handleEdit(event: FormEvent<HTMLFormElement>, food: Food) {
+    event.preventDefault();
+
+    if (!editForm) {
+      return;
+    }
+
+    try {
+      setSavingEditFoodId(food.id);
+      setError(null);
+      setSuccessMessage(null);
+
+      const updatedFood = await updateFood(food.id, {
+        can_size_grams: Number(editForm.canSize),
+        calories_per_can: Number(editForm.caloriesPerCan),
+        moisture_percent: Number(editForm.moisture),
+        protein_as_fed_percent: Number(editForm.protein),
+        fat_as_fed_percent: Number(editForm.fat),
+        phosphorus_as_fed_percent: Number(editForm.phosphorus),
+        sodium_as_fed_percent: Number(editForm.sodium),
+      });
+
+      setFoods((currentFoods) =>
+        currentFoods.map((currentFood) =>
+          currentFood.id === updatedFood.id ? updatedFood : currentFood,
+        ),
+      );
+      setEditingFoodId(null);
+      setEditForm(null);
+      setSuccessMessage("Changes saved");
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error ? caughtError.message : "Could not update food.",
+      );
+    } finally {
+      setSavingEditFoodId(null);
     }
   }
 
@@ -246,6 +325,7 @@ function FoodsPage() {
           </div>
 
           {error ? <p className="error-message">{error}</p> : null}
+          {successMessage ? <p className="success-message">{successMessage}</p> : null}
 
           {!isLoading && foods.length === 0 ? (
             <p className="empty-state">No foods saved yet.</p>
@@ -264,9 +344,138 @@ function FoodsPage() {
                 <p>{food.phosphorus_dry_matter_percent}% phosphorus dry matter</p>
                 {food.notes ? <p>{food.notes}</p> : null}
 
-                <button type="button" onClick={() => handleDelete(food.id)}>
-                  Delete
-                </button>
+                {editingFoodId === food.id && editForm ? (
+                  <form
+                    className="edit-entry-form"
+                    onSubmit={(event) => handleEdit(event, food)}
+                  >
+                    <div className="form-row edit-entry-form-wide">
+                      <label>
+                        Can size grams
+                        <input
+                          required
+                          min="0"
+                          step="0.1"
+                          type="number"
+                          value={editForm.canSize}
+                          onChange={(event) =>
+                            updateEditForm("canSize", event.target.value)
+                          }
+                        />
+                      </label>
+
+                      <label>
+                        Calories per can
+                        <input
+                          required
+                          min="0"
+                          step="0.1"
+                          type="number"
+                          value={editForm.caloriesPerCan}
+                          onChange={(event) =>
+                            updateEditForm("caloriesPerCan", event.target.value)
+                          }
+                        />
+                      </label>
+                    </div>
+
+                    <label>
+                      Moisture percent
+                      <input
+                        required
+                        min="0"
+                        max="99.9"
+                        step="0.1"
+                        type="number"
+                        value={editForm.moisture}
+                        onChange={(event) =>
+                          updateEditForm("moisture", event.target.value)
+                        }
+                      />
+                    </label>
+
+                    <label>
+                      Protein as-fed percent
+                      <input
+                        required
+                        min="0"
+                        step="0.01"
+                        type="number"
+                        value={editForm.protein}
+                        onChange={(event) =>
+                          updateEditForm("protein", event.target.value)
+                        }
+                      />
+                    </label>
+
+                    <label>
+                      Fat as-fed percent
+                      <input
+                        required
+                        min="0"
+                        step="0.01"
+                        type="number"
+                        value={editForm.fat}
+                        onChange={(event) =>
+                          updateEditForm("fat", event.target.value)
+                        }
+                      />
+                    </label>
+
+                    <label>
+                      Phosphorus as-fed percent
+                      <input
+                        required
+                        min="0"
+                        step="0.01"
+                        type="number"
+                        value={editForm.phosphorus}
+                        onChange={(event) =>
+                          updateEditForm("phosphorus", event.target.value)
+                        }
+                      />
+                    </label>
+
+                    <label>
+                      Sodium as-fed percent
+                      <input
+                        required
+                        min="0"
+                        step="0.01"
+                        type="number"
+                        value={editForm.sodium}
+                        onChange={(event) =>
+                          updateEditForm("sodium", event.target.value)
+                        }
+                      />
+                    </label>
+
+                    <div className="entry-actions">
+                      <button type="submit" disabled={savingEditFoodId === food.id}>
+                        {savingEditFoodId === food.id ? "Saving..." : "Save Changes"}
+                      </button>
+                      <button
+                        type="button"
+                        className="secondary-button"
+                        onClick={() => {
+                          setEditingFoodId(null);
+                          setEditForm(null);
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                ) : null}
+
+                <div className="entry-actions">
+                  <button type="button" onClick={() => startEditing(food)}>
+                    Edit
+                  </button>
+                  <button type="button" onClick={() => handleDelete(food.id)}>
+                    Delete
+                  </button>
+                </div>
               </article>
             ))}
           </div>

@@ -633,7 +633,10 @@ p {
   gap: 0.6rem;
 }
 
+.bowl-card .entry-actions,
+.food-card .entry-actions,
 .entry-card .entry-actions {
+  align-items: center;
   justify-content: start;
 }
 
@@ -677,6 +680,21 @@ p {
 .edit-entry-form-wide,
 .edit-entry-form .entry-actions {
   grid-column: 1 / -1;
+}
+
+.bowl-card .edit-entry-form .form-row,
+.food-card .edit-entry-form .form-row {
+  align-items: stretch;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr 1fr;
+  justify-content: stretch;
+}
+
+.bowl-card .edit-entry-form .entry-actions,
+.food-card .edit-entry-form .entry-actions {
+  display: flex;
+  justify-content: start;
 }
 
 .edit-entry-form .checkbox-label {
@@ -796,6 +814,8 @@ p {
   }
 
   .form-row,
+  .bowl-card .edit-entry-form .form-row,
+  .food-card .edit-entry-form .form-row,
   .entry-result dl,
   .edit-entry-form {
     grid-template-columns: 1fr;

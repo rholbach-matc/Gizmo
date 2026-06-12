@@ -11,6 +11,13 @@ class BowlCreate(BaseModel):
     notes: str | None = None
 
 
+class BowlUpdate(BaseModel):
+    name: str
+    empty_weight_grams: float
+    color: str | None = None
+    notes: str | None = None
+
+
 class BowlResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -47,6 +54,16 @@ class FoodCreate(BaseModel):
     phosphorus_as_fed_percent: float
     sodium_as_fed_percent: float
     notes: str | None = None
+
+
+class FoodUpdate(BaseModel):
+    can_size_grams: float
+    calories_per_can: float
+    moisture_percent: float
+    protein_as_fed_percent: float
+    fat_as_fed_percent: float
+    phosphorus_as_fed_percent: float
+    sodium_as_fed_percent: float
 
 
 class FoodResponse(BaseModel):
