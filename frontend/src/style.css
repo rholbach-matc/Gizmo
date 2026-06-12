@@ -1048,6 +1048,8 @@ p {
 
 .foods-page .food-card {
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   transition:
     border-color 120ms ease,
@@ -1065,37 +1067,44 @@ p {
 }
 
 .food-card-summary {
-  display: grid;
-  gap: 0.65rem;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
+  width: 100%;
 }
 
 .food-card-package {
   align-items: center;
-  color: var(--ref-text-muted);
-  display: grid;
+  color: var(--ref-text-secondary);
+  display: flex;
   font-size: 0.76rem;
   font-weight: 800;
   gap: 0.5rem;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  justify-content: space-between;
   line-height: 1.2;
   min-width: 0;
+  width: 100%;
 }
 
 .food-card-package span {
-  min-width: 0;
+  flex: 0 0 auto;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.food-card-package span:first-child {
+  flex: 0 1 40%;
+  min-width: 0;
+}
+
 .food-card-package span:nth-child(2) {
-  color: var(--ref-text-secondary);
+  flex: 1 0 auto;
   text-align: center;
 }
 
 .food-card-package span:nth-child(3) {
-  color: var(--ref-text-secondary);
+  flex: 1 0 auto;
   text-align: right;
 }
 
@@ -1104,38 +1113,51 @@ p {
   font-size: 1.18rem;
   font-weight: 900;
   line-height: 1.22;
-  overflow-wrap: anywhere;
+  margin-top: 8px;
+  width: 100%;
+  word-break: break-word;
 }
 
 .food-card-metric-values,
 .food-card-metric-labels {
-  display: grid;
+  display: flex;
   gap: 0.35rem;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-content: space-around;
   min-width: 0;
   text-align: center;
+  width: 100%;
 }
 
 .food-card-metric-values {
-  border-top: 1px solid var(--ref-card-border);
-  padding-top: 0.75rem;
+  border-top: 0.5px solid var(--ref-card-border);
+  margin-top: 8px;
+  padding-top: 8px;
 }
 
 .food-card-metric-values strong {
   color: var(--ref-text-primary);
-  font-size: 1rem;
+  flex: 1;
+  font-size: 0.98rem;
   line-height: 1;
   min-width: 0;
-  overflow-wrap: anywhere;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.food-card-metric-labels {
+  margin-top: 8px;
 }
 
 .food-card-metric-labels span {
   color: var(--ref-text-muted);
+  flex: 1;
   font-size: 0.68rem;
   font-weight: 900;
   line-height: 1.1;
   min-width: 0;
+  text-align: center;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .food-notes-detail p {
@@ -1239,6 +1261,19 @@ p {
 }
 
 @media (max-width: 400px) {
+  .food-card-package {
+    font-size: 0.72rem;
+    gap: 0.35rem;
+  }
+
+  .food-card-metric-values strong {
+    font-size: 0.9rem;
+  }
+
+  .food-card-metric-labels span {
+    font-size: 0.62rem;
+  }
+
   .nutrition-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
