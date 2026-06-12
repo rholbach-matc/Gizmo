@@ -118,6 +118,22 @@ class ReferenceUpdateTest(TestCase):
         self.assertEqual(entry.protein_consumed_grams, 6)
         self.assertEqual(entry.phosphorus_consumed_mg, 100)
 
+    def test_food_response_includes_reference_library_fields(self):
+        response = schemas.FoodResponse.model_validate(self.food)
+
+        self.assertEqual(response.can_size_grams, 100)
+        self.assertEqual(response.calories_per_can, 200)
+        self.assertEqual(response.calories_per_gram, 2)
+        self.assertEqual(response.moisture_percent, 80)
+        self.assertEqual(response.protein_as_fed_percent, 10)
+        self.assertEqual(response.fat_as_fed_percent, 5)
+        self.assertEqual(response.phosphorus_as_fed_percent, 0.1)
+        self.assertEqual(response.sodium_as_fed_percent, 0.05)
+        self.assertEqual(response.protein_dry_matter_percent, 50)
+        self.assertEqual(response.fat_dry_matter_percent, 25)
+        self.assertEqual(response.phosphorus_dry_matter_percent, 0.5)
+        self.assertEqual(response.sodium_dry_matter_percent, 0.25)
+
     def test_update_bowl_does_not_modify_existing_food_entry(self):
         entry = create_food_entry(
             schemas.FoodEntryCreate(

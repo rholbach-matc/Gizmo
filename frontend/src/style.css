@@ -596,6 +596,41 @@ p {
   font-size: 1rem;
 }
 
+.food-detail-panel {
+  border-top: 1px solid #ead9c7;
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 0.85rem;
+}
+
+.food-detail-panel dl {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.food-card .food-detail-panel div {
+  align-items: start;
+  display: grid;
+  gap: 0.2rem;
+  justify-content: stretch;
+}
+
+.food-detail-panel dt {
+  color: #6c5c52;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.food-detail-panel dd {
+  color: #2f2926;
+  font-size: 0.98rem;
+  font-weight: 800;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 .bowl-card button,
 .food-card button,
 .fluid-card button,
@@ -816,6 +851,7 @@ p {
   .form-row,
   .bowl-card .edit-entry-form .form-row,
   .food-card .edit-entry-form .form-row,
+  .food-detail-panel dl,
   .entry-result dl,
   .edit-entry-form {
     grid-template-columns: 1fr;
