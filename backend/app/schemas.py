@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
@@ -225,6 +226,31 @@ class EpisodeEntryResponse(BaseModel):
     id: int
     entry_time: datetime
     severity: str | None
+    notes: str | None
+    created_at: datetime
+
+
+VomitSeverity = Literal["mild", "moderate", "severe"]
+
+
+class VomitEntryCreate(BaseModel):
+    entry_time: datetime | None = None
+    severity: VomitSeverity
+    notes: str | None = None
+
+
+class VomitEntryUpdate(BaseModel):
+    entry_time: datetime
+    severity: VomitSeverity
+    notes: str | None = None
+
+
+class VomitEntryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    entry_time: datetime
+    severity: VomitSeverity
     notes: str | None
     created_at: datetime
 

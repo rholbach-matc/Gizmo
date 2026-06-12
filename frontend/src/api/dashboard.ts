@@ -81,6 +81,7 @@ export type DashboardActivityItem = {
     | "weight"
     | "water"
     | "episode"
+    | "vomit"
     | "medication"
     | "vet_visit";
   entry_time: string;

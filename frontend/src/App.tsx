@@ -12,6 +12,7 @@ import HistoricalDayPage from "./pages/HistoricalDayPage";
 import HydrationPage from "./pages/HydrationPage";
 import MedicationsPage from "./pages/MedicationsPage";
 import VetVisitsPage from "./pages/VetVisitsPage";
+import VomitTrackerPage from "./pages/VomitTrackerPage";
 import WeightTrackerPage from "./pages/WeightTrackerPage";
 
 type Page =
@@ -21,6 +22,7 @@ type Page =
   | "episodes"
   | "medications"
   | "vetVisits"
+  | "vomitTracker"
   | "bmTracker"
   | "fluidsTracker"
   | "hydration"
@@ -83,6 +85,7 @@ function App() {
 
   const morePages: { label: string; page: Page }[] = [
     { label: "Vet Visits", page: "vetVisits" },
+    { label: "Vomit Tracker", page: "vomitTracker" },
     { label: "BM Tracker", page: "bmTracker" },
     { label: "Fluids Tracker", page: "fluidsTracker" },
     { label: "Weight Tracker", page: "weightTracker" },
@@ -129,6 +132,13 @@ function App() {
           onClick={() => navigate("vetVisits")}
         >
           Vet Visits
+        </button>
+        <button
+          type="button"
+          className={currentPage === "vomitTracker" ? "active" : ""}
+          onClick={() => navigate("vomitTracker")}
+        >
+          Vomit Tracker
         </button>
         <button
           type="button"
@@ -184,6 +194,7 @@ function App() {
       {currentPage === "episodes" ? <EpisodesPage /> : null}
       {currentPage === "medications" ? <MedicationsPage /> : null}
       {currentPage === "vetVisits" ? <VetVisitsPage /> : null}
+      {currentPage === "vomitTracker" ? <VomitTrackerPage /> : null}
       {currentPage === "bmTracker" ? <BMTrackerPage /> : null}
       {currentPage === "fluidsTracker" ? <FluidsTrackerPage /> : null}
       {currentPage === "hydration" ? <HydrationPage /> : null}

@@ -40,6 +40,7 @@ def build_activity_items(
     weight_entries: list[models.WeightEntry],
     water_entries: list[models.DrinkingWaterEntry],
     episode_entries: list[models.EpisodeEntry],
+    vomit_entries: list[models.VomitEntry],
     medication_entries: list[models.MedicationEntry],
     vet_visit_entries: list[models.VetVisitEntry],
     *,
@@ -124,6 +125,17 @@ def build_activity_items(
                 entry_time=entry.entry_time,
                 title="Episode",
                 summary=entry.severity or "Shaking/wobbly episode",
+                details=entry.notes,
+            )
+        )
+
+    for entry in vomit_entries:
+        activity_items.append(
+            schemas.DashboardActivityItem(
+                type="vomit",
+                entry_time=entry.entry_time,
+                title="Vomit",
+                summary=entry.severity,
                 details=entry.notes,
             )
         )
@@ -346,6 +358,12 @@ def get_today_dashboard(db: Session = Depends(get_db)):
         .limit(RECENT_ACTIVITY_LIMIT)
         .all()
     )
+    recent_vomit_entries = (
+        db.query(models.VomitEntry)
+        .order_by(models.VomitEntry.entry_time.desc(), models.VomitEntry.id.desc())
+        .limit(RECENT_ACTIVITY_LIMIT)
+        .all()
+    )
     recent_medication_entries = (
         db.query(models.MedicationEntry)
         .order_by(
@@ -398,6 +416,7 @@ def get_today_dashboard(db: Session = Depends(get_db)):
             recent_weight_entries,
             recent_water_entries,
             recent_episode_entries,
+            recent_vomit_entries,
             recent_medication_entries,
             recent_vet_visit_entries,
         ),
@@ -507,6 +526,13 @@ def get_day_dashboard(day: date, db: Session = Depends(get_db)):
         start_of_next_day,
         ascending=True,
     )
+    vomit_entries = entries_for_day(
+        db.query(models.VomitEntry),
+        models.VomitEntry,
+        start_of_day,
+        start_of_next_day,
+        ascending=True,
+    )
     medication_entries = entries_for_day(
         db.query(models.MedicationEntry),
         models.MedicationEntry,
@@ -539,6 +565,7 @@ def get_day_dashboard(day: date, db: Session = Depends(get_db)):
             weight_entries,
             water_entries,
             episode_entries,
+            vomit_entries,
             medication_entries,
             vet_visit_entries,
             reverse=False,
