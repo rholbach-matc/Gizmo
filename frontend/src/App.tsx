@@ -8,6 +8,7 @@ import EpisodesPage from "./pages/EpisodesPage";
 import FoodEntriesPage from "./pages/FoodEntriesPage";
 import FoodsPage from "./pages/FoodsPage";
 import FluidsTrackerPage from "./pages/FluidsTrackerPage";
+import HistoricalDayPage from "./pages/HistoricalDayPage";
 import HydrationPage from "./pages/HydrationPage";
 import MedicationsPage from "./pages/MedicationsPage";
 import VetVisitsPage from "./pages/VetVisitsPage";
@@ -15,6 +16,7 @@ import WeightTrackerPage from "./pages/WeightTrackerPage";
 
 type Page =
   | "dashboard"
+  | "historicalDay"
   | "foodEntries"
   | "episodes"
   | "medications"
@@ -172,7 +174,12 @@ function App() {
         </button>
       </nav>
 
-      {currentPage === "dashboard" ? <DashboardPage /> : null}
+      {currentPage === "dashboard" ? (
+        <DashboardPage onDateChipClick={() => navigate("historicalDay")} />
+      ) : null}
+      {currentPage === "historicalDay" ? (
+        <HistoricalDayPage onTodaySelected={() => navigate("dashboard")} />
+      ) : null}
       {currentPage === "foodEntries" ? <FoodEntriesPage /> : null}
       {currentPage === "episodes" ? <EpisodesPage /> : null}
       {currentPage === "medications" ? <MedicationsPage /> : null}

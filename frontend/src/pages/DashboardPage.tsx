@@ -150,7 +150,11 @@ function Icon({ name }: { name: IconName }) {
   );
 }
 
-function DashboardPage() {
+type DashboardPageProps = {
+  onDateChipClick: () => void;
+};
+
+function DashboardPage({ onDateChipClick }: DashboardPageProps) {
   const [dashboard, setDashboard] = useState<TodayDashboard | null>(null);
   const [foodEntries, setFoodEntries] = useState<FoodEntry[]>([]);
   const [foods, setFoods] = useState<Food[]>([]);
@@ -273,7 +277,13 @@ function DashboardPage() {
           <p className="eyebrow">Gizmo</p>
           <h1>Today</h1>
         </div>
-        <span className="date-chip">{formatDateChip()}</span>
+        <button
+          type="button"
+          className="date-chip date-chip-button"
+          onClick={onDateChipClick}
+        >
+          {formatDateChip()}
+        </button>
       </section>
 
       <section className="dashboard-shell" aria-label="Gizmo care dashboard">

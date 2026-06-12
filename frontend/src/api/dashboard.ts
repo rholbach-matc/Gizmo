@@ -118,11 +118,34 @@ export type TodayDashboard = {
   recent_activity: DashboardActivityItem[];
 };
 
+export type DayDashboard = {
+  date: string;
+  calories_eaten: number;
+  feedings_count: number;
+  bm_count: number;
+  water_observation_count: number;
+  episode_count: number;
+  medication_count: number;
+  fluids_given: boolean;
+  latest_weight_entry: DashboardWeightEntry | null;
+  activity: DashboardActivityItem[];
+};
+
 export async function getTodayDashboard(): Promise<TodayDashboard> {
   const response = await fetch(`${API_BASE_URL}/dashboard/today`);
 
   if (!response.ok) {
     throw new Error("Could not load today's dashboard.");
+  }
+
+  return response.json();
+}
+
+export async function getDayDashboard(date: string): Promise<DayDashboard> {
+  const response = await fetch(`${API_BASE_URL}/dashboard/day/${date}`);
+
+  if (!response.ok) {
+    throw new Error("Could not load historical dashboard.");
   }
 
   return response.json();

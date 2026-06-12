@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import func
@@ -42,6 +42,9 @@ def build_activity_items(
     episode_entries: list[models.EpisodeEntry],
     medication_entries: list[models.MedicationEntry],
     vet_visit_entries: list[models.VetVisitEntry],
+    *,
+    reverse: bool = True,
+    limit: int | None = RECENT_ACTIVITY_LIMIT,
 ):
     activity_items = []
 
@@ -150,8 +153,20 @@ def build_activity_items(
     return sorted(
         activity_items,
         key=lambda item: item.entry_time,
-        reverse=True,
-    )[:RECENT_ACTIVITY_LIMIT]
+        reverse=reverse,
+    )[:limit]
+
+
+def entries_for_day(query, model, start_of_day, start_of_next_day, *, ascending=False):
+    order_method = model.entry_time.asc if ascending else model.entry_time.desc
+    id_order_method = model.id.asc if ascending else model.id.desc
+
+    return (
+        query.filter(model.entry_time >= start_of_day)
+        .filter(model.entry_time < start_of_next_day)
+        .order_by(order_method(), id_order_method())
+        .all()
+    )
 
 
 @router.get("/today", response_model=schemas.TodayDashboardResponse)
@@ -385,5 +400,148 @@ def get_today_dashboard(db: Session = Depends(get_db)):
             recent_episode_entries,
             recent_medication_entries,
             recent_vet_visit_entries,
+        ),
+    )
+
+
+@router.get("/day/{day}", response_model=schemas.DayDashboardResponse)
+def get_day_dashboard(day: date, db: Session = Depends(get_db)):
+    start_of_day, start_of_next_day = caregiver_day_bounds_for_utc_storage(day)
+
+    totals = (
+        db.query(
+            func.count(models.FoodEntry.id),
+            func.sum(models.FoodEntry.calories_eaten),
+        )
+        # Feedings are attributed to the day they were started, so a feeding
+        # that spans midnight remains on its creation/start date.
+        .filter(models.FoodEntry.entry_time >= start_of_day)
+        .filter(models.FoodEntry.entry_time < start_of_next_day)
+        .filter(models.FoodEntry.ending_total_weight_grams.is_not(None))
+        .one()
+    )
+
+    bm_count = (
+        db.query(func.count(models.BMEntry.id))
+        .filter(models.BMEntry.entry_time >= start_of_day)
+        .filter(models.BMEntry.entry_time < start_of_next_day)
+        .filter(models.BMEntry.occurred.is_(True))
+        .scalar()
+        or 0
+    )
+    fluid_count = (
+        db.query(func.count(models.FluidEntry.id))
+        .filter(models.FluidEntry.entry_time >= start_of_day)
+        .filter(models.FluidEntry.entry_time < start_of_next_day)
+        .scalar()
+        or 0
+    )
+    water_observation_count = (
+        db.query(func.count(models.DrinkingWaterEntry.id))
+        .filter(models.DrinkingWaterEntry.entry_time >= start_of_day)
+        .filter(models.DrinkingWaterEntry.entry_time < start_of_next_day)
+        .scalar()
+        or 0
+    )
+    episode_count = (
+        db.query(func.count(models.EpisodeEntry.id))
+        .filter(models.EpisodeEntry.entry_time >= start_of_day)
+        .filter(models.EpisodeEntry.entry_time < start_of_next_day)
+        .scalar()
+        or 0
+    )
+    medication_count = (
+        db.query(func.count(models.MedicationEntry.id))
+        .filter(models.MedicationEntry.entry_time >= start_of_day)
+        .filter(models.MedicationEntry.entry_time < start_of_next_day)
+        .scalar()
+        or 0
+    )
+    latest_weight_entry = (
+        db.query(models.WeightEntry)
+        .filter(models.WeightEntry.entry_time >= start_of_day)
+        .filter(models.WeightEntry.entry_time < start_of_next_day)
+        .order_by(models.WeightEntry.entry_time.desc(), models.WeightEntry.id.desc())
+        .first()
+    )
+
+    food_entries = entries_for_day(
+        db.query(models.FoodEntry),
+        models.FoodEntry,
+        start_of_day,
+        start_of_next_day,
+        ascending=True,
+    )
+    bm_entries = entries_for_day(
+        db.query(models.BMEntry),
+        models.BMEntry,
+        start_of_day,
+        start_of_next_day,
+        ascending=True,
+    )
+    fluid_entries = entries_for_day(
+        db.query(models.FluidEntry),
+        models.FluidEntry,
+        start_of_day,
+        start_of_next_day,
+        ascending=True,
+    )
+    weight_entries = entries_for_day(
+        db.query(models.WeightEntry),
+        models.WeightEntry,
+        start_of_day,
+        start_of_next_day,
+        ascending=True,
+    )
+    water_entries = entries_for_day(
+        db.query(models.DrinkingWaterEntry),
+        models.DrinkingWaterEntry,
+        start_of_day,
+        start_of_next_day,
+        ascending=True,
+    )
+    episode_entries = entries_for_day(
+        db.query(models.EpisodeEntry),
+        models.EpisodeEntry,
+        start_of_day,
+        start_of_next_day,
+        ascending=True,
+    )
+    medication_entries = entries_for_day(
+        db.query(models.MedicationEntry),
+        models.MedicationEntry,
+        start_of_day,
+        start_of_next_day,
+        ascending=True,
+    )
+    vet_visit_entries = entries_for_day(
+        db.query(models.VetVisitEntry),
+        models.VetVisitEntry,
+        start_of_day,
+        start_of_next_day,
+        ascending=True,
+    )
+
+    return schemas.DayDashboardResponse(
+        date=day,
+        calories_eaten=totals[1] or 0,
+        feedings_count=totals[0] or 0,
+        bm_count=bm_count,
+        water_observation_count=water_observation_count,
+        episode_count=episode_count,
+        medication_count=medication_count,
+        fluids_given=fluid_count > 0,
+        latest_weight_entry=latest_weight_entry,
+        activity=build_activity_items(
+            food_entries,
+            bm_entries,
+            fluid_entries,
+            weight_entries,
+            water_entries,
+            episode_entries,
+            medication_entries,
+            vet_visit_entries,
+            reverse=False,
+            limit=None,
         ),
     )

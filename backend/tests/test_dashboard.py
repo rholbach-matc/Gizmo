@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app import models, schemas
 from app.database import Base
-from app.routes.dashboard import get_today_dashboard
+from app.routes.dashboard import get_day_dashboard, get_today_dashboard
 from app.routes.food_entries import update_food_entry
 
 
@@ -42,6 +42,11 @@ class DashboardTotalsTest(TestCase):
         self.db.commit()
         self.db.refresh(self.bowl)
         self.db.refresh(self.food)
+
+        self.medication = models.Medication(name="Test Medication")
+        self.db.add(self.medication)
+        self.db.commit()
+        self.db.refresh(self.medication)
 
     def tearDown(self):
         self.db.close()
@@ -120,3 +125,112 @@ class DashboardTotalsTest(TestCase):
         self.assertEqual(dashboard.feedings_count, 1)
         self.assertEqual(dashboard.open_feedings_count, 1)
         self.assertEqual(dashboard.calories_eaten, 120)
+
+    def test_day_dashboard_returns_summary_and_chronological_activity(self):
+        self.add_food_entry(datetime(2026, 6, 10, 23, 30), 90, 65)
+        self.add_food_entry(datetime(2026, 6, 11, 6, 30), 110, 55)
+        self.db.add_all(
+            [
+                models.BMEntry(
+                    entry_time=datetime(2026, 6, 11, 7, 0),
+                    occurred=True,
+                ),
+                models.FluidEntry(
+                    entry_time=datetime(2026, 6, 11, 8, 0),
+                    amount_ml=90,
+                ),
+                models.WeightEntry(
+                    entry_time=datetime(2026, 6, 11, 9, 0),
+                    weight_lbs=9.1,
+                ),
+                models.WeightEntry(
+                    entry_time=datetime(2026, 6, 11, 15, 0),
+                    weight_lbs=9.3,
+                ),
+                models.DrinkingWaterEntry(
+                    entry_time=datetime(2026, 6, 11, 10, 0),
+                    observation_type="drank_water",
+                    bowl_id=self.bowl.id,
+                ),
+                models.EpisodeEntry(
+                    entry_time=datetime(2026, 6, 11, 11, 0),
+                    severity="mild",
+                ),
+                models.MedicationEntry(
+                    entry_time=datetime(2026, 6, 11, 12, 0),
+                    medication_id=self.medication.id,
+                    medication_name=self.medication.name,
+                    dose="1 tablet",
+                ),
+                models.VetVisitEntry(
+                    entry_time=datetime(2026, 6, 11, 13, 0),
+                    reason="Checkup",
+                ),
+                models.BMEntry(
+                    entry_time=datetime(2026, 6, 12, 7, 0),
+                    occurred=True,
+                ),
+            ]
+        )
+        self.db.commit()
+
+        dashboard = get_day_dashboard(date(2026, 6, 11), self.db)
+
+        self.assertEqual(dashboard.calories_eaten, 110)
+        self.assertEqual(dashboard.feedings_count, 1)
+        self.assertEqual(dashboard.bm_count, 1)
+        self.assertEqual(dashboard.water_observation_count, 1)
+        self.assertEqual(dashboard.episode_count, 1)
+        self.assertEqual(dashboard.medication_count, 1)
+        self.assertTrue(dashboard.fluids_given)
+        self.assertEqual(dashboard.latest_weight_entry.weight_lbs, 9.3)
+        self.assertEqual(
+            [item.type for item in dashboard.activity],
+            [
+                "food",
+                "bm",
+                "fluids",
+                "weight",
+                "water",
+                "episode",
+                "medication",
+                "vet_visit",
+                "weight",
+            ],
+        )
+        self.assertEqual(
+            [item.entry_time for item in dashboard.activity],
+            sorted(item.entry_time for item in dashboard.activity),
+        )
+
+    def test_day_dashboard_attributes_midnight_spanning_food_to_start_date(self):
+        self.db.add(
+            models.FoodEntry(
+                entry_time=datetime(2026, 6, 11, 23, 30),
+                bowl_id=self.bowl.id,
+                food_id=self.food.id,
+                starting_total_weight_grams=110,
+                ending_total_weight_grams=60,
+                starting_food_weight_grams=100,
+                leftover_food_weight_grams=50,
+                food_eaten_grams=50,
+                calories_eaten=100,
+                protein_consumed_grams=5,
+                fat_consumed_grams=2.5,
+                phosphorus_consumed_mg=50,
+                sodium_consumed_mg=25,
+                moisture_consumed_grams=40,
+                dry_matter_consumed_grams=10,
+                created_at=datetime(2026, 6, 12, 1, 0),
+            )
+        )
+        self.db.commit()
+
+        start_day_dashboard = get_day_dashboard(date(2026, 6, 11), self.db)
+        finish_day_dashboard = get_day_dashboard(date(2026, 6, 12), self.db)
+
+        self.assertEqual(start_day_dashboard.feedings_count, 1)
+        self.assertEqual(start_day_dashboard.calories_eaten, 100)
+        self.assertEqual([item.type for item in start_day_dashboard.activity], ["food"])
+        self.assertEqual(finish_day_dashboard.feedings_count, 0)
+        self.assertEqual(finish_day_dashboard.activity, [])
