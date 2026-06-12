@@ -25,7 +25,7 @@ When priorities conflict, caregiver feedback takes precedence over roadmap order
 
 # Near-Term Features
 
-## Historical Day View
+## Historical Day View - COMPLETED
 
 Allow caregivers to review a previous day's care activity.
 

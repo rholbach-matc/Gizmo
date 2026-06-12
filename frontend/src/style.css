@@ -343,6 +343,10 @@ p {
   background: #b36b42;
 }
 
+.activity-vomit .activity-marker {
+  background: #9a7ab8;
+}
+
 .activity-medication .activity-marker {
   background: #566f9b;
 }
@@ -1154,6 +1158,10 @@ p {
 
 .dashboard-app .activity-episode .activity-marker {
   background: #d4904a;
+}
+
+.dashboard-app .activity-vomit .activity-marker {
+  background: #9a7ab8;
 }
 
 .dashboard-app .activity-food .activity-marker {

@@ -156,6 +156,11 @@ class DashboardTotalsTest(TestCase):
                     entry_time=datetime(2026, 6, 11, 11, 0),
                     severity="mild",
                 ),
+                models.VomitEntry(
+                    entry_time=datetime(2026, 6, 11, 11, 30),
+                    severity="moderate",
+                    notes="after breakfast",
+                ),
                 models.MedicationEntry(
                     entry_time=datetime(2026, 6, 11, 12, 0),
                     medication_id=self.medication.id,
@@ -193,6 +198,7 @@ class DashboardTotalsTest(TestCase):
                 "weight",
                 "water",
                 "episode",
+                "vomit",
                 "medication",
                 "vet_visit",
                 "weight",
@@ -234,3 +240,24 @@ class DashboardTotalsTest(TestCase):
         self.assertEqual([item.type for item in start_day_dashboard.activity], ["food"])
         self.assertEqual(finish_day_dashboard.feedings_count, 0)
         self.assertEqual(finish_day_dashboard.activity, [])
+
+    def test_today_dashboard_includes_vomit_in_recent_activity_without_overview_count(self):
+        self.db.add(
+            models.VomitEntry(
+                entry_time=datetime(2026, 6, 11, 18, 0),
+                severity="severe",
+                notes="evening event",
+            )
+        )
+        self.db.commit()
+
+        with patch("app.routes.dashboard.caregiver_today", return_value=date(2026, 6, 11)):
+            dashboard = get_today_dashboard(self.db)
+
+        vomit_items = [
+            item for item in dashboard.recent_activity if item.type == "vomit"
+        ]
+        self.assertEqual(len(vomit_items), 1)
+        self.assertEqual(vomit_items[0].summary, "severe")
+        self.assertEqual(vomit_items[0].details, "evening event")
+        self.assertFalse(hasattr(dashboard, "today_vomit_count"))

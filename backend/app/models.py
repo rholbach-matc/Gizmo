@@ -139,6 +139,16 @@ class EpisodeEntry(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 
+class VomitEntry(Base):
+    __tablename__ = "vomit_entries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    entry_time = Column(DateTime, nullable=False)
+    severity = Column(String, nullable=False)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
 class MedicationEntry(Base):
     __tablename__ = "medication_entries"
 
