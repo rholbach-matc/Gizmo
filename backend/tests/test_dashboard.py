@@ -299,3 +299,32 @@ class DashboardTotalsTest(TestCase):
         self.assertEqual(mood_items[0].details, "Energy: 2\nYowling: 5")
         self.assertNotIn("Appetite", mood_items[0].details)
         self.assertEqual([item.type for item in day_dashboard.activity], ["mood"])
+
+    def test_today_dashboard_counts_yowling_observations_not_rating_values(self):
+        self.db.add_all(
+            [
+                models.MoodEntry(
+                    entry_time=datetime(2026, 6, 11, 8, 0),
+                    mood_rating=4,
+                    yowling_rating=5,
+                ),
+                models.MoodEntry(
+                    entry_time=datetime(2026, 6, 11, 9, 0),
+                    yowling_rating=2,
+                ),
+                models.MoodEntry(
+                    entry_time=datetime(2026, 6, 11, 10, 0),
+                    mood_rating=3,
+                ),
+                models.MoodEntry(
+                    entry_time=datetime(2026, 6, 10, 18, 0),
+                    yowling_rating=1,
+                ),
+            ]
+        )
+        self.db.commit()
+
+        with patch("app.routes.dashboard.caregiver_today", return_value=date(2026, 6, 11)):
+            dashboard = get_today_dashboard(self.db)
+
+        self.assertEqual(dashboard.today_yowling_observation_count, 2)

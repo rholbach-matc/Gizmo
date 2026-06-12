@@ -1649,6 +1649,16 @@ p {
   line-height: 1;
 }
 
+.behavior-counts {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.behavior-counts strong {
+  font-size: 1rem;
+  line-height: 1.15;
+}
+
 .today-metric span {
   color: #a09080;
   font-size: 0.76rem;
