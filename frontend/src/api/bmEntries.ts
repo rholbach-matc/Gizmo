@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "./config";
+import { responseError } from "./errors";
 
 export type BMEntry = {
   id: number;
@@ -10,6 +11,12 @@ export type BMEntry = {
 
 export type BMEntryCreate = {
   entry_time?: string;
+  occurred: boolean;
+  notes?: string | null;
+};
+
+export type BMEntryUpdate = {
+  entry_time: string;
   occurred: boolean;
   notes?: string | null;
 };
@@ -37,6 +44,25 @@ export async function createBMEntry(
 
   if (!response.ok) {
     throw new Error("Could not create BM entry.");
+  }
+
+  return response.json();
+}
+
+export async function updateBMEntry(
+  bmEntryId: number,
+  bmEntry: BMEntryUpdate,
+): Promise<BMEntry> {
+  const response = await fetch(`${API_BASE_URL}/bm-entries/${bmEntryId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(bmEntry),
+  });
+
+  if (!response.ok) {
+    throw await responseError(response, "Could not update BM entry.");
   }
 
   return response.json();

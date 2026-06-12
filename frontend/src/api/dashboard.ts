@@ -39,6 +39,8 @@ export type DashboardWeightEntry = {
 export type DashboardWaterEntry = {
   id: number;
   entry_time: string;
+  observation_type: string;
+  bowl_id: number | null;
   notes: string | null;
   created_at: string;
 };
@@ -54,6 +56,7 @@ export type DashboardEpisodeEntry = {
 export type DashboardMedicationEntry = {
   id: number;
   entry_time: string;
+  medication_id: number | null;
   medication_name: string;
   dose: string | null;
   notes: string | null;

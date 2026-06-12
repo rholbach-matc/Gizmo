@@ -17,6 +17,18 @@ class Bowl(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     food_entries = relationship("FoodEntry", back_populates="bowl")
+    water_entries = relationship("DrinkingWaterEntry", back_populates="bowl")
+
+
+class Medication(Base):
+    __tablename__ = "medications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False, unique=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    medication_entries = relationship("MedicationEntry", back_populates="medication")
 
 
 class Food(Base):
@@ -109,8 +121,12 @@ class DrinkingWaterEntry(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     entry_time = Column(DateTime, nullable=False)
+    observation_type = Column(String, nullable=False, default="drank_water")
+    bowl_id = Column(Integer, ForeignKey("bowls.id"), nullable=True)
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    bowl = relationship("Bowl", back_populates="water_entries")
 
 
 class EpisodeEntry(Base):
@@ -128,10 +144,13 @@ class MedicationEntry(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     entry_time = Column(DateTime, nullable=False)
+    medication_id = Column(Integer, ForeignKey("medications.id"), nullable=True)
     medication_name = Column(String, nullable=False)
     dose = Column(String, nullable=True)
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    medication = relationship("Medication", back_populates="medication_entries")
 
 
 class VetVisitEntry(Base):

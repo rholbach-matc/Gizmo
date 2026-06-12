@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "./config";
+import { responseError } from "./errors";
 
 export type VetVisitEntry = {
   id: number;
@@ -12,6 +13,14 @@ export type VetVisitEntry = {
 
 export type VetVisitEntryCreate = {
   entry_time?: string;
+  reason?: string | null;
+  summary?: string | null;
+  follow_up_needed?: boolean | null;
+  notes?: string | null;
+};
+
+export type VetVisitEntryUpdate = {
+  entry_time: string;
   reason?: string | null;
   summary?: string | null;
   follow_up_needed?: boolean | null;
@@ -41,6 +50,28 @@ export async function createVetVisitEntry(
 
   if (!response.ok) {
     throw new Error("Could not create vet visit entry.");
+  }
+
+  return response.json();
+}
+
+export async function updateVetVisitEntry(
+  vetVisitEntryId: number,
+  vetVisitEntry: VetVisitEntryUpdate,
+): Promise<VetVisitEntry> {
+  const response = await fetch(
+    `${API_BASE_URL}/vet-visit-entries/${vetVisitEntryId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(vetVisitEntry),
+    },
+  );
+
+  if (!response.ok) {
+    throw await responseError(response, "Could not update vet visit entry.");
   }
 
   return response.json();

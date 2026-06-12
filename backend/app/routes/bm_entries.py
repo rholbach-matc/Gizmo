@@ -47,6 +47,34 @@ def list_bm_entries(db: Session = Depends(get_db)):
     )
 
 
+@router.patch("/{bm_entry_id}", response_model=schemas.BMEntryResponse)
+def update_bm_entry(
+    bm_entry_id: int,
+    bm_entry_update: schemas.BMEntryUpdate,
+    db: Session = Depends(get_db),
+):
+    db_bm_entry = (
+        db.query(models.BMEntry)
+        .filter(models.BMEntry.id == bm_entry_id)
+        .first()
+    )
+
+    if db_bm_entry is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="BM entry not found",
+        )
+
+    db_bm_entry.entry_time = entry_time_or_now(bm_entry_update.entry_time)
+    db_bm_entry.occurred = bm_entry_update.occurred
+    db_bm_entry.notes = bm_entry_update.notes
+
+    db.commit()
+    db.refresh(db_bm_entry)
+
+    return db_bm_entry
+
+
 @router.delete("/{bm_entry_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_bm_entry(bm_entry_id: int, db: Session = Depends(get_db)):
     db_bm_entry = (

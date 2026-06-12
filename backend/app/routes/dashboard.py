@@ -25,6 +25,14 @@ def format_number(value: float):
     return round(value, 2)
 
 
+def format_water_observation_type(observation_type: str):
+    return {
+        "drank_water": "Drank water",
+        "visited_bowl": "Visited bowl",
+        "refused_water": "Refused water",
+    }.get(observation_type, "Water observation")
+
+
 def build_activity_items(
     food_entries: list[models.FoodEntry],
     bm_entries: list[models.BMEntry],
@@ -92,13 +100,17 @@ def build_activity_items(
         )
 
     for entry in water_entries:
+        summary = format_water_observation_type(entry.observation_type)
+        details_parts = [part for part in [entry.bowl.name if entry.bowl else None, entry.notes] if part]
+        details = " - ".join(details_parts) if details_parts else None
+
         activity_items.append(
             schemas.DashboardActivityItem(
                 type="water",
                 entry_time=entry.entry_time,
                 title="Water observation",
-                summary="Seen drinking water",
-                details=entry.notes,
+                summary=summary,
+                details=details,
             )
         )
 

@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "./config";
+import { responseError } from "./errors";
 
 export type FluidEntry = {
   id: number;
@@ -10,6 +11,12 @@ export type FluidEntry = {
 
 export type FluidEntryCreate = {
   entry_time?: string;
+  amount_ml: number;
+  notes?: string | null;
+};
+
+export type FluidEntryUpdate = {
+  entry_time: string;
   amount_ml: number;
   notes?: string | null;
 };
@@ -37,6 +44,25 @@ export async function createFluidEntry(
 
   if (!response.ok) {
     throw new Error("Could not create fluid entry.");
+  }
+
+  return response.json();
+}
+
+export async function updateFluidEntry(
+  fluidEntryId: number,
+  fluidEntry: FluidEntryUpdate,
+): Promise<FluidEntry> {
+  const response = await fetch(`${API_BASE_URL}/fluid-entries/${fluidEntryId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(fluidEntry),
+  });
+
+  if (!response.ok) {
+    throw await responseError(response, "Could not update fluid entry.");
   }
 
   return response.json();
