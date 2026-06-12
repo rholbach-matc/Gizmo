@@ -584,11 +584,7 @@ function FoodEntriesPage() {
                 }
               >
                 <div className="entry-card-summary">
-                  <div
-                    className={`entry-card-meta-row ${
-                      entry.is_open ? "entry-card-meta-row-open" : ""
-                    }`}
-                  >
+                  <div className="entry-card-meta-row">
                     <span
                       className={`entry-status-badge ${
                         entry.is_open ? "entry-status-open" : "entry-status-finished"
@@ -596,22 +592,23 @@ function FoodEntriesPage() {
                     >
                       {entry.is_open ? "Open Feeding" : "Finished Feeding"}
                     </span>
-                    {!entry.is_open ? (
-                      <div className="entry-card-times">
-                        <span>Started {formatLocalTimestamp(entry.entry_time)}</span>
-                        <span>
-                          Finished{" "}
-                          {entry.finished_at
-                            ? formatLocalTimestamp(entry.finished_at)
-                            : "time not saved"}
-                        </span>
-                      </div>
-                    ) : null}
                   </div>
 
                   <h3 className="entry-card-name">{foodSummary.name}</h3>
                   {foodSummary.brand ? (
                     <p className="entry-card-brand">{foodSummary.brand}</p>
+                  ) : null}
+
+                  {!entry.is_open ? (
+                    <div className="entry-card-times">
+                      <span>Started {formatLocalTimestamp(entry.entry_time)}</span>
+                      <span>
+                        Finished{" "}
+                        {entry.finished_at
+                          ? formatLocalTimestamp(entry.finished_at)
+                          : "time not saved"}
+                      </span>
+                    </div>
                   ) : null}
                 </div>
 
