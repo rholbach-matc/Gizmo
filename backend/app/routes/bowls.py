@@ -36,6 +36,31 @@ def list_bowls(db: Session = Depends(get_db)):
     return db.query(models.Bowl).order_by(models.Bowl.id).all()
 
 
+@router.patch("/{bowl_id}", response_model=schemas.BowlResponse)
+def update_bowl(
+    bowl_id: int,
+    bowl_update: schemas.BowlUpdate,
+    db: Session = Depends(get_db),
+):
+    db_bowl = db.query(models.Bowl).filter(models.Bowl.id == bowl_id).first()
+
+    if db_bowl is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Bowl not found",
+        )
+
+    db_bowl.name = bowl_update.name
+    db_bowl.empty_weight_grams = bowl_update.empty_weight_grams
+    db_bowl.color = bowl_update.color
+    db_bowl.notes = bowl_update.notes
+
+    db.commit()
+    db.refresh(db_bowl)
+
+    return db_bowl
+
+
 @router.delete("/{bowl_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_bowl(bowl_id: int, db: Session = Depends(get_db)):
     db_bowl = db.query(models.Bowl).filter(models.Bowl.id == bowl_id).first()
