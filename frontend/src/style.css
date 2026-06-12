@@ -804,6 +804,35 @@ p {
   padding: 0.45rem 0.7rem;
 }
 
+.date-chip-button {
+  border: 0;
+  line-height: 1.2;
+}
+
+.historical-day-header {
+  align-items: center;
+}
+
+.historical-date-picker {
+  color: #a09080;
+  display: grid;
+  flex: 0 0 min(180px, 42vw);
+  font-size: 0.78rem;
+  font-weight: 800;
+  gap: 0.35rem;
+  text-transform: uppercase;
+}
+
+.historical-date-picker input {
+  background: #3d3530;
+  border: 1px solid #4a4038;
+  border-radius: 8px;
+  color: #f0e8da;
+  min-width: 0;
+  padding: 0.55rem;
+  width: 100%;
+}
+
 .today-overview-card,
 .trend-card {
   background: #332e28;
@@ -829,6 +858,14 @@ p {
 
 .today-metric:last-child {
   border-right: 0;
+}
+
+.historical-summary-grid .today-metric:nth-child(4n) {
+  border-right: 0;
+}
+
+.historical-summary-grid .today-metric:nth-child(n + 5) {
+  border-top: 1px solid #4a4038;
 }
 
 .care-icon {
@@ -1255,6 +1292,18 @@ p {
 
   .today-metric:nth-child(2n) {
     border-right: 0;
+  }
+
+  .historical-summary-grid .today-metric:nth-child(4n) {
+    border-right: 1px solid #4a4038;
+  }
+
+  .historical-summary-grid .today-metric:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .historical-summary-grid .today-metric:nth-child(n + 5) {
+    border-top: 0;
   }
 
   .today-metric:nth-last-child(-n + 2) {

@@ -318,3 +318,16 @@ class TodayDashboardResponse(BaseModel):
     today_medication_count: int
     today_episode_count: int
     recent_activity: list[DashboardActivityItem]
+
+
+class DayDashboardResponse(BaseModel):
+    date: date
+    calories_eaten: float
+    feedings_count: int
+    bm_count: int
+    water_observation_count: int
+    episode_count: int
+    medication_count: int
+    fluids_given: bool
+    latest_weight_entry: WeightEntryResponse | None
+    activity: list[DashboardActivityItem]
