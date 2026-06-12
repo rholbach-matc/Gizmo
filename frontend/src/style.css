@@ -868,21 +868,20 @@ p {
   border-left: 5px solid #d4904a;
 }
 
-.entry-card-summary {
-  display: grid;
+.food-entries-page .entry-card .entry-card-summary {
+  display: flex;
+  flex-direction: column;
   gap: 0.45rem;
   min-width: 0;
+  width: 100%;
 }
 
-.entry-card-meta-row {
-  display: grid;
-  gap: 0.5rem;
-  grid-template-columns: auto minmax(0, 1fr);
+.food-entries-page .entry-card .entry-card-meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   min-width: 0;
-}
-
-.entry-card-meta-row-open {
-  grid-template-columns: 1fr;
+  width: 100%;
 }
 
 .entry-status-badge {
@@ -909,16 +908,25 @@ p {
   color: var(--ref-text-secondary);
 }
 
-.entry-card-times {
+.food-entries-page .entry-card .entry-card-times {
   color: var(--ref-text-muted);
   display: flex;
-  flex-wrap: wrap;
   font-size: 0.78rem;
   font-weight: 800;
   gap: 0.35rem 0.7rem;
-  justify-content: end;
+  justify-content: space-between;
   line-height: 1.25;
   min-width: 0;
+  text-align: left;
+  width: 100%;
+}
+
+.food-entries-page .entry-card .entry-card-times span {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.food-entries-page .entry-card .entry-card-times span:last-child {
   text-align: right;
 }
 
@@ -931,8 +939,8 @@ p {
   overflow: visible;
   text-overflow: clip;
   white-space: normal;
-  word-break: normal;
-  overflow-wrap: anywhere;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .food-entries-page .entry-card p.entry-card-brand {
