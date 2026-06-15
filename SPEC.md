@@ -1,8 +1,8 @@
-# Gizmo SPEC.md
+# Gizmo SPEC.md v3
 
 ## Project Purpose
 
-Gizmo is a caregiving application for tracking and reviewing health data for a chronically ill senior cat.
+Gizmo is a caregiving application for tracking, reviewing, and understanding health data for a chronically ill senior cat.
 
 Primary users:
 
@@ -15,44 +15,48 @@ Help caregivers quickly answer:
 
 * How is Gizmo doing today?
 * Did he eat enough?
-* When were fluids last given?
 * Has he been drinking?
+* When were fluids last given?
 * Has he had a BM?
-* Have there been recent shaking episodes?
+* Have there been recent episodes?
+* Have there been recent yowls?
+* Has vomiting increased?
+* Is his condition improving, stable, or declining?
 
 The application prioritizes caregiver usefulness over technical perfection.
 
 ---
 
-# Current Technology Stack
+# Technology Stack
 
-Frontend:
+Frontend
 
 * React
 * TypeScript
 * Vite
 * Plain CSS
 
-Backend:
+Backend
 
 * FastAPI
 * SQLAlchemy
 
-Database:
+Database
 
 * SQLite
 
-Deployment:
+Deployment
 
 * Docker
 * Docker Compose
+* nginx
 * Gamehendge Homelab
 
 ---
 
 # Core Product Rules
 
-Priorities:
+Priority Order
 
 1. Caregiver usefulness
 2. Reliability
@@ -76,10 +80,10 @@ Food calculations must always subtract bowl weight from measured totals.
 
 Bowls store:
 
-* name
-* empty weight
-* color
-* notes
+* Name
+* Empty Weight
+* Color
+* Notes
 
 ---
 
@@ -89,30 +93,30 @@ Nutrition data is based on guaranteed analysis.
 
 Foods store:
 
-* can size grams
-* calories per can
-* calories per gram
+### Package Information
 
-As-fed values:
+* Can Size
+* Calories Per Can
+* Calories Per Gram
 
-* moisture
-* protein
-* fat
-* phosphorus
-* sodium
+### As-Fed Values
 
-Dry matter basis values:
+* Moisture
+* Protein
+* Fat
+* Phosphorus
+* Sodium
 
-* protein
-* fat
-* phosphorus
-* sodium
+### Dry Matter Values
 
-Important:
-
-Do not move nutrition calculations into the frontend.
+* Protein
+* Fat
+* Phosphorus
+* Sodium
 
 Backend remains the source of truth.
+
+Do not move nutrition calculations into the frontend.
 
 ---
 
@@ -120,26 +124,32 @@ Backend remains the source of truth.
 
 Food entries represent feeding events.
 
-Backend calculates and stores:
+Food entries store calculated nutrition values.
 
-* food eaten grams
-* calories eaten
-* protein consumed
-* fat consumed
-* phosphorus consumed
-* sodium consumed
-* moisture consumed
-* dry matter consumed
+Stored values include:
 
-Historical nutrition values must remain accurate even if food definitions change later.
+* Food Eaten
+* Calories Consumed
+* Protein Consumed
+* Fat Consumed
+* Phosphorus Consumed
+* Sodium Consumed
+* Moisture Consumed
+* Dry Matter Consumed
 
-Therefore:
+### Historical Nutrition Rule
 
-Calculated values are stored on food entries.
+Historical food entry values must remain accurate even when Foods are edited later.
+
+FoodEntry records are the source of truth.
+
+Never recalculate historical nutrition values from current Food definitions.
+
+Food edits affect future feedings only.
 
 ---
 
-# Current Functional Areas
+# Functional Areas
 
 ## Dashboard
 
@@ -147,49 +157,117 @@ Dashboard is the primary application screen.
 
 Current responsibilities:
 
-* Today overview
-* Care status
-* Open feeding visibility
-* Daily calorie visibility
-* Recent care activity
-* Unified care timeline
-* Basic trend visibility
+* Today Overview
+* Behavior Overview
+* Open Feeding Visibility
+* Daily Calorie Visibility
+* Care Status
+* Recent Care Activity
+* Unified Timeline
+* Historical Navigation
+* Basic Trend Visibility
 
-The dashboard should answer:
+Dashboard goal:
 
-"How is Gizmo doing today?"
+Answer:
+
+> How is Gizmo doing today?
 
 in under 10 seconds.
 
-The dashboard should help caregivers identify:
-
-* Improvement
-* Stability
-* Decline
-
-When adding dashboard features, prioritize:
-
-* Clarity
-* Actionability
-* Trend awareness
-* Mobile usability
-
-Avoid:
-
-* Excessive scrolling
-* Raw data overload
-* Information that does not support caregiving decisions
+Dashboard additions should be evaluated carefully to avoid excessive scrolling.
 
 ---
 
-## Food Tracking
+## Historical Day View
+
+Implemented.
+
+Provides:
+
+* Historical summaries
+* Historical timeline review
+* Historical feeding review
+* Historical care review
+
+---
+
+## Foods Reference Library
+
+Foods function as a caregiver reference library.
+
+### Collapsed View
+
+Displays:
+
+* Brand
+* Can Size
+* Calories Per Can
+* Food Name
+* Calories Per Gram
+* Protein Dry Matter %
+* Phosphorus Dry Matter %
+* Sodium Dry Matter %
+
+### Expanded View
+
+Displays grouped nutrition information:
+
+PACKAGE
+
+* Can Size
+* Calories Per Can
+* Calories Per Gram
+
+AS-FED
+
+* Moisture
+* Protein
+* Fat
+* Phosphorus
+* Sodium
+
+DRY MATTER
+
+* Protein
+* Fat
+* Phosphorus
+* Sodium
+
+Actions belong in expanded views only.
+
+---
+
+## Food Entries
 
 Supports:
 
-* Foods
-* Bowls
-* Food Entries
+* Open Feedings
+* Finished Feedings
+* Editing
 * Nutrition calculations
+
+### Card Architecture
+
+Food Entry cards use:
+
+Status Badge
+↓
+Food Name
+↓
+Brand
+↓
+Summary Metrics
+↓
+Expandable Details
+↓
+Actions
+
+Important:
+
+Food names should never share horizontal rows with timestamps, badges, or metrics.
+
+Use mobile-first stacked layouts.
 
 ---
 
@@ -198,7 +276,6 @@ Supports:
 Supports:
 
 * Create
-* List
 * Edit
 * Delete
 
@@ -209,7 +286,6 @@ Supports:
 Supports:
 
 * Create
-* List
 * Edit
 * Delete
 
@@ -222,24 +298,20 @@ Tracks Sub-Q fluid administration.
 Supports:
 
 * Create
-* List
 * Edit
 * Delete
 
 ---
 
-## Water Observation Tracking
+## Water Observations
 
 Supports:
 
 * Create
-* List
 * Edit
 * Delete
 
 Tracks observed drinking events.
-
-Does not estimate water volume.
 
 ---
 
@@ -248,7 +320,6 @@ Does not estimate water volume.
 Supports:
 
 * Create
-* List
 * Edit
 * Delete
 
@@ -257,9 +328,46 @@ Tracks:
 * Shaking
 * Wobbling
 
-Important:
+Episodes are intentionally not labeled as seizures.
 
-Episodes are not labeled as seizures.
+---
+
+## Vomit Tracking
+
+Supports:
+
+* Create
+* Edit
+* Delete
+
+Fields:
+
+* Date/Time
+* Severity
+* Notes
+
+Integrated into dashboard timelines.
+
+---
+
+## Mood Tracking
+
+Supports:
+
+* Create
+* Edit
+* Delete
+
+Optional fields:
+
+* Mood
+* Appetite
+* Energy
+* Social
+* Yowling
+* Notes
+
+Yowling observations contribute to dashboard behavior visibility.
 
 ---
 
@@ -267,23 +375,19 @@ Episodes are not labeled as seizures.
 
 Supports:
 
-* Create
-* List
-* Edit
-* Delete
+* Medication Catalog
+* Medication Administration Tracking
+* Editing
 
-Tracks medication administration.
-
-Does not currently manage schedules or reminders.
+No schedules or reminders currently.
 
 ---
 
-## Vet Visit Tracking
+## Vet Visits
 
 Supports:
 
 * Create
-* List
 * Edit
 * Delete
 
@@ -291,8 +395,25 @@ Tracks:
 
 * Reason
 * Summary
-* Follow-up requirements
+* Follow-Up
 * Notes
+
+---
+
+# UI Architecture
+
+Reusable shared styles exist.
+
+Reference-library pages should use:
+
+* .ref-card
+* .ref-card-collapsed
+* .ref-card-expanded
+* .nutrition-grid
+* .form-compact
+* .form-section-label
+
+Prefer extending existing patterns rather than creating new visual systems.
 
 ---
 
@@ -300,15 +421,14 @@ Tracks:
 
 All caregiving entries support:
 
-* Automatic current timestamp
+* Current timestamp
 * Optional user-provided timestamp
 
-Display rules:
+Display:
 
-* Store consistently
-* Display in local browser time
+* Local browser time
 
-Use the shared frontend timestamp utilities.
+Use shared timestamp utilities.
 
 Do not introduce per-page timestamp logic.
 
@@ -316,49 +436,43 @@ Do not introduce per-page timestamp logic.
 
 # Deployment Rules
 
-Application runs through Docker Compose.
-
 Current deployment:
 
-* Frontend: port 3010
-* Backend: port 8010
+* Frontend: 3010
+* Backend: 8010
 
-SQLite data must persist across container restarts.
-
-Do not introduce infrastructure complexity without a clear benefit.
+SQLite must persist across container restarts.
 
 ---
 
-# Development Rules
+# Cache Rules
 
-When implementing tasks:
+Frontend updates should be visible after deployment without requiring manual cache clearing.
 
-* Keep scope narrow
-* Preserve existing workflows
-* Follow existing CRUD patterns
-* Keep code beginner-readable
-* Avoid unnecessary abstractions
-* Avoid large refactors unless explicitly requested
+nginx rules:
 
-Prefer consistency over cleverness.
+* index.html must not be cached
+* SPA fallback must not be cached
+* Hashed Vite assets may be cached long-term
 
 ---
 
-# Git Rules
+# API Routing Rules
 
-Before changing code:
+When adding backend routes:
 
-* Check current branch
-* Check git status
-* Mention unrelated modified files
+Update:
 
-After implementation:
+* Backend registration
+* Frontend API client
+* nginx proxy
+* Vite proxy
 
-* Summarize changed files
-* Summarize verification steps
-* Suggest a commit message
+Verify all routing layers.
 
-Do not automatically commit.
+If frontend receives HTML instead of JSON:
+
+Check proxy routing first.
 
 ---
 
@@ -366,40 +480,48 @@ Do not automatically commit.
 
 SQLite remains the primary database.
 
-Alembic is not currently required.
+Production data rules:
 
-Production Data Rules
-
-Gizmo contains active caregiving data.
-
-Before schema changes:
-
-1. Create a backup
-2. Test migration on a copied database
-3. Verify migrated results
+1. Backup before schema changes
+2. Test migrations on copied database
+3. Verify migration results
 4. Deploy only after verification
 
 Protecting caregiving data takes priority over development speed.
 
-Do not delete or recreate production databases.
-
-Do not commit database files.
-
 ---
 
-# Deletion Rules
+# Upcoming Architecture Work
 
-Production caregiving records should generally be editable.
+## Mixed Feedings
 
-Deletion should be used carefully.
+Planned feature.
 
-When implementing deletion:
+Goal:
 
-* Require confirmation
-* Consider caregiver impact
-* Protect reference/catalog data when appropriate
+Allow a single feeding to contain multiple foods in one bowl.
 
-Foods and Bowls should not be casually removable if historical data depends on them.
+This affects:
+
+* FoodEntry architecture
+* Nutrition calculations
+* Historical data rules
+* Dashboard totals
+* Feeding workflows
+
+Do not redesign feeding architecture casually.
+
+Mixed Feedings requires:
+
+* Product review
+* Architecture review
+* Data review
+* Migration review
+* UX review
+
+before implementation.
+
+---
 
 # Success Criteria
 
@@ -408,10 +530,12 @@ Gizmo is successful if caregivers can quickly determine:
 * Did Gizmo eat enough?
 * How many calories has he consumed?
 * How much phosphorus has he consumed?
-* When were fluids last given?
 * Has he been drinking?
+* When were fluids last given?
 * Has he had a BM?
-* Have there been recent shaking episodes?
+* Have there been recent episodes?
+* Have there been recent yowls?
+* Has vomiting increased?
 * How is he doing today?
 
 Usefulness is more important than technical perfection.

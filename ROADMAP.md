@@ -1,123 +1,76 @@
-# Gizmo Roadmap
+# Gizmo Roadmap v3
 
-This roadmap captures upcoming work for Gizmo and should be used to guide implementation priorities.
+This roadmap captures upcoming work for Gizmo and should guide future development priorities.
 
-Gizmo is an actively used caregiving application containing real caregiving data.
+Gizmo is an actively used caregiving application containing production caregiving data.
 
-Prioritize caregiver usefulness, reliability, simplicity, and safe incremental improvements.
+Prioritize:
 
----
+1. Caregiver usefulness
+2. Reliability
+3. Simplicity
+4. Data safety
+5. Safe incremental improvements
 
-# Current Priorities
+When roadmap priorities conflict with real caregiver feedback:
 
-1. Historical Day View
-2. Vomit Tracker
-3. Mood Tracker
-4. Food Nutrition Improvements
-5. Quality of Life Check-In
-6. Trend Expansion
-7. Backup Automation
-8. Reminder System
-
-When priorities conflict, caregiver feedback takes precedence over roadmap ordering.
+Jackie feedback takes precedence.
 
 ---
 
-# Near-Term Features
+# Current Strategic Priorities
 
-## Historical Day View - COMPLETED
+## 1. Mixed Feedings Architecture
 
-Allow caregivers to review a previous day's care activity.
+Status:
 
-Display:
+Planned.
 
-* Calories consumed
-* Food entries
-* Fluids
-* Weight
-* Medications
-* Episodes
-* Water observations
-* BM activity
-* Unified timeline
+Requested by Jackie.
 
-Goal:
+### Goal
 
-Help caregivers answer:
+Allow a single feeding to contain multiple foods within the same bowl.
 
-"How was Gizmo doing on a specific day?"
+Examples:
 
----
+* Hill's k/d + Weruva WX
+* Hill's k/d + Weruva WX + Tiki Cat
 
-## Vomit Tracker
+### Why It Matters
 
-Track:
+Current feeding workflows assume one food per feeding.
 
-* Date/time
-* Severity
-* Notes
+Real caregiving workflows increasingly involve:
 
-Future considerations:
+* Mixing foods
+* Gradual transitions
+* Appetite management
+* Calorie optimization
 
-* Hairball
-* Bile
-* Blood
-* Food present
+### Required Reviews Before Implementation
 
-Integrate with:
+* Product review
+* Architecture review
+* Data model review
+* Migration review
+* Historical nutrition review
+* UX review
 
-* Dashboard
-* Timeline
-* Future trends
+### Risks
 
----
+* Nutrition calculations
+* Historical data integrity
+* Dashboard totals
+* Feeding workflow complexity
 
-## Mood Tracker
+Design first.
 
-Track quality-of-life indicators over time.
-
-Fields:
-
-* Mood rating (1-5)
-* Appetite rating (1-5)
-* Energy rating (1-5)
-* Notes
-
-Integrate with:
-
-* Timeline
-* Historical trends
-
-Goal:
-
-Provide visibility into behavioral changes that may not be reflected in nutrition or weight data.
+Do not implement immediately.
 
 ---
 
-## Food Nutrition Improvements
-
-Improve management of saved foods and bowls.
-
-Allow editing of:
-
-* Foods
-* Bowls
-
-Improve visibility of:
-
-* Can size
-* Calories per can
-* Moisture
-* Protein
-* Fat
-* Phosphorus
-* Sodium
-
-Protect reference data from accidental deletion.
-
----
-
-# Quality Of Life
+## 2. Quality Of Life Check-In
 
 Develop an original Gizmo Quality of Life Check-In.
 
@@ -141,46 +94,122 @@ Support caregiver awareness of long-term quality-of-life changes.
 
 ---
 
-# Dashboard And Trends
+## 3. Trend Expansion
 
-The dashboard remains the primary application screen.
+The dashboard should increasingly support trend awareness.
 
-The dashboard should help caregivers identify:
+Potential trends:
+
+* Calories
+* Weight
+* Episodes
+* Yowls
+* Vomits
+* Fluids
+* Mood
+* Quality of Life
+
+Goal:
+
+Help caregivers identify:
 
 * Improvement
 * Stability
 * Decline
 
-Future work:
-
-* Vomit trends
-* Mood trends
-* Episode trends
-* Weight trends
-* Medication adherence trends
-* Quality-of-life trends
-* Historical day comparisons
-* Daily summaries
-* Weekly summaries
-
-The dashboard should continue answering:
-
-"How is Gizmo doing today?"
-
-in under 10 seconds.
+without requiring manual interpretation.
 
 ---
 
-# Notifications And Reminders
+## 4. Backup Automation
+
+Current backups are manual.
+
+Future work:
+
+* Automated SQLite backups
+* Retention policies
+* Restore verification process
+
+Goal:
+
+Protect caregiving data without adding caregiver burden.
+
+---
+
+## 5. Reminder System
 
 Future work:
 
 * Fluid reminders
 * Medication reminders
-* Calorie goal reminders
-* Configurable reminder schedules
+* Calorie reminders
 
-Reminders should remain informational and should not provide medical advice.
+Requirements:
+
+* Configurable
+* Informational
+* Non-medical
+
+Avoid hard-coded schedules.
+
+---
+
+# Dashboard Evolution
+
+The dashboard remains the primary application screen.
+
+The dashboard should answer:
+
+> How is Gizmo doing today?
+
+in under 10 seconds.
+
+Future improvements should favor:
+
+* Better visibility
+* Better trends
+* Better caregiver awareness
+
+Avoid:
+
+* Dashboard bloat
+* Excessive scrolling
+* Large numbers of new overview cards
+
+Prefer improving existing dashboard components when possible.
+
+---
+
+# Reference Library Expansion
+
+The Foods page now functions as a nutrition reference library.
+
+Future opportunities:
+
+* Search
+* Filter
+* Favorites
+* Recently used foods
+* Nutrition comparison views
+
+These are lower priority than Mixed Feedings and Quality of Life work.
+
+---
+
+# Historical Review Improvements
+
+Future possibilities:
+
+* Day-to-day comparisons
+* Weekly summaries
+* Monthly summaries
+* Feeding summaries
+* Symptom summaries
+
+Goal:
+
+Make historical care review faster and more useful.
 
 ---
 
@@ -188,14 +217,13 @@ Reminders should remain informational and should not provide medical advice.
 
 Future work:
 
-* SQLite backup automation
-* Backup restore workflow
 * CSV export
 * Date-range filtering
 * Printable summaries
 * Shareable reports
+* Backup restore workflow
 
-Protecting caregiving data is mandatory.
+Protecting caregiving data remains mandatory.
 
 ---
 
@@ -205,9 +233,9 @@ Continue improving:
 
 * Mobile usability
 * Dashboard clarity
-* Timeline readability
-* Form usability
-* Caregiver workflow speed
+* Feeding workflows
+* Reference library usability
+* Historical review usability
 
 Prioritize:
 
@@ -232,6 +260,22 @@ Not currently prioritized:
 * Hosted deployment
 * Push notifications
 * Automated vet record imports
-* Medical diagnosis or treatment recommendations
+* Medical diagnosis
+* Treatment recommendations
 
-These features should only be considered when they clearly improve caregiver usefulness.
+These should only be considered if they clearly improve caregiver usefulness.
+
+---
+
+# Guiding Principle
+
+The most valuable future work is not necessarily new trackers.
+
+The highest-value improvements are those that help caregivers:
+
+* Understand Gizmo faster
+* Make better care decisions
+* Recognize meaningful changes over time
+* Reduce caregiving stress
+
+Usefulness is more important than technical sophistication.
