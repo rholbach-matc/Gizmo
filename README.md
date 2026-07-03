@@ -20,7 +20,7 @@ uvicorn app.main:app --reload
 Health check:
 
 ```bash
-curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:8010/health
 ```
 
 ## Frontend
@@ -60,13 +60,13 @@ docker compose up -d --build
 Access the app from another device on the LAN:
 
 ```text
-http://<gamehendge-ip>:3000
+http://<gamehendge-ip>:3010
 ```
 
 Backend health check:
 
 ```text
-http://<gamehendge-ip>:8000/health
+http://<gamehendge-ip>:8010/health
 ```
 
 Useful Docker commands:
